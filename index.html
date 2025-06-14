@@ -8,199 +8,226 @@
     body {
       background-color: #111;
       color: #fff;
-      font-family: Arial, sans-serif;
       text-align: center;
+      font-family: Arial, sans-serif;
     }
     canvas {
       border: 2px solid yellow;
       display: block;
-      margin: 20px auto;
+      margin: 10px auto;
+      background: #000;
     }
-    .hidden { display: none; }
-    #controls button, #controls input { margin: 5px; }
+    .hidden {
+      display: none;
+    }
+    #controls {
+      margin-bottom: 10px;
+    }
+    button {
+      margin: 3px;
+    }
   </style>
 </head>
 <body>
-  <h3>NGKs Banner Editor</h3>
+  <h3 id="stepLabel">Step 1: Choose your background image</h3>
   <div id="controls">
-    <div id="stepText">Step 1: Choose your background image</div>
-    <input type="file" id="fileInput" accept="image/*" />
-    <button id="skipBtn">Skip</button>
+    <input type="file" id="bgInput" accept="image/*" />
+    <button onclick="skipBackground()">Skip</button>
+    <input type="file" id="mobileInput" accept="image/*" class="hidden"/>
+    <button onclick="skipMobile()" class="hidden" id="skipMobileBtn">Skip</button>
+    <input type="file" id="extraInput" accept="image/*" class="hidden"/>
   </div>
 
   <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
-
-  <div id="actions" class="hidden">
-    <button id="clearBtn">Clear Canvas</button>
-    <button id="deleteBtn">Delete Selected</button>
-    <button id="exportBtn">Export Banner</button>
+  
+  <div>
+    <button onclick="clearCanvas()">Clear Canvas</button>
+    <button onclick="deleteSelected()">Delete Selected</button>
+    <button onclick="exportBanner()">Export Banner</button>
   </div>
 
   <script>
     const canvas = document.getElementById("bannerCanvas");
     const ctx = canvas.getContext("2d");
+    const bgInput = document.getElementById("bgInput");
+    const mobileInput = document.getElementById("mobileInput");
+    const extraInput = document.getElementById("extraInput");
+    const skipMobileBtn = document.getElementById("skipMobileBtn");
+    const stepLabel = document.getElementById("stepLabel");
 
-    const fileInput = document.getElementById("fileInput");
-    const skipBtn = document.getElementById("skipBtn");
-    const deleteBtn = document.getElementById("deleteBtn");
-    const exportBtn = document.getElementById("exportBtn");
-    const clearBtn = document.getElementById("clearBtn");
-    const stepText = document.getElementById("stepText");
-    const actions = document.getElementById("actions");
+    let images = [];
+    let selected = null;
+    const MOBILE_ZONE = { x: 507, y: 508, w: 1546, h: 423 };
 
-    const mobileZone = { x: 740, y: 620, width: 1080, height: 200 };
-
-    let step = 1;
-    let background = null;
-    const images = [];
-    let selectedIndex = -1;
-
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      if (background) ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
-
-      images.forEach((img, i) => {
-        ctx.drawImage(img.img, img.x, img.y, img.w, img.h);
-        if (i === selectedIndex) {
-          ctx.strokeStyle = 'lime';
-          ctx.lineWidth = 2;
-          ctx.strokeRect(img.x, img.y, img.w, img.h);
-        }
+    bgInput.addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      loadImage(file, img => {
+        images = [{ img, x: 0, y: 0, w: 2560, h: 1440, locked: true }];
+        advanceStep(2);
+        drawCanvas();
       });
+    });
 
-      if (step >= 2) {
-        ctx.strokeStyle = 'lime';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(mobileZone.x, mobileZone.y, mobileZone.width, mobileZone.height);
-      }
+    function skipBackground() {
+      advanceStep(2);
+      drawCanvas();
     }
 
-    function loadImage(file, onload) {
+    mobileInput.addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      loadImage(file, img => {
+        images.push({ img, ...MOBILE_ZONE });
+        advanceStep(3);
+        drawCanvas();
+      });
+    });
+
+    function skipMobile() {
+      advanceStep(3);
+      drawCanvas();
+    }
+
+    extraInput.addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      loadImage(file, img => {
+        images.push({ img, x: 100, y: 100, w: img.width, h: img.height });
+        drawCanvas();
+      });
+    });
+
+    function loadImage(file, callback) {
       const img = new Image();
-      img.onload = () => onload(img);
+      img.onload = () => callback(img);
       img.src = URL.createObjectURL(file);
     }
 
-    function updateStep() {
-      if (step === 1) {
-        stepText.textContent = "Step 1: Choose your background image";
-        fileInput.onchange = e => {
-          loadImage(e.target.files[0], img => {
-            background = img;
-            step++;
-            updateStep();
-            draw();
-          });
-        };
-      } else if (step === 2) {
-        stepText.textContent = "Step 2: Choose your mobile view image (autoplaced)";
-        fileInput.value = '';
-        fileInput.onchange = e => {
-          loadImage(e.target.files[0], img => {
-            images.push({
-              img,
-              x: mobileZone.x,
-              y: mobileZone.y,
-              w: mobileZone.width,
-              h: mobileZone.height
-            });
-            selectedIndex = images.length - 1;
-            step++;
-            updateStep();
-            draw();
-          });
-        };
-      } else {
-        stepText.textContent = "Step 3: Add additional images (movable, resizable, deletable)";
-        fileInput.value = '';
-        fileInput.onchange = e => {
-          loadImage(e.target.files[0], img => {
-            images.push({
-              img,
-              x: 100,
-              y: 100,
-              w: img.width * 0.5,
-              h: img.height * 0.5
-            });
-            selectedIndex = images.length - 1;
-            draw();
-          });
-        };
-        actions.classList.remove("hidden");
+    function drawCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      images.forEach((item, idx) => {
+        ctx.drawImage(item.img, item.x, item.y, item.w, item.h);
+
+        // Safe zone overlay (not exported)
+        if (idx === 0) {
+          ctx.strokeStyle = "lime";
+          ctx.strokeRect(MOBILE_ZONE.x, MOBILE_ZONE.y, MOBILE_ZONE.w, MOBILE_ZONE.h);
+        }
+
+        // Selection box and 8 handles
+        if (selected === idx && !item.locked) {
+          ctx.strokeStyle = "green";
+          ctx.strokeRect(item.x, item.y, item.w, item.h);
+          drawHandles(item);
+        }
+      });
+    }
+
+    function drawHandles(item) {
+      const size = 10;
+      const corners = [
+        [item.x, item.y],
+        [item.x + item.w / 2, item.y],
+        [item.x + item.w, item.y],
+        [item.x, item.y + item.h / 2],
+        [item.x + item.w, item.y + item.h / 2],
+        [item.x, item.y + item.h],
+        [item.x + item.w / 2, item.y + item.h],
+        [item.x + item.w, item.y + item.h],
+      ];
+      ctx.fillStyle = "white";
+      corners.forEach(([x, y]) => ctx.fillRect(x - size / 2, y - size / 2, size, size));
+    }
+
+    function advanceStep(n) {
+      if (n === 2) {
+        stepLabel.innerText = "Step 2: Choose your mobile view image (autoplaced)";
+        mobileInput.classList.remove("hidden");
+        skipMobileBtn.classList.remove("hidden");
+      } else if (n === 3) {
+        stepLabel.innerText = "Step 3: Add additional images (movable, resizable, deletable)";
+        extraInput.classList.remove("hidden");
       }
     }
 
-    fileInput.addEventListener('change', () => updateStep());
-    skipBtn.addEventListener('click', () => { step++; updateStep(); draw(); });
+    function clearCanvas() {
+      images = [];
+      selected = null;
+      stepLabel.innerText = "Step 1: Choose your background image";
+      bgInput.value = "";
+      mobileInput.value = "";
+      extraInput.value = "";
+      mobileInput.classList.add("hidden");
+      extraInput.classList.add("hidden");
+      skipMobileBtn.classList.add("hidden");
+      drawCanvas();
+    }
+
+    function deleteSelected() {
+      if (selected !== null && !images[selected].locked) {
+        images.splice(selected, 1);
+        selected = null;
+        drawCanvas();
+      }
+    }
 
     canvas.addEventListener("mousedown", e => {
-      const r = canvas.getBoundingClientRect();
-      const mx = e.clientX - r.left, my = e.clientY - r.top;
-      selectedIndex = -1;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      selected = null;
       for (let i = images.length - 1; i >= 0; i--) {
-        const img = images[i];
-        if (mx >= img.x && mx <= img.x + img.w && my >= img.y && my <= img.y + img.h) {
-          selectedIndex = i;
-          canvas.dragOffsetX = mx - img.x;
-          canvas.dragOffsetY = my - img.y;
-          canvas.dragging = true;
+        const it = images[i];
+        if (!it.locked && x >= it.x && x <= it.x + it.w && y >= it.y && y <= it.y + it.h) {
+          selected = i;
+          offsetX = x - it.x;
+          offsetY = y - it.y;
+          dragging = true;
           break;
         }
       }
-      draw();
+      drawCanvas();
     });
 
-    canvas.addEventListener("mouseup", () => canvas.dragging = false);
+    let dragging = false;
+    let offsetX = 0, offsetY = 0;
 
     canvas.addEventListener("mousemove", e => {
-      if (!canvas.dragging || selectedIndex === -1) return;
-      const r = canvas.getBoundingClientRect();
-      const mx = e.clientX - r.left, my = e.clientY - r.top;
-      const img = images[selectedIndex];
-      img.x = mx - canvas.dragOffsetX;
-      img.y = my - canvas.dragOffsetY;
-      draw();
+      if (!dragging || selected === null) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const item = images[selected];
+      item.x = x - offsetX;
+      item.y = y - offsetY;
+      drawCanvas();
     });
 
-    window.addEventListener("keydown", e => {
-      if (selectedIndex === -1) return;
-      const img = images[selectedIndex];
-      const delta = e.shiftKey ? 10 : 1;
+    canvas.addEventListener("mouseup", () => dragging = false);
+    canvas.addEventListener("mouseleave", () => dragging = false);
+
+    document.addEventListener("keydown", e => {
+      if (selected === null || images[selected].locked) return;
+      const item = images[selected];
+      const step = e.shiftKey ? 10 : 1;
       switch (e.key) {
-        case "ArrowUp": img.y -= delta; break;
-        case "ArrowDown": img.y += delta; break;
-        case "ArrowLeft": img.x -= delta; break;
-        case "ArrowRight": img.x += delta; break;
+        case "ArrowUp": item.y -= step; break;
+        case "ArrowDown": item.y += step; break;
+        case "ArrowLeft": item.x -= step; break;
+        case "ArrowRight": item.x += step; break;
       }
-      draw();
+      drawCanvas();
     });
 
-    deleteBtn.addEventListener("click", () => {
-      if (selectedIndex !== -1) {
-        images.splice(selectedIndex, 1);
-        selectedIndex = -1;
-        draw();
-      }
-    });
-
-    clearBtn.addEventListener("click", () => {
-      background = null;
-      images.length = 0;
-      selectedIndex = -1;
-      step = 1;
-      updateStep();
-      draw();
-    });
-
-    exportBtn.addEventListener("click", () => {
-      draw(); // ensure overlays aren't visible
-      const a = document.createElement("a");
-      a.href = canvas.toDataURL("image/png");
-      a.download = "yt_banner_final.png";
-      a.click();
-    });
-
-    updateStep();
+    function exportBanner() {
+      const backup = canvas.toDataURL("image/png"); // fallback
+      drawCanvas(); // last clean draw
+      const link = document.createElement("a");
+      link.download = "yt_banner_final.png";
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    }
   </script>
 </body>
 </html>
