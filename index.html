@@ -10,11 +10,14 @@
       text-align: center;
       font-family: 'Segoe UI', Tahoma, sans-serif;
       font-size: 16px;
+      overflow-x: hidden;
     }
     canvas {
-      border: 2px solid yellow;
+      display: block;
       background: #000;
-      margin-top: 10px;
+      margin: 10px auto;
+      transform-origin: top left;
+      border: 2px solid yellow;
     }
     .hidden {
       display: none;
@@ -308,6 +311,17 @@
         case 7: obj.width += obj.x - mx; obj.x = mx; break;
       }
     }
+
+    function resizeCanvasToFit() {
+      const scale = Math.min(
+        window.innerWidth / 2560,
+        window.innerHeight / 1440
+      );
+      canvas.style.transform = `scale(${scale})`;
+    }
+
+    window.addEventListener("resize", resizeCanvasToFit);
+    window.addEventListener("load", resizeCanvasToFit);
   </script>
 </body>
 </html>
