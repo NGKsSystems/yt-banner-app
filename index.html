@@ -29,6 +29,7 @@
     <input type="file" id="extraInput" accept="image/*" />
   </div>
 
+  <button onclick="resetCanvas()">Clear All</button>
   <div id="exportSection" class="hidden">
     <button id="exportBtn">Export Banner</button>
   </div>
@@ -58,7 +59,12 @@
         [x, y + h/2]
       ];
       ctx.fillStyle = "white";
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = 1;
       points.forEach(([px, py]) => {
+        ctx.fillRect(px - handleSize/2, py - handleSize/2, handleSize, handleSize);
+        ctx.strokeRect(px - handleSize/2, py - handleSize/2, handleSize, handleSize);
+      });
         ctx.fillRect(px - handleSize/2, py - handleSize/2, handleSize, handleSize);
       });
     }
@@ -122,6 +128,22 @@
           selectedHandle = hIndex;
           o.selected = true;
           drawCanvas();
+let hovering = false;
+      for (let i = overlays.length - 1; i >= 0; i--) {
+        const o = overlays[i];
+        if (o.bg) continue;
+        const hIndex = hitTestHandle(o, mx, my);
+        if (hIndex !== -1) {
+          canvas.style.cursor = "nwse-resize";
+          hovering = true;
+          break;
+        } else if (mx >= o.x && mx <= o.x + o.width && my >= o.y && my <= o.y + o.height) {
+          canvas.style.cursor = "move";
+          hovering = true;
+          break;
+        }
+      }
+      if (!hovering) canvas.style.cursor = "default";
           return;
         }
         if (mx >= o.x && mx <= o.x + o.width && my >= o.y && my <= o.y + o.height) {
@@ -130,6 +152,22 @@
           dragOffsetY = my - o.y;
           o.selected = true;
           drawCanvas();
+let hovering = false;
+      for (let i = overlays.length - 1; i >= 0; i--) {
+        const o = overlays[i];
+        if (o.bg) continue;
+        const hIndex = hitTestHandle(o, mx, my);
+        if (hIndex !== -1) {
+          canvas.style.cursor = "nwse-resize";
+          hovering = true;
+          break;
+        } else if (mx >= o.x && mx <= o.x + o.width && my >= o.y && my <= o.y + o.height) {
+          canvas.style.cursor = "move";
+          hovering = true;
+          break;
+        }
+      }
+      if (!hovering) canvas.style.cursor = "default";
           return;
         }
       }
@@ -143,9 +181,41 @@
         dragging.x = mx - dragOffsetX;
         dragging.y = my - dragOffsetY;
         drawCanvas();
+let hovering = false;
+      for (let i = overlays.length - 1; i >= 0; i--) {
+        const o = overlays[i];
+        if (o.bg) continue;
+        const hIndex = hitTestHandle(o, mx, my);
+        if (hIndex !== -1) {
+          canvas.style.cursor = "nwse-resize";
+          hovering = true;
+          break;
+        } else if (mx >= o.x && mx <= o.x + o.width && my >= o.y && my <= o.y + o.height) {
+          canvas.style.cursor = "move";
+          hovering = true;
+          break;
+        }
+      }
+      if (!hovering) canvas.style.cursor = "default";
       } else if (resizing) {
         resizeByHandle(resizing, selectedHandle, mx, my);
         drawCanvas();
+let hovering = false;
+      for (let i = overlays.length - 1; i >= 0; i--) {
+        const o = overlays[i];
+        if (o.bg) continue;
+        const hIndex = hitTestHandle(o, mx, my);
+        if (hIndex !== -1) {
+          canvas.style.cursor = "nwse-resize";
+          hovering = true;
+          break;
+        } else if (mx >= o.x && mx <= o.x + o.width && my >= o.y && my <= o.y + o.height) {
+          canvas.style.cursor = "move";
+          hovering = true;
+          break;
+        }
+      }
+      if (!hovering) canvas.style.cursor = "default";
       }
     });
 
@@ -162,6 +232,22 @@
       img.onload = () => {
         overlays.push({ img, bg: true });
         drawCanvas();
+let hovering = false;
+      for (let i = overlays.length - 1; i >= 0; i--) {
+        const o = overlays[i];
+        if (o.bg) continue;
+        const hIndex = hitTestHandle(o, mx, my);
+        if (hIndex !== -1) {
+          canvas.style.cursor = "nwse-resize";
+          hovering = true;
+          break;
+        } else if (mx >= o.x && mx <= o.x + o.width && my >= o.y && my <= o.y + o.height) {
+          canvas.style.cursor = "move";
+          hovering = true;
+          break;
+        }
+      }
+      if (!hovering) canvas.style.cursor = "default";
         document.getElementById("step2").classList.remove("hidden");
       };
       img.src = URL.createObjectURL(file);
@@ -169,6 +255,22 @@
 
     skipBg.addEventListener("click", () => {
       drawCanvas();
+let hovering = false;
+      for (let i = overlays.length - 1; i >= 0; i--) {
+        const o = overlays[i];
+        if (o.bg) continue;
+        const hIndex = hitTestHandle(o, mx, my);
+        if (hIndex !== -1) {
+          canvas.style.cursor = "nwse-resize";
+          hovering = true;
+          break;
+        } else if (mx >= o.x && mx <= o.x + o.width && my >= o.y && my <= o.y + o.height) {
+          canvas.style.cursor = "move";
+          hovering = true;
+          break;
+        }
+      }
+      if (!hovering) canvas.style.cursor = "default";
       document.getElementById("step2").classList.remove("hidden");
     });
 
@@ -186,6 +288,22 @@
           mobileSafe: true
         });
         drawCanvas();
+let hovering = false;
+      for (let i = overlays.length - 1; i >= 0; i--) {
+        const o = overlays[i];
+        if (o.bg) continue;
+        const hIndex = hitTestHandle(o, mx, my);
+        if (hIndex !== -1) {
+          canvas.style.cursor = "nwse-resize";
+          hovering = true;
+          break;
+        } else if (mx >= o.x && mx <= o.x + o.width && my >= o.y && my <= o.y + o.height) {
+          canvas.style.cursor = "move";
+          hovering = true;
+          break;
+        }
+      }
+      if (!hovering) canvas.style.cursor = "default";
         document.getElementById("step3").classList.remove("hidden");
         document.getElementById("exportSection").classList.remove("hidden");
       };
@@ -205,15 +323,36 @@
           height: 100
         });
         drawCanvas();
+let hovering = false;
+      for (let i = overlays.length - 1; i >= 0; i--) {
+        const o = overlays[i];
+        if (o.bg) continue;
+        const hIndex = hitTestHandle(o, mx, my);
+        if (hIndex !== -1) {
+          canvas.style.cursor = "nwse-resize";
+          hovering = true;
+          break;
+        } else if (mx >= o.x && mx <= o.x + o.width && my >= o.y && my <= o.y + o.height) {
+          canvas.style.cursor = "move";
+          hovering = true;
+          break;
+        }
+      }
+      if (!hovering) canvas.style.cursor = "default";
       };
       img.src = URL.createObjectURL(file);
     });
+
+    function resetCanvas() {
+      overlays.length = 0;
+      drawCanvas();
+    }
 
     exportBtn.addEventListener("click", () => {
       overlays.forEach(o => o.selected = false);
       drawCanvas(false);
       const link = document.createElement("a");
-      link.download = "yt_banner_final.png";
+      link.download = `yt_banner_${Date.now()}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
       drawCanvas(true);
