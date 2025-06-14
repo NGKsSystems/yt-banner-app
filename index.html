@@ -17,14 +17,6 @@
       cursor: default;
     }
     .hidden { display: none; }
-    .handle {
-      position: absolute;
-      width: 10px;
-      height: 10px;
-      background: white;
-      border: 1px solid black;
-      cursor: nwse-resize;
-    }
   </style>
 </head>
 <body>
@@ -65,28 +57,34 @@
 
     const overlays = [];
     let dragging = null;
+    let resizing = null;
     let dragOffsetX = 0;
     let dragOffsetY = 0;
-    let resizing = false;
+
+    const resizeMargin = 15;
 
     function drawCanvas(showBoxes = true) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Draw background first if present
+      // Draw background
       const bg = overlays.find(o => o.bg);
       if (bg) ctx.drawImage(bg.img, 0, 0, canvas.width, canvas.height);
 
-      // Draw all overlays
       overlays.forEach(o => {
         ctx.drawImage(o.img, o.x, o.y, o.width, o.height);
         if (showBoxes && !o.bg) {
           ctx.strokeStyle = o.mobileSafe ? "lime" : "red";
           ctx.strokeRect(o.x, o.y, o.width, o.height);
+
+          if (!o.mobileSafe) {
+            // draw resize handle
+            ctx.fillStyle = "white";
+            ctx.fillRect(o.x + o.width - 10, o.y + o.height - 10, 10, 10);
+          }
         }
       });
     }
 
-    // Step 1
     bgInput.addEventListener("change", e => {
       const file = e.target.files[0];
       if (!file) return;
@@ -104,7 +102,6 @@
       document.getElementById("step2").classList.remove("hidden");
     });
 
-    // Step 2
     mobileInput.addEventListener("change", e => {
       const file = e.target.files[0];
       if (!file) return;
@@ -125,7 +122,6 @@
       img.src = URL.createObjectURL(file);
     });
 
-    // Step 3
     extraInput.addEventListener("change", e => {
       const file = e.target.files[0];
       if (!file) return;
@@ -143,27 +139,31 @@
       img.src = URL.createObjectURL(file);
     });
 
-    // Drag + Resize
     canvas.addEventListener("mousedown", e => {
       const rect = canvas.getBoundingClientRect();
       const mx = e.clientX - rect.left;
       const my = e.clientY - rect.top;
+
       for (let i = overlays.length - 1; i >= 0; i--) {
         const o = overlays[i];
         if (o.bg || o.mobileSafe) continue;
 
-        // Resize handle check
-        if (mx >= o.x + o.width - 10 && mx <= o.x + o.width &&
-            my >= o.y + o.height - 10 && my <= o.y + o.height) {
+        const resizeZone = (
+          mx >= o.x + o.width - resizeMargin &&
+          mx <= o.x + o.width &&
+          my >= o.y + o.height - resizeMargin &&
+          my <= o.y + o.height
+        );
+
+        if (resizeZone) {
           resizing = o;
-          dragOffsetX = mx - o.x;
-          dragOffsetY = my - o.y;
           return;
         }
 
-        // Drag check
-        if (mx >= o.x && mx <= o.x + o.width &&
-            my >= o.y && my <= o.y + o.height) {
+        if (
+          mx >= o.x && mx <= o.x + o.width &&
+          my >= o.y && my <= o.y + o.height
+        ) {
           dragging = o;
           dragOffsetX = mx - o.x;
           dragOffsetY = my - o.y;
@@ -173,7 +173,6 @@
     });
 
     canvas.addEventListener("mousemove", e => {
-      if (!dragging && !resizing) return;
       const rect = canvas.getBoundingClientRect();
       const mx = e.clientX - rect.left;
       const my = e.clientY - rect.top;
@@ -181,14 +180,14 @@
       if (dragging) {
         dragging.x = mx - dragOffsetX;
         dragging.y = my - dragOffsetY;
+        drawCanvas();
       }
 
       if (resizing) {
-        resizing.width = Math.max(10, mx - resizing.x);
-        resizing.height = Math.max(10, my - resizing.y);
+        resizing.width = Math.max(30, mx - resizing.x);
+        resizing.height = Math.max(30, my - resizing.y);
+        drawCanvas();
       }
-
-      drawCanvas();
     });
 
     canvas.addEventListener("mouseup", () => {
@@ -196,14 +195,13 @@
       resizing = null;
     });
 
-    // Export
     exportBtn.addEventListener("click", () => {
-      drawCanvas(false); // Hide boxes
+      drawCanvas(false); // no boxes
       const link = document.createElement("a");
       link.download = "yt_banner_final.png";
       link.href = canvas.toDataURL("image/png");
       link.click();
-      drawCanvas(true); // Restore
+      drawCanvas(true); // restore UI boxes
     });
   </script>
 </body>
