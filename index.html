@@ -3,20 +3,37 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>YouTube Banner Editor</title>
+  <title>NGKs Banner Editor</title>
   <style>
-    body {
+    html, body {
+      margin: 0;
       background-color: #111;
       color: #fff;
-      text-align: center;
       font-family: Arial, sans-serif;
+      text-align: center;
+      overflow-x: hidden;
     }
-    canvas {
-      border: 2px solid yellow;
-      display: block;
+
+    h2 {
+      margin: 15px;
+    }
+
+    #canvasWrapper {
+      width: 90%;
+      max-width: 1280px;
       margin: 20px auto;
+      position: relative;
     }
-    input[type="file"] {
+
+    #bannerCanvas {
+      width: 100%;
+      height: auto;
+      display: block;
+      border: 2px solid yellow;
+    }
+
+    input[type="file"],
+    button {
       margin: 10px;
     }
   </style>
@@ -25,8 +42,11 @@
   <h2>NGKs Banner Editor</h2>
   <input type="file" id="imageInput" accept="image/*" multiple />
   <br />
-  <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
-  <br />
+
+  <div id="canvasWrapper">
+    <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
+  </div>
+
   <button id="exportBtn">Export Banner</button>
 
   <script>
@@ -59,26 +79,24 @@
     });
 
     function drawAll() {
-      // Draw background if exists
+      // Background image
       if (images[0]) ctx.drawImage(images[0], 0, 0, canvas.width, canvas.height);
 
-      // Draw overlay image 1 (e.g. logo) if exists
+      // Overlay 1 (Mobile safe zone graphic)
       if (images[1]) ctx.drawImage(images[1], 740, 620, 1080, 200);
 
-      // Draw overlay image 2 (e.g. header) if exists
-      if (images[2]) ctx.drawImage(images[2], 0, 0, 2560, 300);
+      // Overlay 2 (Top header bar or brand strip)
+      if (images[2]) ctx.drawImage(images[2], 0, 0, canvas.width, 300);
 
-      drawOverlays();
+      drawGuides();
     }
 
-    function drawOverlays() {
-      // Mobile Safe Zone
+    function drawGuides() {
       ctx.strokeStyle = 'lime';
-      ctx.strokeRect(740, 620, 1080, 200);
+      ctx.strokeRect(740, 620, 1080, 200); // Mobile zone
 
-      // TV Safe Zone
       ctx.strokeStyle = 'yellow';
-      ctx.strokeRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeRect(0, 0, canvas.width, canvas.height); // TV safe zone
     }
 
     exportBtn.addEventListener('click', function () {
