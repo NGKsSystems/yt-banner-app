@@ -2,20 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>NGKs Banner Editor</title>
   <style>
-    body {
-      background: #111;
-      color: white;
-      font-family: Arial, sans-serif;
-      text-align: center;
-    }
-    canvas {
-      border: 2px solid yellow;
-      background: #000;
-      cursor: default;
-    }
+    body { background: #111; color: white; text-align: center; font-family: Arial; }
+    canvas { border: 2px solid yellow; background: #000; }
     .hidden { display: none; }
   </style>
 </head>
@@ -39,47 +29,38 @@
   </div>
 
   <div id="exportSection" class="hidden">
-    <br />
     <button id="exportBtn">Export Banner</button>
   </div>
 
-  <br />
   <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
 
   <script>
     const canvas = document.getElementById("bannerCanvas");
     const ctx = canvas.getContext("2d");
+    const overlays = [];
+    const resizeSize = 15;
+
+    let dragging = null, resizing = null, dragOffsetX = 0, dragOffsetY = 0;
+
     const bgInput = document.getElementById("bgInput");
     const skipBg = document.getElementById("skipBg");
     const mobileInput = document.getElementById("mobileInput");
     const extraInput = document.getElementById("extraInput");
     const exportBtn = document.getElementById("exportBtn");
 
-    const overlays = [];
-    let dragging = null;
-    let resizing = null;
-    let dragOffsetX = 0;
-    let dragOffsetY = 0;
-
-    const resizeMargin = 15;
-
-    function drawCanvas(showBoxes = true) {
+    function drawCanvas(showHandles = true) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Draw background
       const bg = overlays.find(o => o.bg);
       if (bg) ctx.drawImage(bg.img, 0, 0, canvas.width, canvas.height);
 
       overlays.forEach(o => {
-        ctx.drawImage(o.img, o.x, o.y, o.width, o.height);
-        if (showBoxes && !o.bg) {
+        if (!o.bg) ctx.drawImage(o.img, o.x, o.y, o.width, o.height);
+        if (showHandles && !o.bg) {
           ctx.strokeStyle = o.mobileSafe ? "lime" : "red";
           ctx.strokeRect(o.x, o.y, o.width, o.height);
-
           if (!o.mobileSafe) {
-            // draw resize handle
             ctx.fillStyle = "white";
-            ctx.fillRect(o.x + o.width - 10, o.y + o.height - 10, 10, 10);
+            ctx.fillRect(o.x + o.width - resizeSize, o.y + o.height - resizeSize, resizeSize, resizeSize);
           }
         }
       });
@@ -148,22 +129,20 @@
         const o = overlays[i];
         if (o.bg || o.mobileSafe) continue;
 
-        const resizeZone = (
-          mx >= o.x + o.width - resizeMargin &&
+        const inResize = (
+          mx >= o.x + o.width - resizeSize &&
           mx <= o.x + o.width &&
-          my >= o.y + o.height - resizeMargin &&
+          my >= o.y + o.height - resizeSize &&
           my <= o.y + o.height
         );
 
-        if (resizeZone) {
+        if (inResize) {
           resizing = o;
           return;
         }
 
-        if (
-          mx >= o.x && mx <= o.x + o.width &&
-          my >= o.y && my <= o.y + o.height
-        ) {
+        const inBox = mx >= o.x && mx <= o.x + o.width && my >= o.y && my <= o.y + o.height;
+        if (inBox) {
           dragging = o;
           dragOffsetX = mx - o.x;
           dragOffsetY = my - o.y;
@@ -181,9 +160,7 @@
         dragging.x = mx - dragOffsetX;
         dragging.y = my - dragOffsetY;
         drawCanvas();
-      }
-
-      if (resizing) {
+      } else if (resizing) {
         resizing.width = Math.max(30, mx - resizing.x);
         resizing.height = Math.max(30, my - resizing.y);
         drawCanvas();
@@ -196,12 +173,12 @@
     });
 
     exportBtn.addEventListener("click", () => {
-      drawCanvas(false); // no boxes
+      drawCanvas(false);
       const link = document.createElement("a");
       link.download = "yt_banner_final.png";
       link.href = canvas.toDataURL("image/png");
       link.click();
-      drawCanvas(true); // restore UI boxes
+      drawCanvas(true);
     });
   </script>
 </body>
