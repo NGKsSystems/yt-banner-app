@@ -15,6 +15,7 @@
       border: 2px solid yellow;
       display: block;
       margin: 10px auto;
+      background: #000;
     }
     .hidden {
       display: none;
@@ -90,7 +91,7 @@
     let offsetX, offsetY;
     let resizeDir = null;
 
-    function addImage(img, x, y, width, height) {
+    function addImage(img, x, y, width, height, lockPosition = false) {
       const wrapper = document.createElement("div");
       wrapper.className = "image-wrapper";
       wrapper.style.left = x + "px";
@@ -130,7 +131,7 @@
       wrapper.onmousedown = e => {
         if (e.target.classList.contains("resize-handle")) {
           resizeDir = e.target.dataset.dir;
-        } else {
+        } else if (!lockPosition) {
           dragging = true;
           offsetX = e.offsetX;
           offsetY = e.offsetY;
@@ -196,6 +197,11 @@
         const hVal = parseInt(w.style.height);
         ctx.drawImage(img, x, y, wVal, hVal);
       });
+
+      // Draw green mobile-safe overlay
+      ctx.strokeStyle = "lime";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(740, 620, 1080, 200);
     }
 
     document.addEventListener("keydown", (e) => {
@@ -216,6 +222,7 @@
       img.onload = () => {
         addImage(img, 0, 0, canvas.width, canvas.height);
         step2.classList.remove("hidden");
+        drawCanvas();
       };
       img.src = URL.createObjectURL(file);
     });
@@ -226,9 +233,10 @@
       const file = e.target.files[0];
       const img = new Image();
       img.onload = () => {
-        addImage(img, 740, 620, 1080, 200); // restore auto-placement
+        addImage(img, 740, 620, 1080, 200); // auto-placement for mobile
         step3.classList.remove("hidden");
         exportBtn.classList.remove("hidden");
+        drawCanvas();
       };
       img.src = URL.createObjectURL(file);
     });
@@ -237,13 +245,14 @@
       const file = e.target.files[0];
       const img = new Image();
       img.onload = () => {
-        addImage(img, 200, 100, 300, 150);
+        addImage(img, 200, 100, 300, 150); // manual placement
+        drawCanvas();
       };
       img.src = URL.createObjectURL(file);
     });
 
     exportBtn.addEventListener("click", () => {
-      drawCanvas(); // ensure latest
+      drawCanvas();
       const link = document.createElement("a");
       link.download = "yt_banner_final.png";
       link.href = canvas.toDataURL("image/png");
