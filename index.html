@@ -1,148 +1,53 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>YT Banner Editor</title>
-  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+  <title>NGKs Banner Editor</title>
   <style>
-    body {
-      font-family: 'Rajdhani', sans-serif;
-      background-color: #1e1e1e;
-      color: #fff;
-      margin: 0;
-      padding: 0;
-      text-align: center;
-    }
-    header {
-      background: #222;
-      padding: 10px;
-      font-size: 24px;
-      font-weight: 600;
-    }
-    .step {
-      display: none;
-      margin: 20px;
-      animation: fadein 0.5s ease;
-    }
-    .step.active {
-      display: block;
-    }
-    @keyframes fadein {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    canvas {
-      width: 100%;
-      max-width: 100%;
-      height: auto;
-      background: #000;
-      margin: 20px auto;
-      display: block;
-      border: 2px solid yellow;
-    }
-    .controls {
-      margin: 10px;
-    }
-    button, input[type="file"] {
-      padding: 10px 15px;
-      font-size: 18px;
-      margin: 5px;
-    }
-    .progress {
-      display: flex;
-      justify-content: center;
-      margin: 10px 0;
-    }
-    .progress div {
-      width: 100px;
-      height: 10px;
-      margin: 0 5px;
-      background: gray;
-    }
-    .progress .active {
-      background: limegreen;
-    }
+    body { background: #111; color: white; text-align: center; font-family: Arial; }
+    canvas { border: 2px solid yellow; background: #000; margin-top: 10px; }
+    .hidden { display: none; }
   </style>
 </head>
 <body>
+  <h3>NGKs Banner Editor</h3>
 
-<div style="display:flex; justify-content:space-between; align-items:center; margin:30px 96px 10px 96px;">
-  <img src="https://raw.githubusercontent.com/NGKsSystems/yt-banner-app/main/NGKsExactFit.png" alt="NGKS ExactFit" style="height:150px;">
-  <a href="https://NGKsSystems.com" target="_blank">
-    <img src="https://raw.githubusercontent.com/NGKsSystems/yt-banner-app/main/NGKsSystems%20%204.png" alt="NGKsSystems" style="height:150px;">
-  </a>
-</div>
-
-  <header>YT Banner Editor</header>
-
-  <div class="progress">
-    <div id="p1" class="active"></div>
-    <div id="p2"></div>
-    <div id="p3"></div>
-    <div id="p4"></div>
-  </div>
-
-  <div id="step1" class="step active">
-    <h2>Step 1: Add Background</h2>
+  <div id="step1">
+    Step 1: Choose your background 
     <input type="file" id="bgInput" accept="image/*" />
     <button id="skipBg">Skip</button>
   </div>
 
-  <div id="step2" class="step">
-    <h2>Step 2: Add Mobile-Safe Image</h2>
+  <div id="step2" class="hidden">
+    Step 2: Choose your mobile-safe image
     <input type="file" id="mobileInput" accept="image/*" />
   </div>
 
-  <div id="step3" class="step">
-    <h2>Step 3: Add Additional Images</h2>
-    <input type="file" id="additionalInput" accept="image/*" multiple />
-    <button id="nextToExport">Next: Export</button>
+  <div id="step3" class="hidden">
+    Step 3: Add additional images
+    <input type="file" id="extraInput" accept="image/*" />
   </div>
 
-  <div id="step4" class="step">
-    <h2>Step 4: Export</h2>
+  <div id="exportSection" class="hidden">
     <button id="exportBtn">Export Banner</button>
   </div>
 
-  
-<div id="stepMeter" style="margin-top: 10px; font-size: 18px; color: #00ffcc;">
-  Step <span id="stepNum">1</span> of 4
-</div>
-
-<canvas id="canvas" width="2560" height="1440"></canvas>
+  <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
 
   <script>
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
+    const canvas = document.getElementById("bannerCanvas");
+    const ctx = canvas.getContext("2d");
     const overlays = [];
-    let selected = null;
-let currentStep = 0;
-const steps = ["step1", "step2", "step3", "step4"];
-
-let isDragging = false;
-let isResizing = false;
-let resizeHandle = null;
-let isDragging = false;
-let isResizing = false;
-    let resizing = null;
-    let selectedHandle = -1;
-    let dragging = false;
-    let handleSize = 10;
-    let exporting = false;
+    const handleSize = 10;
+    let dragging = null, resizing = null, selectedHandle = null;
+    let dragOffsetX = 0, dragOffsetY = 0;
 
     const bgInput = document.getElementById("bgInput");
     const skipBg = document.getElementById("skipBg");
     const mobileInput = document.getElementById("mobileInput");
-    const additionalInput = document.getElementById("additionalInput");
+    const extraInput = document.getElementById("extraInput");
     const exportBtn = document.getElementById("exportBtn");
-    const nextToExport = document.getElementById("nextToExport");
-
-    function showStep(step) {
-      for (let i = 1; i <= 4; i++) {
-        document.getElementById("step" + i).classList.toggle("active", i === step);
-        document.getElementById("p" + i).classList.toggle("active", i === step);
-      }
-    }
 
     function drawHandles(obj) {
       const x = obj.x, y = obj.y, w = obj.width, h = obj.height;
@@ -153,11 +58,8 @@ let isResizing = false;
         [x, y + h/2]
       ];
       ctx.fillStyle = "white";
-      ctx.strokeStyle = "black";
-      ctx.lineWidth = 1;
       points.forEach(([px, py]) => {
         ctx.fillRect(px - handleSize/2, py - handleSize/2, handleSize, handleSize);
-        ctx.strokeRect(px - handleSize/2, py - handleSize/2, handleSize, handleSize);
       });
     }
 
@@ -166,93 +68,24 @@ let isResizing = false;
       const bg = overlays.find(o => o.bg);
       if (bg) ctx.drawImage(bg.img, 0, 0, canvas.width, canvas.height);
 
-      if (!exporting) {
-        ctx.strokeStyle = "yellow";
-        ctx.lineWidth = 2;
-        ctx.strokeRect(507, 509, 1546, 423); // Mobile-safe guide
-      }
-
       overlays.forEach(o => {
-        if (!o.bg) {
-          ctx.drawImage(o.img, o.x, o.y, o.width, o.height);
-          if (showHandles && o.selected) {
-            ctx.strokeStyle = o.mobileSafe ? "lime" : "red";
-            ctx.strokeRect(o.x, o.y, o.width, o.height);
-            drawHandles(o);
-          }
-        }
+        if (!o.bg) ctx.drawImage(o.img, o.x, o.y, o.width, o.height);
+        ctx.strokeStyle = o.mobileSafe ? "lime" : "red";
+        ctx.strokeRect(o.x, o.y, o.width, o.height);
+        if (showHandles && o.selected) drawHandles(o);
       });
     }
 
-    canvas.addEventListener("mousedown", e => {
-      const rect = canvas.getBoundingClientRect();
-      const mx = e.clientX - rect.left, my = e.clientY - rect.top;
-      selected = null;
-      resizing = null;
-
-      for (let i = overlays.length - 1; i >= 0; i--) {
-        const o = overlays[i];
-        if (o.bg) continue;
-        const hIndex = hitTestHandle(o, mx, my);
-        if (hIndex !== -1) {
-          resizing = o;
-          selectedHandle = hIndex;
-          o.selected = true;
-          drawCanvas();
-          return;
-        } else if (mx >= o.x && mx <= o.x + o.width && my >= o.y && my <= o.y + o.height) {
-          selected = o;
-          o.selected = true;
-          dragging = true;
-          drawCanvas();
-          return;
-        }
-      }
-
-      overlays.forEach(o => o.selected = false);
-      drawCanvas();
-    });
-
-    canvas.addEventListener("mousemove", e => {
-      if (!dragging && !resizing) return;
-      const rect = canvas.getBoundingClientRect();
-      const mx = e.clientX - rect.left;
-      const my = e.clientY - rect.top;
-
-      if (dragging && selected) {
-        selected.x += e.movementX;
-        selected.y += e.movementY;
-      } else if (resizing) {
-        resizeByHandle(resizing, selectedHandle, mx, my);
-      }
-      drawCanvas();
-    });
-
-    
-canvas.addEventListener("mouseleave", () => {
-  isDragging = false;
-  isResizing = false;
-  resizeHandle = null;
-});
-
-canvas.addEventListener("mouseup", () => {
-      dragging = false;
-      resizing = null;
-    });
-
     function hitTestHandle(obj, mx, my) {
-      const points = [
-        [obj.x, obj.y],
-        [obj.x + obj.width/2, obj.y],
-        [obj.x + obj.width, obj.y],
-        [obj.x + obj.width, obj.y + obj.height/2],
-        [obj.x + obj.width, obj.y + obj.height],
-        [obj.x + obj.width/2, obj.y + obj.height],
-        [obj.x, obj.y + obj.height],
-        [obj.x, obj.y + obj.height/2]
+      const x = obj.x, y = obj.y, w = obj.width, h = obj.height;
+      const positions = [
+        [x, y], [x + w/2, y], [x + w, y],
+        [x + w, y + h/2], [x + w, y + h],
+        [x + w/2, y + h], [x, y + h],
+        [x, y + h/2]
       ];
-      for (let i = 0; i < points.length; i++) {
-        const [px, py] = points[i];
+      for (let i = 0; i < positions.length; i++) {
+        const [px, py] = positions[i];
         if (mx >= px - handleSize && mx <= px + handleSize &&
             my >= py - handleSize && my <= py + handleSize) {
           return i;
@@ -261,19 +94,66 @@ canvas.addEventListener("mouseup", () => {
       return -1;
     }
 
-    function resizeByHandle(obj, hIndex, mx, my) {
+    function resizeByHandle(obj, handleIndex, mx, my) {
       const x = obj.x, y = obj.y, w = obj.width, h = obj.height;
-      switch (hIndex) {
-        case 0: obj.width += x - mx; obj.height += y - my; obj.x = mx; obj.y = my; break;
-        case 1: obj.height += y - my; obj.y = my; break;
-        case 2: obj.width = mx - x; obj.height += y - my; obj.y = my; break;
-        case 3: obj.width = mx - x; break;
-        case 4: obj.width = mx - x; obj.height = my - y; break;
-        case 5: obj.height = my - y; break;
-        case 6: obj.width += x - mx; obj.height = my - y; obj.x = mx; break;
-        case 7: obj.width += x - mx; obj.x = mx; break;
+      switch (handleIndex) {
+        case 0: obj.width += obj.x - mx; obj.height += obj.y - my; obj.x = mx; obj.y = my; break;
+        case 1: obj.height += obj.y - my; obj.y = my; break;
+        case 2: obj.width = mx - obj.x; obj.height += obj.y - my; obj.y = my; break;
+        case 3: obj.width = mx - obj.x; break;
+        case 4: obj.width = mx - obj.x; obj.height = my - obj.y; break;
+        case 5: obj.height = my - obj.y; break;
+        case 6: obj.width += obj.x - mx; obj.height = my - obj.y; obj.x = mx; break;
+        case 7: obj.width += obj.x - mx; obj.x = mx; break;
       }
     }
+
+    canvas.addEventListener("mousedown", e => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+
+      for (let i = overlays.length - 1; i >= 0; i--) {
+        const o = overlays[i];
+        if (o.bg) continue;
+        o.selected = false;
+        const hIndex = hitTestHandle(o, mx, my);
+        if (hIndex !== -1) {
+          resizing = o;
+          selectedHandle = hIndex;
+          o.selected = true;
+          drawCanvas();
+          return;
+        }
+        if (mx >= o.x && mx <= o.x + o.width && my >= o.y && my <= o.y + o.height) {
+          dragging = o;
+          dragOffsetX = mx - o.x;
+          dragOffsetY = my - o.y;
+          o.selected = true;
+          drawCanvas();
+          return;
+        }
+      }
+    });
+
+    canvas.addEventListener("mousemove", e => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+
+      if (dragging) {
+        dragging.x = mx - dragOffsetX;
+        dragging.y = my - dragOffsetY;
+        drawCanvas();
+      } else if (resizing) {
+        resizeByHandle(resizing, selectedHandle, mx, my);
+        drawCanvas();
+      }
+    });
+
+    canvas.addEventListener("mouseup", () => {
+      dragging = null;
+      resizing = null;
+      selectedHandle = null;
+    });
 
     bgInput.addEventListener("change", e => {
       const file = e.target.files[0];
@@ -282,14 +162,14 @@ canvas.addEventListener("mouseup", () => {
       img.onload = () => {
         overlays.push({ img, bg: true });
         drawCanvas();
-        showStep(2);
+        document.getElementById("step2").classList.remove("hidden");
       };
       img.src = URL.createObjectURL(file);
     });
 
     skipBg.addEventListener("click", () => {
       drawCanvas();
-      showStep(2);
+      document.getElementById("step2").classList.remove("hidden");
     });
 
     mobileInput.addEventListener("change", e => {
@@ -303,61 +183,42 @@ canvas.addEventListener("mouseup", () => {
           y: 509,
           width: 1546,
           height: 423,
-          mobileSafe: true,
-          selected: true
+          mobileSafe: true
         });
         drawCanvas();
-        showStep(3);
+        document.getElementById("step3").classList.remove("hidden");
+        document.getElementById("exportSection").classList.remove("hidden");
       };
       img.src = URL.createObjectURL(file);
     });
 
-    additionalInput.addEventListener("change", e => {
-      const files = Array.from(e.target.files);
-      files.forEach(file => {
-        const img = new Image();
-        img.onload = () => {
-          overlays.push({
-            img,
-            x: 100,
-            y: 100,
-            width: img.width,
-            height: img.height,
-            mobileSafe: false,
-            selected: true
-          });
-          drawCanvas();
-        };
-        img.src = URL.createObjectURL(file);
-      });
-    });
-
-    nextToExport.addEventListener("click", () => {
-      showStep(4);
+    extraInput.addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const img = new Image();
+      img.onload = () => {
+        overlays.push({
+          img,
+          x: 100,
+          y: 100,
+          width: 300,
+          height: 100
+        });
+        drawCanvas();
+      };
+      img.src = URL.createObjectURL(file);
     });
 
     exportBtn.addEventListener("click", () => {
-      exporting = true;
       overlays.forEach(o => o.selected = false);
       drawCanvas(false);
       const link = document.createElement("a");
-      link.download = `yt_banner_${Date.now()}.png`;
-      link.href = canvas.toDataURL();
+      link.download = "yt_banner_final.png";
+      link.href = canvas.toDataURL("image/png");
       link.click();
-      exporting = false;
       drawCanvas(true);
-    });
-
-    document.addEventListener("keydown", (e) => {
-      const o = overlays.find(o => o.selected);
-      if (!o) return;
-      const step = e.shiftKey ? 10 : 1;
-      if (e.key === "ArrowUp") o.y -= step;
-      if (e.key === "ArrowDown") o.y += step;
-      if (e.key === "ArrowLeft") o.x -= step;
-      if (e.key === "ArrowRight") o.x += step;
-      drawCanvas();
     });
   </script>
 </body>
 </html>
+
