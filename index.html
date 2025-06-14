@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NGKs Banner Editor</title>
   <style>
     body {
-      background-color: #111;
-      color: #fff;
+      background: #111;
+      color: white;
       text-align: center;
       font-family: Arial, sans-serif;
     }
@@ -15,88 +15,80 @@
       border: 2px solid yellow;
       display: block;
       margin: 10px auto;
-      background: #000;
+      background: #222;
     }
     .hidden {
       display: none;
     }
-    #controls {
-      margin-bottom: 10px;
-    }
-    button {
-      margin: 3px;
+    .handle {
+      width: 8px;
+      height: 8px;
+      background: white;
+      border: 1px solid black;
+      position: absolute;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <h3 id="stepLabel">Step 1: Choose your background image</h3>
-  <div id="controls">
-    <input type="file" id="bgInput" accept="image/*" />
-    <button onclick="skipBackground()">Skip</button>
-    <input type="file" id="mobileInput" accept="image/*" class="hidden"/>
-    <button onclick="skipMobile()" class="hidden" id="skipMobileBtn">Skip</button>
-    <input type="file" id="extraInput" accept="image/*" class="hidden"/>
-  </div>
+  <h3>NGKs Banner Editor</h3>
+  <div id="stepText">Step 1: Choose your background image</div>
+  <input type="file" id="bgInput" accept="image/*" />
+  <button id="skipBg">Skip</button>
+
+  <input type="file" id="mobileInput" accept="image/*" class="hidden" />
+  <button id="skipMobile" class="hidden">Skip</button>
+
+  <input type="file" id="extraInput" accept="image/*" class="hidden" />
+  <button id="skipExtra" class="hidden">Skip</button>
 
   <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
-  
-  <div>
-    <button onclick="clearCanvas()">Clear Canvas</button>
-    <button onclick="deleteSelected()">Delete Selected</button>
-    <button onclick="exportBanner()">Export Banner</button>
-  </div>
+
+  <button id="clearBtn">Clear Canvas</button>
+  <button id="deleteBtn">Delete Selected</button>
+  <button id="exportBtn">Export Banner</button>
 
   <script>
     const canvas = document.getElementById("bannerCanvas");
     const ctx = canvas.getContext("2d");
+
     const bgInput = document.getElementById("bgInput");
     const mobileInput = document.getElementById("mobileInput");
     const extraInput = document.getElementById("extraInput");
-    const skipMobileBtn = document.getElementById("skipMobileBtn");
-    const stepLabel = document.getElementById("stepLabel");
 
+    const skipBg = document.getElementById("skipBg");
+    const skipMobile = document.getElementById("skipMobile");
+    const skipExtra = document.getElementById("skipExtra");
+
+    const exportBtn = document.getElementById("exportBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const deleteBtn = document.getElementById("deleteBtn");
+
+    const stepText = document.getElementById("stepText");
+
+    let step = 1;
     let images = [];
     let selected = null;
-    const MOBILE_ZONE = { x: 507, y: 508, w: 1546, h: 423 };
 
-    bgInput.addEventListener("change", e => {
-      const file = e.target.files[0];
-      if (!file) return;
-      loadImage(file, img => {
-        images = [{ img, x: 0, y: 0, w: 2560, h: 1440, locked: true }];
-        advanceStep(2);
-        drawCanvas();
-      });
-    });
+    function advanceStep(n) {
+      step = n;
+      bgInput.classList.add("hidden");
+      mobileInput.classList.add("hidden");
+      extraInput.classList.add("hidden");
+      skipBg.classList.add("hidden");
+      skipMobile.classList.add("hidden");
+      skipExtra.classList.add("hidden");
 
-    function skipBackground() {
-      advanceStep(2);
-      drawCanvas();
+      if (n === 2) {
+        stepText.textContent = "Step 2: Choose your mobile view image (autoplaced)";
+        mobileInput.classList.remove("hidden");
+        skipMobile.classList.remove("hidden");
+      } else if (n === 3) {
+        stepText.textContent = "Step 3: Add additional images (movable, resizable, deletable)";
+        extraInput.classList.remove("hidden");
+        skipExtra.classList.remove("hidden");
+      }
     }
-
-    mobileInput.addEventListener("change", e => {
-      const file = e.target.files[0];
-      if (!file) return;
-      loadImage(file, img => {
-        images.push({ img, ...MOBILE_ZONE });
-        advanceStep(3);
-        drawCanvas();
-      });
-    });
-
-    function skipMobile() {
-      advanceStep(3);
-      drawCanvas();
-    }
-
-    extraInput.addEventListener("change", e => {
-      const file = e.target.files[0];
-      if (!file) return;
-      loadImage(file, img => {
-        images.push({ img, x: 100, y: 100, w: img.width, h: img.height });
-        drawCanvas();
-      });
-    });
 
     function loadImage(file, callback) {
       const img = new Image();
@@ -104,71 +96,66 @@
       img.src = URL.createObjectURL(file);
     }
 
+    bgInput.addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      loadImage(file, img => {
+        images = [{ img, x: 0, y: 0, w: canvas.width, h: canvas.height }];
+        advanceStep(2);
+        drawCanvas();
+      });
+    });
+
+    mobileInput.addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      loadImage(file, img => {
+        // ✅ Corrected placement strictly inside mobile safe zone
+        images.push({
+          img,
+          x: 740,
+          y: 620,
+          w: 1080,
+          h: 200
+        });
+        advanceStep(3);
+        drawCanvas();
+      });
+    });
+
+    extraInput.addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      loadImage(file, img => {
+        images.push({
+          img,
+          x: 100,
+          y: 100,
+          w: img.width / 2,
+          h: img.height / 2
+        });
+        drawCanvas();
+      });
+    });
+
+    skipBg.onclick = () => advanceStep(2);
+    skipMobile.onclick = () => advanceStep(3);
+    skipExtra.onclick = () => { /* no-op */ };
+
     function drawCanvas() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      images.forEach((item, idx) => {
-        ctx.drawImage(item.img, item.x, item.y, item.w, item.h);
+      images.forEach(({ img, x, y, w, h }) => ctx.drawImage(img, x, y, w, h));
 
-        // Safe zone overlay (not exported)
-        if (idx === 0) {
-          ctx.strokeStyle = "lime";
-          ctx.strokeRect(MOBILE_ZONE.x, MOBILE_ZONE.y, MOBILE_ZONE.w, MOBILE_ZONE.h);
-        }
+      // Overlay mobile safe zone
+      ctx.strokeStyle = "lime";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(740, 620, 1080, 200);
 
-        // Selection box and 8 handles
-        if (selected === idx && !item.locked) {
-          ctx.strokeStyle = "green";
-          ctx.strokeRect(item.x, item.y, item.w, item.h);
-          drawHandles(item);
-        }
-      });
-    }
-
-    function drawHandles(item) {
-      const size = 10;
-      const corners = [
-        [item.x, item.y],
-        [item.x + item.w / 2, item.y],
-        [item.x + item.w, item.y],
-        [item.x, item.y + item.h / 2],
-        [item.x + item.w, item.y + item.h / 2],
-        [item.x, item.y + item.h],
-        [item.x + item.w / 2, item.y + item.h],
-        [item.x + item.w, item.y + item.h],
-      ];
-      ctx.fillStyle = "white";
-      corners.forEach(([x, y]) => ctx.fillRect(x - size / 2, y - size / 2, size, size));
-    }
-
-    function advanceStep(n) {
-      if (n === 2) {
-        stepLabel.innerText = "Step 2: Choose your mobile view image (autoplaced)";
-        mobileInput.classList.remove("hidden");
-        skipMobileBtn.classList.remove("hidden");
-      } else if (n === 3) {
-        stepLabel.innerText = "Step 3: Add additional images (movable, resizable, deletable)";
-        extraInput.classList.remove("hidden");
-      }
-    }
-
-    function clearCanvas() {
-      images = [];
-      selected = null;
-      stepLabel.innerText = "Step 1: Choose your background image";
-      bgInput.value = "";
-      mobileInput.value = "";
-      extraInput.value = "";
-      mobileInput.classList.add("hidden");
-      extraInput.classList.add("hidden");
-      skipMobileBtn.classList.add("hidden");
-      drawCanvas();
-    }
-
-    function deleteSelected() {
-      if (selected !== null && !images[selected].locked) {
-        images.splice(selected, 1);
-        selected = null;
-        drawCanvas();
+      // Draw selection outline
+      if (selected !== null && images[selected]) {
+        const box = images[selected];
+        ctx.strokeStyle = "green";
+        ctx.strokeRect(box.x, box.y, box.w, box.h);
       }
     }
 
@@ -177,12 +164,13 @@
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
       selected = null;
-      for (let i = images.length - 1; i >= 0; i--) {
-        const it = images[i];
-        if (!it.locked && x >= it.x && x <= it.x + it.w && y >= it.y && y <= it.y + it.h) {
+
+      for (let i = images.length - 1; i >= 1; i--) {
+        const { x: ix, y: iy, w, h } = images[i];
+        if (x >= ix && x <= ix + w && y >= iy && y <= iy + h) {
           selected = i;
-          offsetX = x - it.x;
-          offsetY = y - it.y;
+          offsetX = x - ix;
+          offsetY = y - iy;
           dragging = true;
           break;
         }
@@ -191,16 +179,14 @@
     });
 
     let dragging = false;
-    let offsetX = 0, offsetY = 0;
+    let offsetX = 0;
+    let offsetY = 0;
 
     canvas.addEventListener("mousemove", e => {
       if (!dragging || selected === null) return;
       const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const item = images[selected];
-      item.x = x - offsetX;
-      item.y = y - offsetY;
+      images[selected].x = e.clientX - rect.left - offsetX;
+      images[selected].y = e.clientY - rect.top - offsetY;
       drawCanvas();
     });
 
@@ -208,26 +194,46 @@
     canvas.addEventListener("mouseleave", () => dragging = false);
 
     document.addEventListener("keydown", e => {
-      if (selected === null || images[selected].locked) return;
-      const item = images[selected];
+      if (selected === null) return;
+      const img = images[selected];
       const step = e.shiftKey ? 10 : 1;
-      switch (e.key) {
-        case "ArrowUp": item.y -= step; break;
-        case "ArrowDown": item.y += step; break;
-        case "ArrowLeft": item.x -= step; break;
-        case "ArrowRight": item.x += step; break;
-      }
+      if (e.key === "ArrowUp") img.y -= step;
+      if (e.key === "ArrowDown") img.y += step;
+      if (e.key === "ArrowLeft") img.x -= step;
+      if (e.key === "ArrowRight") img.x += step;
       drawCanvas();
     });
 
-    function exportBanner() {
-      const backup = canvas.toDataURL("image/png"); // fallback
-      drawCanvas(); // last clean draw
+    deleteBtn.onclick = () => {
+      if (selected !== null && selected !== 0) {
+        images.splice(selected, 1);
+        selected = null;
+        drawCanvas();
+      }
+    };
+
+    clearBtn.onclick = () => {
+      images = [];
+      selected = null;
+      step = 1;
+      stepText.textContent = "Step 1: Choose your background image";
+      bgInput.classList.remove("hidden");
+      skipBg.classList.remove("hidden");
+      mobileInput.classList.add("hidden");
+      extraInput.classList.add("hidden");
+      skipMobile.classList.add("hidden");
+      skipExtra.classList.add("hidden");
+      drawCanvas();
+    };
+
+    exportBtn.onclick = () => {
       const link = document.createElement("a");
       link.download = "yt_banner_final.png";
       link.href = canvas.toDataURL("image/png");
       link.click();
-    }
+    };
+
+    drawCanvas();
   </script>
 </body>
 </html>
