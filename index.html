@@ -226,11 +226,16 @@ let hovering = false;
     });
 
     bgInput.addEventListener("change", e => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const img = new Image();
-      img.onload = () => {
-        overlays.push({ img, bg: true }););
+  const file = e.target.files[0];
+  if (!file) return;
+  const img = new Image();
+  img.onload = () => {
+    overlays.push({ img, bg: true });
+    drawCanvas();
+    document.getElementById("step2").classList.remove("hidden");
+  };
+  img.src = URL.createObjectURL(file);
+}););
         drawCanvas();
 let hovering = false;
       for (let i = overlays.length - 1; i >= 0; i--) {
