@@ -14,9 +14,11 @@
   <h3>NGKs Banner Editor</h3>
 
   
-<div style="display: flex; justify-content: space-between; align-items: center; padding: 0 20px;">
-  <img src="https://raw.githubusercontent.com/NGKsSystems/yt-banner-app/main/NGKsExactFit.png" alt="ExactFit" height="40" />
-  <div>
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 30px;">
+  <img src="https://raw.githubusercontent.com/NGKsSystems/yt-banner-app/main/NGKsExactFit.png" alt="ExactFit" height="60" />
+
+  <div style="text-align: center;">
+    <strong style="font-size: 1.1em;">NGKs Banner Editor</strong><br>
     Step 1: Choose your background 
     <input type="file" id="bgInput" accept="image/*" />
     <button id="skipBg">Skip</button>
@@ -24,8 +26,9 @@
     <input type="file" id="extraInput" accept="image/*" />
     <button id="exportBtn">Export Banner</button>
   </div>
+
   <a href="https://NGKsSystems.com" target="_blank">
-    <img src="https://raw.githubusercontent.com/NGKsSystems/yt-banner-app/main/NGKsSystems%204.png" alt="NGKsSystems" height="40" />
+    <img src="https://raw.githubusercontent.com/NGKsSystems/yt-banner-app/main/NGKsSystems%204.png" alt="NGKsSystems" height="60" />
   </a>
 </div>
 
@@ -211,10 +214,13 @@
       drawCanvas(false);
       const link = document.createElement("a");
       link.download = "yt_banner_final.png";
+      drawCanvas(false);
       link.href = canvas.toDataURL("image/png");
+      drawCanvas(true);
       link.click();
       drawCanvas(true);
     });
   </script>
 </body>
 </html>
+
