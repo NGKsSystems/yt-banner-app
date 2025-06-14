@@ -3,62 +3,74 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Banner App Test</title>
+  <title>YouTube Banner Editor</title>
   <style>
-    body { background: #111; color: #fff; text-align: center; font-family: sans-serif; }
-    canvas { border: 2px solid yellow; margin: 20px auto; display: block; background: #000; }
+    body { background: #111; color: #fff; text-align: center; font-family: Arial, sans-serif; }
+    canvas { border: 2px solid yellow; display: block; margin: 20px auto; background-color: #000; }
     .hidden { display: none; }
+    .step { margin: 20px 0; }
   </style>
 </head>
 <body>
 
-<h3>Step 1: Choose your background</h3>
-<input type="file" id="bgInput" accept="image/*" />
-<button id="skipBtn">Skip</button>
+  <div class="step">
+    <h3>Step 1: Choose your background or skip</h3>
+    <input type="file" id="bgInput" accept="image/*" />
+    <button id="skipBtn">Skip</button>
+  </div>
 
-<div id="step2" class="hidden">
-  <h3>Step 2: Choose your mobile image</h3>
-  <input type="file" id="mobileInput" accept="image/*" />
-</div>
+  <div id="step2" class="step hidden">
+    <h3>Step 2: Choose your mobile-safe image</h3>
+    <input type="file" id="mobileInput" accept="image/*" />
+  </div>
 
-<canvas id="bannerCanvas" width="2560" height="1440"></canvas>
+  <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
 
-<script>
-  const canvas = document.getElementById('bannerCanvas');
-  const ctx = canvas.getContext('2d');
+  <script>
+    const canvas = document.getElementById('bannerCanvas');
+    const ctx = canvas.getContext('2d');
 
-  const bgInput = document.getElementById('bgInput');
-  const skipBtn = document.getElementById('skipBtn');
-  const step2 = document.getElementById('step2');
+    const bgInput = document.getElementById('bgInput');
+    const skipBtn = document.getElementById('skipBtn');
+    const step2 = document.getElementById('step2');
 
-  let backgroundImg = null;
+    let backgroundLoaded = false;
 
-  function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (backgroundImg) ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
-    ctx.strokeStyle = 'lime';
-    ctx.strokeRect(740, 620, 1080, 200);
-  }
+    function drawBaseOverlay() {
+      ctx.strokeStyle = 'lime';
+      ctx.strokeRect(740, 620, 1080, 200); // mobile safe zone
+    }
 
-  bgInput.addEventListener('change', () => {
-    const file = bgInput.files[0];
-    if (!file) return;
+    function drawBackgroundImage(imageSrc) {
+      const img = new Image();
+      img.onload = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        drawBaseOverlay();
+        backgroundLoaded = true;
+        step2.classList.remove('hidden');
+      };
+      img.src = imageSrc;
+    }
 
-    const img = new Image();
-    img.onload = () => {
-      backgroundImg = img;
-      draw();
+    bgInput.addEventListener('change', () => {
+      const file = bgInput.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        drawBackgroundImage(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    skipBtn.addEventListener('click', () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawBaseOverlay();
+      backgroundLoaded = true;
       step2.classList.remove('hidden');
-    };
-    img.src = URL.createObjectURL(file);
-  });
-
-  skipBtn.addEventListener('click', () => {
-    backgroundImg = null;
-    draw();
-    step2.classList.remove('hidden');
-  });
-</script>
+    });
+  </script>
 
 </body>
 </html>
