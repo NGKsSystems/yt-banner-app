@@ -64,7 +64,6 @@
       points.forEach(([px, py]) => {
         ctx.fillRect(px - handleSize/2, py - handleSize/2, handleSize, handleSize);
         ctx.strokeRect(px - handleSize/2, py - handleSize/2, handleSize, handleSize);
-      });
         ctx.fillRect(px - handleSize/2, py - handleSize/2, handleSize, handleSize);
       });
     }
@@ -152,22 +151,6 @@ let hovering = false;
           dragOffsetY = my - o.y;
           o.selected = true;
           drawCanvas();
-let hovering = false;
-      for (let i = overlays.length - 1; i >= 0; i--) {
-        const o = overlays[i];
-        if (o.bg) continue;
-        const hIndex = hitTestHandle(o, mx, my);
-        if (hIndex !== -1) {
-          canvas.style.cursor = "nwse-resize";
-          hovering = true;
-          break;
-        } else if (mx >= o.x && mx <= o.x + o.width && my >= o.y && my <= o.y + o.height) {
-          canvas.style.cursor = "move";
-          hovering = true;
-          break;
-        }
-      }
-      if (!hovering) canvas.style.cursor = "default";
           return;
         }
       }
@@ -181,41 +164,9 @@ let hovering = false;
         dragging.x = mx - dragOffsetX;
         dragging.y = my - dragOffsetY;
         drawCanvas();
-let hovering = false;
-      for (let i = overlays.length - 1; i >= 0; i--) {
-        const o = overlays[i];
-        if (o.bg) continue;
-        const hIndex = hitTestHandle(o, mx, my);
-        if (hIndex !== -1) {
-          canvas.style.cursor = "nwse-resize";
-          hovering = true;
-          break;
-        } else if (mx >= o.x && mx <= o.x + o.width && my >= o.y && my <= o.y + o.height) {
-          canvas.style.cursor = "move";
-          hovering = true;
-          break;
-        }
-      }
-      if (!hovering) canvas.style.cursor = "default";
       } else if (resizing) {
         resizeByHandle(resizing, selectedHandle, mx, my);
         drawCanvas();
-let hovering = false;
-      for (let i = overlays.length - 1; i >= 0; i--) {
-        const o = overlays[i];
-        if (o.bg) continue;
-        const hIndex = hitTestHandle(o, mx, my);
-        if (hIndex !== -1) {
-          canvas.style.cursor = "nwse-resize";
-          hovering = true;
-          break;
-        } else if (mx >= o.x && mx <= o.x + o.width && my >= o.y && my <= o.y + o.height) {
-          canvas.style.cursor = "move";
-          hovering = true;
-          break;
-        }
-      }
-      if (!hovering) canvas.style.cursor = "default";
       }
     });
 
@@ -226,33 +177,12 @@ let hovering = false;
     });
 
     bgInput.addEventListener("change", e => {
-  const file = e.target.files[0];
-  if (!file) return;
-  const img = new Image();
-  img.onload = () => {
-    overlays.push({ img, bg: true });
-    drawCanvas();
-    document.getElementById("step2").classList.remove("hidden");
-  };
-  img.src = URL.createObjectURL(file);
-});););
+      const file = e.target.files[0];
+      if (!file) return;
+      const img = new Image();
+      img.onload = () => {
+        overlays.push({ img, bg: true });
         drawCanvas();
-let hovering = false;
-      for (let i = overlays.length - 1; i >= 0; i--) {
-        const o = overlays[i];
-        if (o.bg) continue;
-        const hIndex = hitTestHandle(o, mx, my);
-        if (hIndex !== -1) {
-          canvas.style.cursor = "nwse-resize";
-          hovering = true;
-          break;
-        } else if (mx >= o.x && mx <= o.x + o.width && my >= o.y && my <= o.y + o.height) {
-          canvas.style.cursor = "move";
-          hovering = true;
-          break;
-        }
-      }
-      if (!hovering) canvas.style.cursor = "default";
         document.getElementById("step2").classList.remove("hidden");
       };
       img.src = URL.createObjectURL(file);
@@ -260,22 +190,6 @@ let hovering = false;
 
     skipBg.addEventListener("click", () => {
       drawCanvas();
-let hovering = false;
-      for (let i = overlays.length - 1; i >= 0; i--) {
-        const o = overlays[i];
-        if (o.bg) continue;
-        const hIndex = hitTestHandle(o, mx, my);
-        if (hIndex !== -1) {
-          canvas.style.cursor = "nwse-resize";
-          hovering = true;
-          break;
-        } else if (mx >= o.x && mx <= o.x + o.width && my >= o.y && my <= o.y + o.height) {
-          canvas.style.cursor = "move";
-          hovering = true;
-          break;
-        }
-      }
-      if (!hovering) canvas.style.cursor = "default";
       document.getElementById("step2").classList.remove("hidden");
     });
 
@@ -293,22 +207,6 @@ let hovering = false;
           mobileSafe: true
         });
         drawCanvas();
-let hovering = false;
-      for (let i = overlays.length - 1; i >= 0; i--) {
-        const o = overlays[i];
-        if (o.bg) continue;
-        const hIndex = hitTestHandle(o, mx, my);
-        if (hIndex !== -1) {
-          canvas.style.cursor = "nwse-resize";
-          hovering = true;
-          break;
-        } else if (mx >= o.x && mx <= o.x + o.width && my >= o.y && my <= o.y + o.height) {
-          canvas.style.cursor = "move";
-          hovering = true;
-          break;
-        }
-      }
-      if (!hovering) canvas.style.cursor = "default";
         document.getElementById("step3").classList.remove("hidden");
         document.getElementById("exportSection").classList.remove("hidden");
       };
@@ -328,22 +226,6 @@ let hovering = false;
           height: 100
         });
         drawCanvas();
-let hovering = false;
-      for (let i = overlays.length - 1; i >= 0; i--) {
-        const o = overlays[i];
-        if (o.bg) continue;
-        const hIndex = hitTestHandle(o, mx, my);
-        if (hIndex !== -1) {
-          canvas.style.cursor = "nwse-resize";
-          hovering = true;
-          break;
-        } else if (mx >= o.x && mx <= o.x + o.width && my >= o.y && my <= o.y + o.height) {
-          canvas.style.cursor = "move";
-          hovering = true;
-          break;
-        }
-      }
-      if (!hovering) canvas.style.cursor = "default";
       };
       img.src = URL.createObjectURL(file);
     });
