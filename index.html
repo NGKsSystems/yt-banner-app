@@ -2,55 +2,66 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NGKs Banner Editor</title>
   <style>
     body {
       background-color: #111;
       color: #fff;
-      font-family: Arial, sans-serif;
       text-align: center;
+      font-family: Arial, sans-serif;
     }
+
+    #controls {
+      margin-top: 10px;
+    }
+
     canvas {
       border: 2px solid yellow;
-      margin: 20px auto;
       display: block;
-    }
-    .step-line {
-      margin: 20px;
-    }
-    .step-line span {
-      margin: 0 10px;
+      margin: 20px auto;
     }
   </style>
 </head>
 <body>
   <h2>NGKs Banner Editor</h2>
 
-  <div class="step-line">
+  <div id="controls">
     Step 1: Choose your background
-    <input type="file" id="backgroundInput" accept="image/*" />
-    <span>or</span>
-    <button id="skipBtn">Skip</button>
+    <input type="file" id="backgroundInput" accept="image/*">
+    or <button id="skipBtn">Skip</button>
   </div>
 
   <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
+  <button id="exportBtn">Export Banner</button>
 
   <script>
     const canvas = document.getElementById('bannerCanvas');
     const ctx = canvas.getContext('2d');
     const backgroundInput = document.getElementById('backgroundInput');
     const skipBtn = document.getElementById('skipBtn');
+    const exportBtn = document.getElementById('exportBtn');
+
+    function drawSafeZones() {
+      ctx.strokeStyle = 'yellow';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(0, 0, canvas.width, canvas.height); // Full TV safe zone
+
+      ctx.strokeStyle = 'lime';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(740, 620, 1080, 200); // Mobile safe zone
+    }
 
     backgroundInput.addEventListener('change', () => {
       const file = backgroundInput.files[0];
       if (!file) return;
+
       const img = new Image();
       img.onload = () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
         drawSafeZones();
       };
+      img.onerror = () => console.error("Image failed to load.");
       img.src = URL.createObjectURL(file);
     });
 
@@ -59,15 +70,15 @@
       drawSafeZones();
     });
 
-    function drawSafeZones() {
-      // Outer TV zone
-      ctx.strokeStyle = 'yellow';
-      ctx.strokeRect(0, 0, canvas.width, canvas.height);
+    exportBtn.addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.download = 'yt_banner_final.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    });
 
-      // Mobile safe zone
-      ctx.strokeStyle = 'lime';
-      ctx.strokeRect(740, 620, 1080, 200);
-    }
+    // Init with safe zones on load
+    drawSafeZones();
   </script>
 </body>
 </html>
