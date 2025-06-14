@@ -66,9 +66,8 @@
 </head>
 <body>
 
-<div style="display:flex; justify-content:space-between; align-items:center; padding:30px 20px 10px 20px; background:#111; color:white;">
+<div style="display:flex; justify-content:space-between; align-items:center; margin:30px 96px 10px 96px;">
   <img src="https://raw.githubusercontent.com/NGKsSystems/yt-banner-app/main/NGKsExactFit.png" alt="NGKS ExactFit" style="height:150px;">
-  <h1 style="margin:0; font-size:32px;">YT Banner Editor</h1>
   <a href="https://NGKsSystems.com" target="_blank">
     <img src="https://raw.githubusercontent.com/NGKsSystems/yt-banner-app/main/NGKsSystems%20%204.png" alt="NGKsSystems" style="height:150px;">
   </a>
@@ -117,6 +116,9 @@
     const ctx = canvas.getContext('2d');
     const overlays = [];
     let selected = null;
+let isDragging = false;
+let isResizing = false;
+let resizeHandle = null;
 let isDragging = false;
 let isResizing = false;
     let resizing = null;
