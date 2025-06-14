@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -43,7 +42,6 @@
     const handleSize = 10;
     let dragging = null, resizing = null, selectedHandle = null;
     let dragOffsetX = 0, dragOffsetY = 0;
-let exporting = false;
 
     const bgInput = document.getElementById("bgInput");
     const skipBg = document.getElementById("skipBg");
@@ -73,21 +71,11 @@ let exporting = false;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       const bg = overlays.find(o => o.bg);
       if (bg) ctx.drawImage(bg.img, 0, 0, canvas.width, canvas.height);
-// Draw static yellow mobile-safe zone overlay (YouTube spec)
-  if (!exporting) {
-  ctx.strokeStyle = "yellow";
-  ctx.lineWidth = 2;
-  ctx.strokeRect(507, 509, 1546, 423);
-}
 
       overlays.forEach(o => {
         if (!o.bg) ctx.drawImage(o.img, o.x, o.y, o.width, o.height);
-        if (o.selected) {
-        if (showHandles && o.selected) {
-  ctx.strokeStyle = o.mobileSafe ? "lime" : "red";
-  ctx.strokeRect(o.x, o.y, o.width, o.height);
-}
-      }
+        ctx.strokeStyle = o.mobileSafe ? "lime" : "red";
+        ctx.strokeRect(o.x, o.y, o.width, o.height);
         if (showHandles && o.selected) drawHandles(o);
       });
     }
@@ -248,13 +236,11 @@ let hovering = false;
 
     exportBtn.addEventListener("click", () => {
       overlays.forEach(o => o.selected = false);
-      exporting = true;
       drawCanvas(false);
       const link = document.createElement("a");
       link.download = `yt_banner_${Date.now()}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
-      exporting = false;
       drawCanvas(true);
     });
   
