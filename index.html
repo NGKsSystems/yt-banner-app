@@ -2,69 +2,81 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>NGKs Banner Editor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>YouTube Banner Editor</title>
   <style>
-    body { background: #111; color: white; text-align: center; font-family: Arial; }
-    canvas { border: 2px solid yellow; background: #000; }
-    .hidden { display: none; }
+    body {
+      background-color: #111;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    #controls {
+      margin: 10px auto;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    canvas {
+      border: 2px solid yellow;
+      margin-top: 20px;
+      background-color: #333;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .resize-handle {
+      width: 10px;
+      height: 10px;
+      background: white;
+      position: absolute;
+      cursor: se-resize;
+    }
   </style>
 </head>
 <body>
-  <h3>NGKs Banner Editor</h3>
+  <h2>NGKs Banner Editor</h2>
 
-  <div id="step1">
-    Step 1: Choose your background 
-    <input type="file" id="bgInput" accept="image/*" />
+  <div id="controls">
+    <label>Choose Background:
+      <input type="file" id="bgInput" accept="image/*" />
+    </label>
     <button id="skipBg">Skip</button>
-  </div>
 
-  <div id="step2" class="hidden">
-    Step 2: Choose your mobile-safe image
-    <input type="file" id="mobileInput" accept="image/*" />
-  </div>
+    <label id="step2" class="hidden">Choose Mobile Safe Image:
+      <input type="file" id="mobileInput" accept="image/*" />
+    </label>
 
-  <div id="step3" class="hidden">
-    Step 3: Add additional images
-    <input type="file" id="extraInput" accept="image/*" />
-  </div>
+    <label id="step3" class="hidden">Add Extra Images:
+      <input type="file" id="extraInput" accept="image/*" />
+    </label>
 
-  <div id="exportSection" class="hidden">
-    <button id="exportBtn">Export Banner</button>
+    <button id="exportBtn" class="hidden">Export Banner</button>
   </div>
 
   <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
 
   <script>
-    const canvas = document.getElementById("bannerCanvas");
-    const ctx = canvas.getContext("2d");
+    const canvas = document.getElementById('bannerCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const bgInput = document.getElementById('bgInput');
+    const mobileInput = document.getElementById('mobileInput');
+    const extraInput = document.getElementById('extraInput');
+    const exportBtn = document.getElementById('exportBtn');
+    const skipBgBtn = document.getElementById('skipBg');
+
     const overlays = [];
-    const resizeSize = 15;
-
-    let dragging = null, resizing = null, dragOffsetX = 0, dragOffsetY = 0;
-
-    const bgInput = document.getElementById("bgInput");
-    const skipBg = document.getElementById("skipBg");
-    const mobileInput = document.getElementById("mobileInput");
-    const extraInput = document.getElementById("extraInput");
-    const exportBtn = document.getElementById("exportBtn");
-
-    function drawCanvas(showHandles = true) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const bg = overlays.find(o => o.bg);
-      if (bg) ctx.drawImage(bg.img, 0, 0, canvas.width, canvas.height);
-
-      overlays.forEach(o => {
-        if (!o.bg) ctx.drawImage(o.img, o.x, o.y, o.width, o.height);
-        if (showHandles && !o.bg) {
-          ctx.strokeStyle = o.mobileSafe ? "lime" : "red";
-          ctx.strokeRect(o.x, o.y, o.width, o.height);
-          if (!o.mobileSafe) {
-            ctx.fillStyle = "white";
-            ctx.fillRect(o.x + o.width - resizeSize, o.y + o.height - resizeSize, resizeSize, resizeSize);
-          }
-        }
-      });
-    }
+    let selected = null;
+    let offsetX = 0;
+    let offsetY = 0;
+    let dragging = false;
+    let resizing = false;
 
     bgInput.addEventListener("change", e => {
       const file = e.target.files[0];
@@ -72,33 +84,27 @@
       const img = new Image();
       img.onload = () => {
         overlays.push({ img, bg: true });
-        drawCanvas();
-        document.getElementById("step2").classList.remove("hidden");
+        setTimeout(() => {
+          drawCanvas();
+          document.getElementById("step2").classList.remove("hidden");
+        }, 50);
       };
       img.src = URL.createObjectURL(file);
     });
 
-    skipBg.addEventListener("click", () => {
-      drawCanvas();
+    skipBgBtn.onclick = () => {
       document.getElementById("step2").classList.remove("hidden");
-    });
+    };
 
     mobileInput.addEventListener("change", e => {
       const file = e.target.files[0];
       if (!file) return;
       const img = new Image();
       img.onload = () => {
-        overlays.push({
-          img,
-          x: 507,
-          y: 509,
-          width: 1546,
-          height: 423,
-          mobileSafe: true
-        });
+        overlays.push({ img, x: 740, y: 620, w: 1080, h: 200, lock: true });
         drawCanvas();
         document.getElementById("step3").classList.remove("hidden");
-        document.getElementById("exportSection").classList.remove("hidden");
+        exportBtn.classList.remove("hidden");
       };
       img.src = URL.createObjectURL(file);
     });
@@ -108,77 +114,102 @@
       if (!file) return;
       const img = new Image();
       img.onload = () => {
-        overlays.push({
-          img,
-          x: 100,
-          y: 100,
-          width: 300,
-          height: 100
-        });
+        overlays.push({ img, x: 100, y: 100, w: 300, h: 150, lock: false });
         drawCanvas();
       };
       img.src = URL.createObjectURL(file);
     });
 
+    exportBtn.addEventListener("click", () => {
+      drawCanvas(true); // remove handles
+      const link = document.createElement('a');
+      link.download = 'yt_banner_final.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      drawCanvas(); // redraw with handles
+    });
+
+    function drawCanvas(hideHandles = false) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      overlays.forEach(o => {
+        if (o.bg) {
+          ctx.drawImage(o.img, 0, 0, canvas.width, canvas.height);
+        } else {
+          ctx.drawImage(o.img, o.x, o.y, o.w, o.h);
+          if (!hideHandles && !o.lock) {
+            ctx.strokeStyle = 'white';
+            ctx.strokeRect(o.x, o.y, o.w, o.h);
+            ctx.fillStyle = 'white';
+            ctx.fillRect(o.x + o.w - 5, o.y + o.h - 5, 10, 10);
+          }
+        }
+      });
+
+      // Draw zones
+      ctx.strokeStyle = 'lime';
+      ctx.strokeRect(740, 620, 1080, 200); // Mobile safe
+
+      ctx.strokeStyle = 'yellow';
+      ctx.strokeRect(0, 0, canvas.width, canvas.height); // TV safe
+    }
+
     canvas.addEventListener("mousedown", e => {
-      const rect = canvas.getBoundingClientRect();
-      const mx = e.clientX - rect.left;
-      const my = e.clientY - rect.top;
+      const mx = e.offsetX;
+      const my = e.offsetY;
 
       for (let i = overlays.length - 1; i >= 0; i--) {
         const o = overlays[i];
-        if (o.bg || o.mobileSafe) continue;
-
-        const inResize = (
-          mx >= o.x + o.width - resizeSize &&
-          mx <= o.x + o.width &&
-          my >= o.y + o.height - resizeSize &&
-          my <= o.y + o.height
-        );
-
-        if (inResize) {
-          resizing = o;
+        if (o.lock || o.bg) continue;
+        if (
+          mx >= o.x + o.w - 10 &&
+          mx <= o.x + o.w &&
+          my >= o.y + o.h - 10 &&
+          my <= o.y + o.h
+        ) {
+          selected = o;
+          resizing = true;
           return;
-        }
-
-        const inBox = mx >= o.x && mx <= o.x + o.width && my >= o.y && my <= o.y + o.height;
-        if (inBox) {
-          dragging = o;
-          dragOffsetX = mx - o.x;
-          dragOffsetY = my - o.y;
+        } else if (
+          mx >= o.x &&
+          mx <= o.x + o.w &&
+          my >= o.y &&
+          my <= o.y + o.h
+        ) {
+          selected = o;
+          dragging = true;
+          offsetX = mx - o.x;
+          offsetY = my - o.y;
           return;
         }
       }
     });
 
     canvas.addEventListener("mousemove", e => {
-      const rect = canvas.getBoundingClientRect();
-      const mx = e.clientX - rect.left;
-      const my = e.clientY - rect.top;
+      if (!selected) return;
+      const mx = e.offsetX;
+      const my = e.offsetY;
 
-      if (dragging) {
-        dragging.x = mx - dragOffsetX;
-        dragging.y = my - dragOffsetY;
-        drawCanvas();
-      } else if (resizing) {
-        resizing.width = Math.max(30, mx - resizing.x);
-        resizing.height = Math.max(30, my - resizing.y);
-        drawCanvas();
+      if (resizing) {
+        selected.w = mx - selected.x;
+        selected.h = my - selected.y;
+      } else if (dragging) {
+        selected.x = mx - offsetX;
+        selected.y = my - offsetY;
       }
+      drawCanvas();
     });
 
     canvas.addEventListener("mouseup", () => {
-      dragging = null;
-      resizing = null;
+      dragging = false;
+      resizing = false;
+      selected = null;
     });
 
-    exportBtn.addEventListener("click", () => {
-      drawCanvas(false);
-      const link = document.createElement("a");
-      link.download = "yt_banner_final.png";
-      link.href = canvas.toDataURL("image/png");
-      link.click();
-      drawCanvas(true);
+    canvas.addEventListener("mouseout", () => {
+      dragging = false;
+      resizing = false;
+      selected = null;
     });
   </script>
 </body>
