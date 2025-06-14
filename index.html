@@ -21,11 +21,7 @@
       margin: 20px auto;
     }
 
-    input[type="file"] {
-      margin: 5px;
-    }
-
-    button {
+    input[type="file"], button {
       margin: 5px;
     }
   </style>
@@ -44,6 +40,11 @@
       Step 2: Choose your mobile view image
       <input type="file" id="mobileInput" accept="image/*">
     </div>
+
+    <div id="step3" style="display:none;">
+      Step 3: Add additional images
+      <input type="file" id="extraImageInput" accept="image/*" multiple>
+    </div>
   </div>
 
   <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
@@ -52,14 +53,20 @@
   <script>
     const canvas = document.getElementById('bannerCanvas');
     const ctx = canvas.getContext('2d');
+
     const backgroundInput = document.getElementById('backgroundInput');
     const mobileInput = document.getElementById('mobileInput');
+    const extraImageInput = document.getElementById('extraImageInput');
     const skipBtn = document.getElementById('skipBtn');
     const exportBtn = document.getElementById('exportBtn');
+
     const step2 = document.getElementById('step2');
+    const step3 = document.getElementById('step3');
 
     let backgroundImage = null;
     let mobileImage = null;
+
+    const overlays = [];
 
     function drawCanvas() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -68,23 +75,27 @@
         ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
       }
 
-      // Draw mobile image inside mobile safe zone if available
       if (mobileImage) {
         ctx.drawImage(mobileImage, 740, 620, 1080, 200);
       }
+
+      overlays.forEach(imgObj => {
+        ctx.drawImage(imgObj.img, imgObj.x, imgObj.y, imgObj.width, imgObj.height);
+        if (imgObj === selectedOverlay) {
+          ctx.strokeStyle = 'lime';
+          ctx.strokeRect(imgObj.x, imgObj.y, imgObj.width, imgObj.height);
+        }
+      });
 
       drawSafeZones();
     }
 
     function drawSafeZones() {
-      // TV zone
       ctx.strokeStyle = 'yellow';
       ctx.lineWidth = 2;
       ctx.strokeRect(0, 0, canvas.width, canvas.height);
 
-      // Mobile safe zone
       ctx.strokeStyle = 'lime';
-      ctx.lineWidth = 2;
       ctx.strokeRect(740, 620, 1080, 200);
     }
 
@@ -115,8 +126,21 @@
       img.onload = () => {
         mobileImage = img;
         drawCanvas();
+        step3.style.display = 'block';
       };
       img.src = URL.createObjectURL(file);
+    });
+
+    extraImageInput.addEventListener('change', () => {
+      const files = Array.from(extraImageInput.files);
+      files.forEach(file => {
+        const img = new Image();
+        img.onload = () => {
+          overlays.push({ img, x: 100, y: 100, width: 300, height: 150 });
+          drawCanvas();
+        };
+        img.src = URL.createObjectURL(file);
+      });
     });
 
     exportBtn.addEventListener('click', () => {
@@ -126,7 +150,54 @@
       link.click();
     });
 
-    drawCanvas(); // Initial empty state with outlines
+    // ===== DRAGGABLE/SCALABLE IMAGE HANDLING =====
+    let selectedOverlay = null;
+    let offsetX, offsetY;
+    let dragging = false;
+
+    canvas.addEventListener('mousedown', e => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+
+      for (let i = overlays.length - 1; i >= 0; i--) {
+        const o = overlays[i];
+        if (mx >= o.x && mx <= o.x + o.width && my >= o.y && my <= o.y + o.height) {
+          selectedOverlay = o;
+          offsetX = mx - o.x;
+          offsetY = my - o.y;
+          dragging = true;
+          drawCanvas();
+          return;
+        }
+      }
+
+      selectedOverlay = null;
+      drawCanvas();
+    });
+
+    canvas.addEventListener('mousemove', e => {
+      if (!dragging || !selectedOverlay) return;
+      const rect = canvas.getBoundingClientRect();
+      selectedOverlay.x = e.clientX - rect.left - offsetX;
+      selectedOverlay.y = e.clientY - rect.top - offsetY;
+      drawCanvas();
+    });
+
+    canvas.addEventListener('mouseup', () => dragging = false);
+    canvas.addEventListener('mouseleave', () => dragging = false);
+
+    canvas.addEventListener('wheel', e => {
+      if (e.shiftKey && selectedOverlay) {
+        e.preventDefault();
+        const delta = e.deltaY < 0 ? 1.05 : 0.95;
+        selectedOverlay.width *= delta;
+        selectedOverlay.height *= delta;
+        drawCanvas();
+      }
+    });
+
+    drawCanvas();
   </script>
 </body>
 </html>
