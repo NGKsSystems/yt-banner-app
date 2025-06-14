@@ -9,15 +9,21 @@
   }
 
   h2 {
-    margin-top: 10px;
+    margin: 15px;
+  }
+
+  #canvasWrapper {
+    width: 90%;
+    max-width: 1280px;
+    margin: 20px auto;
+    position: relative;
   }
 
   #bannerCanvas {
-    max-width: 100%;
+    width: 100%;
     height: auto;
-    border: 2px solid yellow;
-    margin: 10px auto;
     display: block;
+    border: 2px solid yellow;
   }
 
   input[type="file"],
