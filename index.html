@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>NGKs Banner Editor</title>
   <style>
     body {
@@ -11,153 +11,63 @@
       font-family: Arial, sans-serif;
       text-align: center;
     }
-    #canvasWrapper {
+    canvas {
       border: 2px solid yellow;
       margin: 20px auto;
-      display: inline-block;
-    }
-    canvas {
       display: block;
-      width: 100%;
-      height: auto;
     }
-    input[type="file"] {
-      margin: 10px;
+    .step-line {
+      margin: 20px;
     }
-    button {
-      margin-top: 10px;
-    }
-    .hidden {
-      display: none;
+    .step-line span {
+      margin: 0 10px;
     }
   </style>
 </head>
 <body>
   <h2>NGKs Banner Editor</h2>
 
-  <!-- Step 1: Background -->
-  <div id="step1">
-    <p>Step 1: Choose your background or <button onclick="skipBackground()">Skip</button></p>
+  <div class="step-line">
+    Step 1: Choose your background
     <input type="file" id="backgroundInput" accept="image/*" />
+    <span>or</span>
+    <button id="skipBtn">Skip</button>
   </div>
 
-  <!-- Step 2: Mobile -->
-  <div id="step2" class="hidden">
-    <p>Step 2: Choose your mobile view image</p>
-    <input type="file" id="mobileInput" accept="image/*" />
-  </div>
-
-  <!-- Step 3: Additional -->
-  <div id="step3" class="hidden">
-    <p>Step 3: Would you like to add additional images?</p>
-    <input type="file" id="extraInput" accept="image/*" multiple />
-    <br />
-    <button onclick="buildCanvas()">Done, Build Banner</button>
-  </div>
-
-  <div id="canvasWrapper" class="hidden">
-    <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
-  </div>
-
-  <div id="exportControls" class="hidden">
-    <button id="exportBtn">Export Banner</button>
-  </div>
+  <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
 
   <script>
-    const canvas = document.getElementById("bannerCanvas");
-    const ctx = canvas.getContext("2d");
+    const canvas = document.getElementById('bannerCanvas');
+    const ctx = canvas.getContext('2d');
+    const backgroundInput = document.getElementById('backgroundInput');
+    const skipBtn = document.getElementById('skipBtn');
 
-    let backgroundImg = null;
-    let mobileImg = null;
-    let extraImgs = [];
-
-    document.getElementById("backgroundInput").addEventListener("change", function (e) {
-      const file = e.target.files[0];
-      if (file) {
-        const img = new Image();
-        img.onload = () => {
-          backgroundImg = img;
-          document.getElementById("step1").classList.add("hidden");
-          document.getElementById("step2").classList.remove("hidden");
-        };
-        img.src = URL.createObjectURL(file);
-      }
+    backgroundInput.addEventListener('change', () => {
+      const file = backgroundInput.files[0];
+      if (!file) return;
+      const img = new Image();
+      img.onload = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        drawSafeZones();
+      };
+      img.src = URL.createObjectURL(file);
     });
 
-    document.getElementById("mobileInput").addEventListener("change", function (e) {
-      const file = e.target.files[0];
-      if (file) {
-        const img = new Image();
-        img.onload = () => {
-          mobileImg = img;
-          document.getElementById("step2").classList.add("hidden");
-          document.getElementById("step3").classList.remove("hidden");
-        };
-        img.src = URL.createObjectURL(file);
-      }
-    });
-
-    document.getElementById("extraInput").addEventListener("change", function (e) {
-      extraImgs = [];
-      Array.from(e.target.files).forEach(file => {
-        const img = new Image();
-        img.onload = () => {
-          extraImgs.push(img);
-        };
-        img.src = URL.createObjectURL(file);
-      });
-    });
-
-    function skipBackground() {
-      document.getElementById("step1").classList.add("hidden");
-      document.getElementById("step2").classList.remove("hidden");
-    }
-
-    function buildCanvas() {
+    skipBtn.addEventListener('click', () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawSafeZones();
+    });
 
-      if (backgroundImg) {
-        ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
-      }
-
-      if (mobileImg) {
-        const x = 740;
-        const y = 620;
-        const w = 1080;
-        const h = 200;
-        ctx.drawImage(mobileImg, x, y, w, h);
-      }
-
-      extraImgs.forEach((img, i) => {
-        const w = 400;
-        const h = (img.height / img.width) * w;
-        const x = 100 + (i * 420);
-        const y = 50;
-        ctx.drawImage(img, x, y, w, h);
-      });
-
-      drawGuides();
-
-      document.getElementById("canvasWrapper").classList.remove("hidden");
-      document.getElementById("exportControls").classList.remove("hidden");
-    }
-
-    function drawGuides() {
-      // TV Safe Zone
-      ctx.strokeStyle = "yellow";
+    function drawSafeZones() {
+      // Outer TV zone
+      ctx.strokeStyle = 'yellow';
       ctx.strokeRect(0, 0, canvas.width, canvas.height);
 
-      // Mobile Safe Zone
-      ctx.strokeStyle = "lime";
+      // Mobile safe zone
+      ctx.strokeStyle = 'lime';
       ctx.strokeRect(740, 620, 1080, 200);
     }
-
-    document.getElementById("exportBtn").addEventListener("click", () => {
-      const link = document.createElement("a");
-      link.download = "yt_banner_final.png";
-      link.href = canvas.toDataURL("image/png");
-      link.click();
-    });
   </script>
 </body>
 </html>
