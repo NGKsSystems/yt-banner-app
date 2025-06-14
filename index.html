@@ -20,15 +20,30 @@
       display: block;
       margin: 20px auto;
     }
+
+    input[type="file"] {
+      margin: 5px;
+    }
+
+    button {
+      margin: 5px;
+    }
   </style>
 </head>
 <body>
   <h2>NGKs Banner Editor</h2>
 
   <div id="controls">
-    Step 1: Choose your background
-    <input type="file" id="backgroundInput" accept="image/*">
-    or <button id="skipBtn">Skip</button>
+    <div id="step1">
+      Step 1: Choose your background
+      <input type="file" id="backgroundInput" accept="image/*">
+      or <button id="skipBtn">Skip</button>
+    </div>
+
+    <div id="step2" style="display:none;">
+      Step 2: Choose your mobile view image
+      <input type="file" id="mobileInput" accept="image/*">
+    </div>
   </div>
 
   <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
@@ -38,17 +53,39 @@
     const canvas = document.getElementById('bannerCanvas');
     const ctx = canvas.getContext('2d');
     const backgroundInput = document.getElementById('backgroundInput');
+    const mobileInput = document.getElementById('mobileInput');
     const skipBtn = document.getElementById('skipBtn');
     const exportBtn = document.getElementById('exportBtn');
+    const step2 = document.getElementById('step2');
+
+    let backgroundImage = null;
+    let mobileImage = null;
+
+    function drawCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (backgroundImage) {
+        ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+      }
+
+      // Draw mobile image inside mobile safe zone if available
+      if (mobileImage) {
+        ctx.drawImage(mobileImage, 740, 620, 1080, 200);
+      }
+
+      drawSafeZones();
+    }
 
     function drawSafeZones() {
+      // TV zone
       ctx.strokeStyle = 'yellow';
       ctx.lineWidth = 2;
-      ctx.strokeRect(0, 0, canvas.width, canvas.height); // Full TV safe zone
+      ctx.strokeRect(0, 0, canvas.width, canvas.height);
 
+      // Mobile safe zone
       ctx.strokeStyle = 'lime';
       ctx.lineWidth = 2;
-      ctx.strokeRect(740, 620, 1080, 200); // Mobile safe zone
+      ctx.strokeRect(740, 620, 1080, 200);
     }
 
     backgroundInput.addEventListener('change', () => {
@@ -57,17 +94,29 @@
 
       const img = new Image();
       img.onload = () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        drawSafeZones();
+        backgroundImage = img;
+        drawCanvas();
+        step2.style.display = 'block';
       };
-      img.onerror = () => console.error("Image failed to load.");
       img.src = URL.createObjectURL(file);
     });
 
     skipBtn.addEventListener('click', () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drawSafeZones();
+      backgroundImage = null;
+      drawCanvas();
+      step2.style.display = 'block';
+    });
+
+    mobileInput.addEventListener('change', () => {
+      const file = mobileInput.files[0];
+      if (!file) return;
+
+      const img = new Image();
+      img.onload = () => {
+        mobileImage = img;
+        drawCanvas();
+      };
+      img.src = URL.createObjectURL(file);
     });
 
     exportBtn.addEventListener('click', () => {
@@ -77,8 +126,7 @@
       link.click();
     });
 
-    // Init with safe zones on load
-    drawSafeZones();
+    drawCanvas(); // Initial empty state with outlines
   </script>
 </body>
 </html>
