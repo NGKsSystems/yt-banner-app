@@ -48,8 +48,15 @@
     const exportBtn = document.getElementById('exportBtn');
 
     let backgroundImg = null;
-    let objects = []; // Image objects with position and size
+    let objects = [];
     let selected = null;
+
+    const HANDLE_SIZE = 10;
+    let dragging = false;
+    let resizing = false;
+    let dragOffsetX = 0;
+    let dragOffsetY = 0;
+    let activeHandle = -1;
 
     function drawCanvas() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -60,7 +67,7 @@
         if (obj === selected) drawHandles(obj);
       }
 
-      // Draw Mobile Safe Zone overlay
+      // Mobile safe zone overlay
       ctx.strokeStyle = 'lime';
       ctx.lineWidth = 2;
       ctx.strokeRect(507, 508.5, 1546, 423);
@@ -68,15 +75,36 @@
 
     function drawHandles(obj) {
       ctx.fillStyle = '#00f';
-      const size = 10;
-      const corners = [
-        [obj.x, obj.y], [obj.x + obj.w / 2, obj.y], [obj.x + obj.w, obj.y],
-        [obj.x, obj.y + obj.h / 2], [obj.x + obj.w, obj.y + obj.h / 2],
-        [obj.x, obj.y + obj.h], [obj.x + obj.w / 2, obj.y + obj.h], [obj.x + obj.w, obj.y + obj.h]
-      ];
-      for (let [x, y] of corners) {
-        ctx.fillRect(x - size / 2, y - size / 2, size, size);
+      const points = getHandlePoints(obj);
+      for (let pt of points) {
+        ctx.fillRect(pt.x - HANDLE_SIZE / 2, pt.y - HANDLE_SIZE / 2, HANDLE_SIZE, HANDLE_SIZE);
       }
+    }
+
+    function getHandlePoints(obj) {
+      const x = obj.x, y = obj.y, w = obj.w, h = obj.h;
+      return [
+        { x: x, y: y },                   // top-left
+        { x: x + w / 2, y: y },           // top-center
+        { x: x + w, y: y },               // top-right
+        { x: x, y: y + h / 2 },           // middle-left
+        { x: x + w, y: y + h / 2 },       // middle-right
+        { x: x, y: y + h },               // bottom-left
+        { x: x + w / 2, y: y + h },       // bottom-center
+        { x: x + w, y: y + h }            // bottom-right
+      ];
+    }
+
+    function hitHandle(mx, my, obj) {
+      const points = getHandlePoints(obj);
+      for (let i = 0; i < points.length; i++) {
+        const pt = points[i];
+        if (mx >= pt.x - HANDLE_SIZE && mx <= pt.x + HANDLE_SIZE &&
+            my >= pt.y - HANDLE_SIZE && my <= pt.y + HANDLE_SIZE) {
+          return i;
+        }
+      }
+      return -1;
     }
 
     function createObject(img, x, y, w, h) {
@@ -100,7 +128,7 @@
       const img = new Image();
       img.onload = () => {
         const obj = createObject(img, 507, 508.5, 1546, 423);
-        objects.unshift(obj); // Keep mobile image always on bottom of interactive images
+        objects.unshift(obj);
         drawCanvas();
       };
       img.src = URL.createObjectURL(file);
@@ -126,28 +154,80 @@
       selected = null;
       for (let i = objects.length - 1; i >= 0; i--) {
         const obj = objects[i];
+        const handleIndex = hitHandle(mx, my, obj);
+        if (handleIndex !== -1) {
+          selected = obj;
+          activeHandle = handleIndex;
+          resizing = true;
+          return;
+        }
         if (mx >= obj.x && mx <= obj.x + obj.w && my >= obj.y && my <= obj.y + obj.h) {
           selected = obj;
-          offsetX = mx - obj.x;
-          offsetY = my - obj.y;
+          dragOffsetX = mx - obj.x;
+          dragOffsetY = my - obj.y;
           dragging = true;
-          break;
+          return;
         }
       }
       drawCanvas();
     });
 
-    let dragging = false, offsetX = 0, offsetY = 0;
-
     canvas.addEventListener('mousemove', e => {
-      if (!dragging || !selected) return;
+      if (!selected) return;
       const rect = canvas.getBoundingClientRect();
-      selected.x = e.clientX - rect.left - offsetX;
-      selected.y = e.clientY - rect.top - offsetY;
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+
+      if (dragging) {
+        selected.x = mx - dragOffsetX;
+        selected.y = my - dragOffsetY;
+      } else if (resizing) {
+        const old = { ...selected };
+        switch (activeHandle) {
+          case 0: // top-left
+            selected.w += selected.x - mx;
+            selected.h += selected.y - my;
+            selected.x = mx;
+            selected.y = my;
+            break;
+          case 1: // top-center
+            selected.h += selected.y - my;
+            selected.y = my;
+            break;
+          case 2: // top-right
+            selected.w = mx - selected.x;
+            selected.h += selected.y - my;
+            selected.y = my;
+            break;
+          case 3: // middle-left
+            selected.w += selected.x - mx;
+            selected.x = mx;
+            break;
+          case 4: // middle-right
+            selected.w = mx - selected.x;
+            break;
+          case 5: // bottom-left
+            selected.w += selected.x - mx;
+            selected.x = mx;
+            selected.h = my - selected.y;
+            break;
+          case 6: // bottom-center
+            selected.h = my - selected.y;
+            break;
+          case 7: // bottom-right
+            selected.w = mx - selected.x;
+            selected.h = my - selected.y;
+            break;
+        }
+      }
       drawCanvas();
     });
 
-    canvas.addEventListener('mouseup', () => dragging = false);
+    canvas.addEventListener('mouseup', () => {
+      dragging = false;
+      resizing = false;
+      activeHandle = -1;
+    });
 
     document.addEventListener('keydown', e => {
       if (e.key === 'Delete' && selected) {
@@ -163,7 +243,7 @@
     exportBtn.addEventListener('click', () => {
       const temp = selected;
       selected = null;
-      drawCanvas(); // no handles
+      drawCanvas();
       const link = document.createElement('a');
       link.download = 'yt_banner_final.png';
       link.href = canvas.toDataURL('image/png');
