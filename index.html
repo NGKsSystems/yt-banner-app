@@ -17,15 +17,7 @@
       margin: 20px auto;
     }
     .hidden { display: none; }
-    .handle {
-      width: 8px;
-      height: 8px;
-      background: white;
-      border: 1px solid black;
-      position: absolute;
-      z-index: 10;
-    }
-    #controls { margin-bottom: 10px; }
+    #controls button, #controls input { margin: 5px; }
   </style>
 </head>
 <body>
@@ -56,15 +48,12 @@
     const stepText = document.getElementById("stepText");
     const actions = document.getElementById("actions");
 
-    const mobileZone = { x: 507, y: 508, width: 1546, height: 423 };
+    const mobileZone = { x: 740, y: 620, width: 1080, height: 200 };
 
     let step = 1;
     let background = null;
     const images = [];
     let selectedIndex = -1;
-    let dragging = false;
-    let dragOffsetX = 0;
-    let dragOffsetY = 0;
 
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -76,44 +65,38 @@
           ctx.strokeStyle = 'lime';
           ctx.lineWidth = 2;
           ctx.strokeRect(img.x, img.y, img.w, img.h);
-          const pts = [
-            [img.x, img.y], [img.x + img.w / 2, img.y], [img.x + img.w, img.y],
-            [img.x + img.w, img.y + img.h / 2], [img.x + img.w, img.y + img.h],
-            [img.x + img.w / 2, img.y + img.h], [img.x, img.y + img.h],
-            [img.x, img.y + img.h / 2]
-          ];
-          ctx.fillStyle = 'white';
-          pts.forEach(([x, y]) => ctx.fillRect(x - 4, y - 4, 8, 8));
         }
       });
 
-      // Overlay safe zone
       if (step >= 2) {
         ctx.strokeStyle = 'lime';
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 1;
         ctx.strokeRect(mobileZone.x, mobileZone.y, mobileZone.width, mobileZone.height);
       }
+    }
+
+    function loadImage(file, onload) {
+      const img = new Image();
+      img.onload = () => onload(img);
+      img.src = URL.createObjectURL(file);
     }
 
     function updateStep() {
       if (step === 1) {
         stepText.textContent = "Step 1: Choose your background image";
         fileInput.onchange = e => {
-          const img = new Image();
-          img.onload = () => {
+          loadImage(e.target.files[0], img => {
             background = img;
             step++;
             updateStep();
             draw();
-          };
-          img.src = URL.createObjectURL(e.target.files[0]);
+          });
         };
       } else if (step === 2) {
         stepText.textContent = "Step 2: Choose your mobile view image (autoplaced)";
         fileInput.value = '';
         fileInput.onchange = e => {
-          const img = new Image();
-          img.onload = () => {
+          loadImage(e.target.files[0], img => {
             images.push({
               img,
               x: mobileZone.x,
@@ -125,20 +108,23 @@
             step++;
             updateStep();
             draw();
-          };
-          img.src = URL.createObjectURL(e.target.files[0]);
+          });
         };
-      } else if (step === 3) {
+      } else {
         stepText.textContent = "Step 3: Add additional images (movable, resizable, deletable)";
         fileInput.value = '';
         fileInput.onchange = e => {
-          const img = new Image();
-          img.onload = () => {
-            images.push({ img, x: 100, y: 100, w: img.width * 0.5, h: img.height * 0.5 });
+          loadImage(e.target.files[0], img => {
+            images.push({
+              img,
+              x: 100,
+              y: 100,
+              w: img.width * 0.5,
+              h: img.height * 0.5
+            });
             selectedIndex = images.length - 1;
             draw();
-          };
-          img.src = URL.createObjectURL(e.target.files[0]);
+          });
         };
         actions.classList.remove("hidden");
       }
@@ -155,24 +141,37 @@
         const img = images[i];
         if (mx >= img.x && mx <= img.x + img.w && my >= img.y && my <= img.y + img.h) {
           selectedIndex = i;
-          dragOffsetX = mx - img.x;
-          dragOffsetY = my - img.y;
-          dragging = true;
+          canvas.dragOffsetX = mx - img.x;
+          canvas.dragOffsetY = my - img.y;
+          canvas.dragging = true;
           break;
         }
       }
       draw();
     });
 
-    canvas.addEventListener("mouseup", () => dragging = false);
+    canvas.addEventListener("mouseup", () => canvas.dragging = false);
 
     canvas.addEventListener("mousemove", e => {
-      if (selectedIndex === -1 || !dragging) return;
+      if (!canvas.dragging || selectedIndex === -1) return;
       const r = canvas.getBoundingClientRect();
       const mx = e.clientX - r.left, my = e.clientY - r.top;
       const img = images[selectedIndex];
-      img.x = mx - dragOffsetX;
-      img.y = my - dragOffsetY;
+      img.x = mx - canvas.dragOffsetX;
+      img.y = my - canvas.dragOffsetY;
+      draw();
+    });
+
+    window.addEventListener("keydown", e => {
+      if (selectedIndex === -1) return;
+      const img = images[selectedIndex];
+      const delta = e.shiftKey ? 10 : 1;
+      switch (e.key) {
+        case "ArrowUp": img.y -= delta; break;
+        case "ArrowDown": img.y += delta; break;
+        case "ArrowLeft": img.x -= delta; break;
+        case "ArrowRight": img.x += delta; break;
+      }
       draw();
     });
 
@@ -194,25 +193,11 @@
     });
 
     exportBtn.addEventListener("click", () => {
-      draw();
-      const url = canvas.toDataURL("image/png");
+      draw(); // ensure overlays aren't visible
       const a = document.createElement("a");
+      a.href = canvas.toDataURL("image/png");
       a.download = "yt_banner_final.png";
-      a.href = url;
       a.click();
-    });
-
-    window.addEventListener("keydown", e => {
-      if (selectedIndex === -1) return;
-      const img = images[selectedIndex];
-      const moveBy = e.shiftKey ? 10 : 1;
-      switch (e.key) {
-        case "ArrowUp": img.y -= moveBy; break;
-        case "ArrowDown": img.y += moveBy; break;
-        case "ArrowLeft": img.x -= moveBy; break;
-        case "ArrowRight": img.x += moveBy; break;
-      }
-      draw();
     });
 
     updateStep();
