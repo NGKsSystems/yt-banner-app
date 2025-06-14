@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>YouTube Banner Editor</title>
   <style>
     body {
@@ -67,8 +67,24 @@
     let overlays = [];
     let selectedOverlay = null;
     let isDragging = false;
+    let isResizing = false;
     let dragOffsetX = 0;
     let dragOffsetY = 0;
+    const handleSize = 15;
+
+    function pointInRect(x, y, rectX, rectY, rectW, rectH) {
+      return x >= rectX && x <= rectX + rectW && y >= rectY && y <= rectY + rectH;
+    }
+
+    function getResizeHandle(mx, my, overlay) {
+      const corners = [
+        { name: 'br', x: overlay.x + overlay.width - handleSize, y: overlay.y + overlay.height - handleSize }
+      ];
+      for (const c of corners) {
+        if (pointInRect(mx, my, c.x, c.y, handleSize, handleSize)) return c.name;
+      }
+      return null;
+    }
 
     bgInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
@@ -125,9 +141,19 @@
       const mx = e.clientX - rect.left;
       const my = e.clientY - rect.top;
 
+      selectedOverlay = null;
+      isDragging = false;
+      isResizing = false;
+
       for (let i = overlays.length - 1; i >= 0; i--) {
         const o = overlays[i];
-        if (mx >= o.x && mx <= o.x + o.width && my >= o.y && my <= o.y + o.height) {
+        const handle = getResizeHandle(mx, my, o);
+        if (handle) {
+          selectedOverlay = o;
+          isResizing = true;
+          return;
+        }
+        if (pointInRect(mx, my, o.x, o.y, o.width, o.height)) {
           selectedOverlay = o;
           dragOffsetX = mx - o.x;
           dragOffsetY = my - o.y;
@@ -135,40 +161,35 @@
           return;
         }
       }
-
-      selectedOverlay = null;
     });
 
     canvas.addEventListener('mousemove', (e) => {
-      if (!isDragging || !selectedOverlay) return;
       const rect = canvas.getBoundingClientRect();
-      selectedOverlay.x = e.clientX - rect.left - dragOffsetX;
-      selectedOverlay.y = e.clientY - rect.top - dragOffsetY;
-      drawCanvas();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+
+      if (isDragging && selectedOverlay) {
+        selectedOverlay.x = mx - dragOffsetX;
+        selectedOverlay.y = my - dragOffsetY;
+        drawCanvas();
+      }
+
+      if (isResizing && selectedOverlay) {
+        selectedOverlay.width = Math.max(30, mx - selectedOverlay.x);
+        selectedOverlay.height = Math.max(30, my - selectedOverlay.y);
+        drawCanvas();
+      }
     });
 
     canvas.addEventListener('mouseup', () => {
       isDragging = false;
+      isResizing = false;
     });
 
     canvas.addEventListener('mouseleave', () => {
       isDragging = false;
+      isResizing = false;
     });
-
-    canvas.addEventListener('wheel', (e) => {
-      if (e.shiftKey && selectedOverlay) {
-        e.preventDefault();
-        const scale = e.deltaY < 0 ? 1.1 : 0.9;
-        const cx = selectedOverlay.x + selectedOverlay.width / 2;
-        const cy = selectedOverlay.y + selectedOverlay.height / 2;
-
-        selectedOverlay.width *= scale;
-        selectedOverlay.height *= scale;
-        selectedOverlay.x = cx - selectedOverlay.width / 2;
-        selectedOverlay.y = cy - selectedOverlay.height / 2;
-        drawCanvas();
-      }
-    }, { passive: false });
 
     exportBtn.addEventListener('click', () => {
       const link = document.createElement('a');
@@ -179,19 +200,20 @@
 
     function drawCanvas() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      if (backgroundImage) {
-        ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
-      }
-
-      if (mobileImage) {
-        ctx.drawImage(mobileImage, 740, 620, 1080, 200);
-      }
+      if (backgroundImage) ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+      if (mobileImage) ctx.drawImage(mobileImage, 740, 620, 1080, 200);
 
       overlays.forEach(o => {
         ctx.drawImage(o.img, o.x, o.y, o.width, o.height);
+        if (o === selectedOverlay) {
+          ctx.strokeStyle = 'red';
+          ctx.strokeRect(o.x, o.y, o.width, o.height);
+          ctx.fillStyle = 'white';
+          ctx.fillRect(o.x + o.width - handleSize, o.y + o.height - handleSize, handleSize, handleSize);
+        }
       });
 
-      // Safe zone overlays
+      // Safe zones
       ctx.strokeStyle = 'lime';
       ctx.strokeRect(740, 620, 1080, 200);
       ctx.strokeStyle = 'yellow';
