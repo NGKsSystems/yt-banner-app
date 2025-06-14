@@ -166,8 +166,6 @@
 
     function resizeSelected(e, dir) {
       const rect = selectedImage.getBoundingClientRect();
-      const startX = rect.left;
-      const startY = rect.top;
       let width = rect.width;
       let height = rect.height;
       let left = parseInt(selectedImage.style.left);
@@ -228,11 +226,7 @@
       const file = e.target.files[0];
       const img = new Image();
       img.onload = () => {
-        const x = 740;
-        const y = 620;
-        const w = 1080;
-        const h = 200;
-        addImage(img, x, y, w, h);
+        addImage(img, 740, 620, 1080, 200); // restore auto-placement
         step3.classList.remove("hidden");
         exportBtn.classList.remove("hidden");
       };
@@ -243,17 +237,13 @@
       const file = e.target.files[0];
       const img = new Image();
       img.onload = () => {
-        const x = 200;
-        const y = 100;
-        const w = 300;
-        const h = 150;
-        addImage(img, x, y, w, h);
+        addImage(img, 200, 100, 300, 150);
       };
       img.src = URL.createObjectURL(file);
     });
 
     exportBtn.addEventListener("click", () => {
-      drawCanvas(); // ensure latest state
+      drawCanvas(); // ensure latest
       const link = document.createElement("a");
       link.download = "yt_banner_final.png";
       link.href = canvas.toDataURL("image/png");
