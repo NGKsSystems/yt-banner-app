@@ -71,6 +71,7 @@
     <div id="p1" class="active"></div>
     <div id="p2"></div>
     <div id="p3"></div>
+    <div id="p4"></div>
   </div>
 
   <div id="step1" class="step active">
@@ -85,8 +86,14 @@
   </div>
 
   <div id="step3" class="step">
-    <h2>Step 3: Export</h2>
-    <button id="exportBtn">Export</button>
+    <h2>Step 3: Add Additional Images</h2>
+    <input type="file" id="additionalInput" accept="image/*" multiple />
+    <button id="nextToExport">Next: Export</button>
+  </div>
+
+  <div id="step4" class="step">
+    <h2>Step 4: Export</h2>
+    <button id="exportBtn">Export Banner</button>
   </div>
 
   <canvas id="canvas" width="2560" height="1440"></canvas>
@@ -105,10 +112,12 @@
     const bgInput = document.getElementById("bgInput");
     const skipBg = document.getElementById("skipBg");
     const mobileInput = document.getElementById("mobileInput");
+    const additionalInput = document.getElementById("additionalInput");
     const exportBtn = document.getElementById("exportBtn");
+    const nextToExport = document.getElementById("nextToExport");
 
     function showStep(step) {
-      for (let i = 1; i <= 3; i++) {
+      for (let i = 1; i <= 4; i++) {
         document.getElementById("step" + i).classList.toggle("active", i === step);
         document.getElementById("p" + i).classList.toggle("active", i === step);
       }
@@ -273,6 +282,30 @@
         showStep(3);
       };
       img.src = URL.createObjectURL(file);
+    });
+
+    additionalInput.addEventListener("change", e => {
+      const files = Array.from(e.target.files);
+      files.forEach(file => {
+        const img = new Image();
+        img.onload = () => {
+          overlays.push({
+            img,
+            x: 100,
+            y: 100,
+            width: img.width,
+            height: img.height,
+            mobileSafe: false,
+            selected: true
+          });
+          drawCanvas();
+        };
+        img.src = URL.createObjectURL(file);
+      });
+    });
+
+    nextToExport.addEventListener("click", () => {
+      showStep(4);
     });
 
     exportBtn.addEventListener("click", () => {
