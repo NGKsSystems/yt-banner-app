@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>YouTube Banner Editor</title>
+  <title>NGKs Banner Editor</title>
   <style>
     body {
       background: #111;
@@ -24,10 +24,23 @@
 </head>
 <body>
   <h2>NGKs Banner Editor</h2>
-  <input type="file" id="imageInput" accept="image/*" multiple />
+
+  <!-- Upload prompts -->
+  <div>
+    <p>Step 1: Choose your background image</p>
+    <input type="file" id="imageInput" accept="image/*" multiple />
+  </div>
+  <div>
+    <p>Step 2: Choose your mobile view image (autoplaced)</p>
+  </div>
+  <div>
+    <p>Step 3: Add additional images (movable, resizable, deletable)</p>
+  </div>
+
   <button id="clearBtn">Clear Canvas</button>
   <button id="deleteBtn">Delete Selected</button>
   <button id="exportBtn">Export Banner</button>
+  
   <canvas id="canvas" width="2560" height="1440"></canvas>
 
   <script>
@@ -41,10 +54,9 @@
     let images = [];
     let selectedIndex = null;
     let dragging = false;
-    let dragOffsetX, dragOffsetY;
     let resizing = false;
     let activeHandle = null;
-
+    let dragOffsetX, dragOffsetY;
     const HANDLE_SIZE = 10;
 
     function drawCanvas() {
@@ -53,42 +65,38 @@
       // Draw all images
       images.forEach((img, i) => {
         ctx.drawImage(img.img, img.x, img.y, img.width, img.height);
-
-        // If selected, draw resize handles
-        if (i === selectedIndex) {
-          drawResizeHandles(img);
-        }
+        if (i === selectedIndex) drawHandles(img);
       });
 
-      // Draw mobile safe zone overlay
+      // Mobile Safe Zone
       ctx.strokeStyle = "lime";
       ctx.lineWidth = 2;
       ctx.strokeRect(507, 509, 1546, 423);
     }
 
-    function drawResizeHandles(img) {
+    function drawHandles(img) {
       ctx.fillStyle = "white";
-      const points = getHandlePoints(img);
-      points.forEach(p => ctx.fillRect(p.x - HANDLE_SIZE/2, p.y - HANDLE_SIZE/2, HANDLE_SIZE, HANDLE_SIZE));
+      getHandlePoints(img).forEach(p =>
+        ctx.fillRect(p.x - HANDLE_SIZE/2, p.y - HANDLE_SIZE/2, HANDLE_SIZE, HANDLE_SIZE)
+      );
     }
 
     function getHandlePoints(img) {
       const {x, y, width, height} = img;
       return [
-        {x, y}, // top-left
-        {x: x + width / 2, y}, // top-center
-        {x: x + width, y}, // top-right
-        {x, y: y + height / 2}, // mid-left
-        {x: x + width, y: y + height / 2}, // mid-right
-        {x, y: y + height}, // bottom-left
-        {x: x + width / 2, y: y + height}, // bottom-center
-        {x: x + width, y: y + height} // bottom-right
+        {x, y},
+        {x: x + width/2, y},
+        {x: x + width, y},
+        {x, y: y + height/2},
+        {x: x + width, y: y + height/2},
+        {x, y: y + height},
+        {x: x + width/2, y: y + height},
+        {x: x + width, y: y + height}
       ];
     }
 
     function getHandleUnderMouse(mx, my, img) {
-      const points = getHandlePoints(img);
-      return points.findIndex(p =>
+      return getHandlePoints(img).findIndex(p =>
         mx >= p.x - HANDLE_SIZE &&
         mx <= p.x + HANDLE_SIZE &&
         my >= p.y - HANDLE_SIZE &&
@@ -110,7 +118,6 @@
           activeHandle = handleIndex;
           return;
         }
-
         if (mx >= img.x && mx <= img.x + img.width && my >= img.y && my <= img.y + img.height) {
           selectedIndex = i;
           dragging = true;
@@ -120,7 +127,6 @@
           return;
         }
       }
-
       selectedIndex = null;
       drawCanvas();
     });
@@ -132,44 +138,15 @@
         const mx = e.clientX - rect.left;
         const my = e.clientY - rect.top;
 
-        let deltaX = mx - img.x;
-        let deltaY = my - img.y;
-
         switch (activeHandle) {
-          case 0: // top-left
-            img.width += img.x - mx;
-            img.height += img.y - my;
-            img.x = mx;
-            img.y = my;
-            break;
-          case 1: // top-center
-            img.height += img.y - my;
-            img.y = my;
-            break;
-          case 2: // top-right
-            img.width = mx - img.x;
-            img.height += img.y - my;
-            img.y = my;
-            break;
-          case 3: // mid-left
-            img.width += img.x - mx;
-            img.x = mx;
-            break;
-          case 4: // mid-right
-            img.width = mx - img.x;
-            break;
-          case 5: // bottom-left
-            img.width += img.x - mx;
-            img.height = my - img.y;
-            img.x = mx;
-            break;
-          case 6: // bottom-center
-            img.height = my - img.y;
-            break;
-          case 7: // bottom-right
-            img.width = mx - img.x;
-            img.height = my - img.y;
-            break;
+          case 0: img.width += img.x - mx; img.height += img.y - my; img.x = mx; img.y = my; break;
+          case 1: img.height += img.y - my; img.y = my; break;
+          case 2: img.width = mx - img.x; img.height += img.y - my; img.y = my; break;
+          case 3: img.width += img.x - mx; img.x = mx; break;
+          case 4: img.width = mx - img.x; break;
+          case 5: img.width += img.x - mx; img.height = my - img.y; img.x = mx; break;
+          case 6: img.height = my - img.y; break;
+          case 7: img.width = mx - img.x; img.height = my - img.y; break;
         }
 
         drawCanvas();
@@ -201,13 +178,10 @@
           img.onload = () => {
             let imgObj;
             if (images.length === 0) {
-              // Background image
               imgObj = { img, x: 0, y: 0, width: canvas.width, height: canvas.height };
             } else if (images.length === 1) {
-              // Mobile safe image
               imgObj = { img, x: 740, y: 620, width: 1080, height: 200 };
             } else {
-              // User placed overlay
               imgObj = { img, x: 100, y: 100, width: 300, height: 100 };
             }
             images.push(imgObj);
@@ -249,18 +223,10 @@
       if (selectedIndex && images[selectedIndex]) {
         const img = images[selectedIndex];
         switch (e.key) {
-          case "ArrowUp":
-            img.y -= 5;
-            break;
-          case "ArrowDown":
-            img.y += 5;
-            break;
-          case "ArrowLeft":
-            img.x -= 5;
-            break;
-          case "ArrowRight":
-            img.x += 5;
-            break;
+          case "ArrowUp": img.y -= 5; break;
+          case "ArrowDown": img.y += 5; break;
+          case "ArrowLeft": img.x -= 5; break;
+          case "ArrowRight": img.x += 5; break;
         }
         drawCanvas();
       }
