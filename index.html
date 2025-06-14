@@ -155,8 +155,10 @@
         if (!o.bg) {
           ctx.drawImage(o.img, o.x, o.y, o.width, o.height);
           if (showHandles && o.selected) {
-            ctx.strokeStyle = o.mobileSafe ? "lime" : "red";
-            ctx.strokeRect(o.x, o.y, o.width, o.height);
+  ctx.strokeStyle = o.mobileSafe ? "lime" : "red";
+  ctx.strokeRect(o.x, o.y, o.width, o.height);
+  drawHandles(o);
+}
             drawHandles(o);
           }
         }
