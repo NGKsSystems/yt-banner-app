@@ -1,25 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Banner Designer</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YouTube Banner Editor</title>
+  <style>
+    body {
+      background-color: #111;
+      color: #fff;
+      text-align: center;
+      font-family: Arial, sans-serif;
+    }
+    canvas {
+      border: 2px solid yellow;
+      display: block;
+      margin: 20px auto;
+    }
+    input[type="file"] {
+      margin: 10px;
+    }
+  </style>
 </head>
 <body>
-    <div id="toolbar">
-        <input type="file" id="imageUpload" multiple>
-        <select id="zoomSelect">
-            <option value="0.25">25%</option>
-            <option value="0.5">50%</option>
-            <option value="0.75">75%</option>
-            <option value="1" selected>100%</option>
-        </select>
-        <button id="exportBtn">Export Banner</button>
-    </div>
-    <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
-    <div id="thumbnails"></div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
-    <script src="script.js"></script>
+  <h2>NGKs Banner Editor</h2>
+  <input type="file" id="imageInput" accept="image/*" multiple />
+  <br />
+  <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
+  <br />
+  <button id="exportBtn">Export Banner</button>
+
+  <script>
+    const canvas = document.getElementById('bannerCanvas');
+    const ctx = canvas.getContext('2d');
+    const imageInput = document.getElementById('imageInput');
+    const exportBtn = document.getElementById('exportBtn');
+
+    let images = [];
+
+    imageInput.addEventListener('change', function () {
+      images = [];
+      const files = Array.from(this.files);
+      if (!files.length) return;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      let loadedCount = 0;
+
+      files.forEach((file, index) => {
+        const img = new Image();
+        img.onload = () => {
+          images[index] = img;
+          loadedCount++;
+          if (loadedCount === files.length) {
+            drawAll();
+          }
+        };
+        img.src = URL.createObjectURL(file);
+      });
+    });
+
+    function drawAll() {
+      // Draw background if exists
+      if (images[0]) ctx.drawImage(images[0], 0, 0, canvas.width, canvas.height);
+
+      // Draw overlay image 1 (e.g. logo) if exists
+      if (images[1]) ctx.drawImage(images[1], 740, 620, 1080, 200);
+
+      // Draw overlay image 2 (e.g. header) if exists
+      if (images[2]) ctx.drawImage(images[2], 0, 0, 2560, 300);
+
+      drawOverlays();
+    }
+
+    function drawOverlays() {
+      // Mobile Safe Zone
+      ctx.strokeStyle = 'lime';
+      ctx.strokeRect(740, 620, 1080, 200);
+
+      // TV Safe Zone
+      ctx.strokeStyle = 'yellow';
+      ctx.strokeRect(0, 0, canvas.width, canvas.height);
+    }
+
+    exportBtn.addEventListener('click', function () {
+      const link = document.createElement('a');
+      link.download = 'yt_banner_final.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    });
+  </script>
 </body>
 </html>
