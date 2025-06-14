@@ -5,15 +5,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>YouTube Banner Editor</title>
   <style>
-    body { background: #111; color: #fff; text-align: center; font-family: Arial, sans-serif; }
-    canvas { border: 2px solid yellow; display: block; margin: 20px auto; background-color: #000; }
-    .hidden { display: none; }
-    .step { margin: 20px 0; }
+    body {
+      background: #111;
+      color: #fff;
+      text-align: center;
+      font-family: Arial, sans-serif;
+    }
+    canvas {
+      border: 2px solid yellow;
+      display: block;
+      margin: 20px auto;
+      background-color: #000;
+    }
+    .hidden {
+      display: none;
+    }
+    .step {
+      margin: 20px 0;
+    }
+    input[type="file"] {
+      margin: 0 10px;
+    }
   </style>
 </head>
 <body>
 
-  <div class="step">
+  <div class="step" id="step1">
     <h3>Step 1: Choose your background or skip</h3>
     <input type="file" id="bgInput" accept="image/*" />
     <button id="skipBtn">Skip</button>
@@ -33,42 +50,55 @@
     const bgInput = document.getElementById('bgInput');
     const skipBtn = document.getElementById('skipBtn');
     const step2 = document.getElementById('step2');
+    const mobileInput = document.getElementById('mobileInput');
 
-    let backgroundLoaded = false;
-
-    function drawBaseOverlay() {
-      ctx.strokeStyle = 'lime';
-      ctx.strokeRect(740, 620, 1080, 200); // mobile safe zone
+    function showStep2() {
+      drawSafeZone();
+      step2.classList.remove('hidden');
     }
 
-    function drawBackgroundImage(imageSrc) {
-      const img = new Image();
-      img.onload = () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        drawBaseOverlay();
-        backgroundLoaded = true;
-        step2.classList.remove('hidden');
+    function drawSafeZone() {
+      ctx.strokeStyle = 'lime';
+      ctx.strokeRect(740, 620, 1080, 200); // Mobile safe zone
+    }
+
+    function loadImageToCanvas(file, onDrawnCallback) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const img = new Image();
+        img.onload = function () {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          if (onDrawnCallback) onDrawnCallback();
+        };
+        img.src = e.target.result;
       };
-      img.src = imageSrc;
+      reader.readAsDataURL(file);
     }
 
     bgInput.addEventListener('change', () => {
       const file = bgInput.files[0];
       if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        drawBackgroundImage(e.target.result);
-      };
-      reader.readAsDataURL(file);
+      loadImageToCanvas(file, showStep2);
     });
 
     skipBtn.addEventListener('click', () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drawBaseOverlay();
-      backgroundLoaded = true;
-      step2.classList.remove('hidden');
+      showStep2();
+    });
+
+    mobileInput.addEventListener('change', () => {
+      const file = mobileInput.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const img = new Image();
+        img.onload = function () {
+          ctx.drawImage(img, 740, 620, 1080, 200);
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
     });
   </script>
 
