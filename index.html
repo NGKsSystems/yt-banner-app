@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -38,15 +39,29 @@
     const canvas = document.getElementById("bannerCanvas");
     const ctx = canvas.getContext("2d");
     const overlays = [];
-    const resizeSize = 15;
-
-    let dragging = null, resizing = null, dragOffsetX = 0, dragOffsetY = 0;
+    const handleSize = 10;
+    let dragging = null, resizing = null, selectedHandle = null;
+    let dragOffsetX = 0, dragOffsetY = 0;
 
     const bgInput = document.getElementById("bgInput");
     const skipBg = document.getElementById("skipBg");
     const mobileInput = document.getElementById("mobileInput");
     const extraInput = document.getElementById("extraInput");
     const exportBtn = document.getElementById("exportBtn");
+
+    function drawHandles(obj) {
+      const x = obj.x, y = obj.y, w = obj.width, h = obj.height;
+      const points = [
+        [x, y], [x + w/2, y], [x + w, y],
+        [x + w, y + h/2], [x + w, y + h],
+        [x + w/2, y + h], [x, y + h],
+        [x, y + h/2]
+      ];
+      ctx.fillStyle = "white";
+      points.forEach(([px, py]) => {
+        ctx.fillRect(px - handleSize/2, py - handleSize/2, handleSize, handleSize);
+      });
+    }
 
     function drawCanvas(showHandles = true) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -55,17 +70,90 @@
 
       overlays.forEach(o => {
         if (!o.bg) ctx.drawImage(o.img, o.x, o.y, o.width, o.height);
-        if (showHandles) {
-          ctx.strokeStyle = o.mobileSafe ? "lime" : "red";
-          ctx.strokeRect(o.x, o.y, o.width, o.height);
-
-          if (!o.mobileSafe) {
-            ctx.fillStyle = "white";
-            ctx.fillRect(o.x + o.width - resizeSize, o.y + o.height - resizeSize, resizeSize, resizeSize);
-          }
-        }
+        ctx.strokeStyle = o.mobileSafe ? "lime" : "red";
+        ctx.strokeRect(o.x, o.y, o.width, o.height);
+        if (showHandles && o.selected) drawHandles(o);
       });
     }
+
+    function hitTestHandle(obj, mx, my) {
+      const x = obj.x, y = obj.y, w = obj.width, h = obj.height;
+      const positions = [
+        [x, y], [x + w/2, y], [x + w, y],
+        [x + w, y + h/2], [x + w, y + h],
+        [x + w/2, y + h], [x, y + h],
+        [x, y + h/2]
+      ];
+      for (let i = 0; i < positions.length; i++) {
+        const [px, py] = positions[i];
+        if (mx >= px - handleSize && mx <= px + handleSize &&
+            my >= py - handleSize && my <= py + handleSize) {
+          return i;
+        }
+      }
+      return -1;
+    }
+
+    function resizeByHandle(obj, handleIndex, mx, my) {
+      const x = obj.x, y = obj.y, w = obj.width, h = obj.height;
+      switch (handleIndex) {
+        case 0: obj.width += obj.x - mx; obj.height += obj.y - my; obj.x = mx; obj.y = my; break;
+        case 1: obj.height += obj.y - my; obj.y = my; break;
+        case 2: obj.width = mx - obj.x; obj.height += obj.y - my; obj.y = my; break;
+        case 3: obj.width = mx - obj.x; break;
+        case 4: obj.width = mx - obj.x; obj.height = my - obj.y; break;
+        case 5: obj.height = my - obj.y; break;
+        case 6: obj.width += obj.x - mx; obj.height = my - obj.y; obj.x = mx; break;
+        case 7: obj.width += obj.x - mx; obj.x = mx; break;
+      }
+    }
+
+    canvas.addEventListener("mousedown", e => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+
+      for (let i = overlays.length - 1; i >= 0; i--) {
+        const o = overlays[i];
+        if (o.bg) continue;
+        o.selected = false;
+        const hIndex = hitTestHandle(o, mx, my);
+        if (hIndex !== -1) {
+          resizing = o;
+          selectedHandle = hIndex;
+          o.selected = true;
+          drawCanvas();
+          return;
+        }
+        if (mx >= o.x && mx <= o.x + o.width && my >= o.y && my <= o.y + o.height) {
+          dragging = o;
+          dragOffsetX = mx - o.x;
+          dragOffsetY = my - o.y;
+          o.selected = true;
+          drawCanvas();
+          return;
+        }
+      }
+    });
+
+    canvas.addEventListener("mousemove", e => {
+      const rect = canvas.getBoundingClientRect();
+      const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+
+      if (dragging) {
+        dragging.x = mx - dragOffsetX;
+        dragging.y = my - dragOffsetY;
+        drawCanvas();
+      } else if (resizing) {
+        resizeByHandle(resizing, selectedHandle, mx, my);
+        drawCanvas();
+      }
+    });
+
+    canvas.addEventListener("mouseup", () => {
+      dragging = null;
+      resizing = null;
+      selectedHandle = null;
+    });
 
     bgInput.addEventListener("change", e => {
       const file = e.target.files[0];
@@ -121,59 +209,8 @@
       img.src = URL.createObjectURL(file);
     });
 
-    canvas.addEventListener("mousedown", e => {
-      const rect = canvas.getBoundingClientRect();
-      const mx = e.clientX - rect.left;
-      const my = e.clientY - rect.top;
-
-      for (let i = overlays.length - 1; i >= 0; i--) {
-        const o = overlays[i];
-        if (o.bg || o.mobileSafe) continue;
-
-        const inResize = (
-          mx >= o.x + o.width - resizeSize &&
-          mx <= o.x + o.width &&
-          my >= o.y + o.height - resizeSize &&
-          my <= o.y + o.height
-        );
-
-        if (inResize) {
-          resizing = o;
-          return;
-        }
-
-        const inBox = mx >= o.x && mx <= o.x + o.width && my >= o.y && my <= o.y + o.height;
-        if (inBox) {
-          dragging = o;
-          dragOffsetX = mx - o.x;
-          dragOffsetY = my - o.y;
-          return;
-        }
-      }
-    });
-
-    canvas.addEventListener("mousemove", e => {
-      const rect = canvas.getBoundingClientRect();
-      const mx = e.clientX - rect.left;
-      const my = e.clientY - rect.top;
-
-      if (dragging) {
-        dragging.x = mx - dragOffsetX;
-        dragging.y = my - dragOffsetY;
-        drawCanvas();
-      } else if (resizing) {
-        resizing.width = Math.max(30, mx - resizing.x);
-        resizing.height = Math.max(30, my - resizing.y);
-        drawCanvas();
-      }
-    });
-
-    canvas.addEventListener("mouseup", () => {
-      dragging = null;
-      resizing = null;
-    });
-
     exportBtn.addEventListener("click", () => {
+      overlays.forEach(o => o.selected = false);
       drawCanvas(false);
       const link = document.createElement("a");
       link.download = "yt_banner_final.png";
