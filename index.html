@@ -2,6 +2,177 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NGKs Banner Editor</title>
+  <style>
+    body {
+      background-color: #111;
+      color: #fff;
+      text-align: center;
+      font-family: Arial, sans-serif;
+    }
+    canvas {
+      border: 2px solid yellow;
+      display: block;
+      margin: 20px auto;
+      background: #000;
+    }
+    .hidden {
+      display: none;
+    }
+    .handle {
+      width: 10px;
+      height: 10px;
+      background: white;
+      position: absolute;
+      cursor: se-resize;
+    }
+  </style>
+</head>
+<body>
+  <h3>NGKs Banner Editor</h3>
+
+  <!-- Step 1: Choose background -->
+  <div id="step1">
+    <strong>Step 1:</strong> Choose your background
+    <input type="file" id="bgInput" accept="image/*" />
+    <button id="skipBG">Skip</button>
+  </div>
+
+  <!-- Step 2: Choose mobile image -->
+  <div id="step2" class="hidden">
+    <strong>Step 2:</strong> Choose your mobile-safe image
+    <input type="file" id="mobileInput" accept="image/*" />
+  </div>
+
+  <!-- Step 3: Add additional images -->
+  <div id="step3" class="hidden">
+    <strong>Step 3:</strong> Add additional images
+    <input type="file" id="extraInput" accept="image/*" />
+  </div>
+
+  <!-- Canvas -->
+  <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
+
+  <!-- Export -->
+  <div id="exportSection" class="hidden">
+    <button id="exportBtn">Export Banner</button>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('bannerCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const bgInput = document.getElementById('bgInput');
+    const mobileInput = document.getElementById('mobileInput');
+    const extraInput = document.getElementById('extraInput');
+
+    const skipBG = document.getElementById('skipBG');
+    const exportBtn = document.getElementById('exportBtn');
+
+    const step2 = document.getElementById('step2');
+    const step3 = document.getElementById('step3');
+    const exportSection = document.getElementById('exportSection');
+
+    let backgroundImg = null;
+    let mobileImg = null;
+
+    const extras = [];
+
+    // Utility
+    function drawOverlays() {
+      // Mobile Safe Zone
+      ctx.strokeStyle = 'lime';
+      ctx.strokeRect(740, 620, 1080, 200);
+
+      // Full canvas TV zone
+      ctx.strokeStyle = 'yellow';
+      ctx.strokeRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function redrawCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (backgroundImg) ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
+      if (mobileImg) ctx.drawImage(mobileImg, 740, 620, 1080, 200);
+      extras.forEach(imgObj => {
+        ctx.drawImage(imgObj.img, imgObj.x, imgObj.y, imgObj.w, imgObj.h);
+      });
+      drawOverlays();
+    }
+
+    // Step 1
+    bgInput.addEventListener('change', () => {
+      const file = bgInput.files[0];
+      if (!file) return;
+      const img = new Image();
+      img.onload = () => {
+        backgroundImg = img;
+        redrawCanvas(); // <== Fix: draw immediately after background load
+        step2.classList.remove('hidden');
+      };
+      img.src = URL.createObjectURL(file);
+    });
+
+    skipBG.addEventListener('click', () => {
+      backgroundImg = null;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawOverlays();
+      step2.classList.remove('hidden');
+    });
+
+    // Step 2
+    mobileInput.addEventListener('change', () => {
+      const file = mobileInput.files[0];
+      if (!file) return;
+      const img = new Image();
+      img.onload = () => {
+        mobileImg = img;
+        redrawCanvas();
+        step3.classList.remove('hidden');
+        exportSection.classList.remove('hidden');
+      };
+      img.src = URL.createObjectURL(file);
+    });
+
+    // Step 3
+    extraInput.addEventListener('change', () => {
+      const file = extraInput.files[0];
+      if (!file) return;
+      const img = new Image();
+      img.onload = () => {
+        const extraObj = {
+          img,
+          x: 100,
+          y: 100,
+          w: 300,
+          h: 100,
+          dragging: false,
+          resizing: false
+        };
+        extras.push(extraObj);
+        redrawCanvas();
+      };
+      img.src = URL.createObjectURL(file);
+    });
+
+    // Drag + Resize
+    let activeObj = null;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    canvas.addEventListener('mousedown', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      activeObj = null;
+      for (let obj of extras.reverse()) {
+        if (
+          mouseX >= obj.x + obj.w - 10 && mouseX <= obj.x + obj.w &&
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
   <title>NGKs Banner Editor</title>
   <style>
     body { background: #111; color: white; text-align: center; font-family: Arial; }
