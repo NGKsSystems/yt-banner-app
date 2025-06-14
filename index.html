@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Banner Designer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="toolbar">
+        <input type="file" id="imageUpload" multiple>
+        <select id="zoomSelect">
+            <option value="0.25">25%</option>
+            <option value="0.5">50%</option>
+            <option value="0.75">75%</option>
+            <option value="1" selected>100%</option>
+        </select>
+        <button id="exportBtn">Export Banner</button>
+    </div>
+    <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
+    <div id="thumbnails"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
