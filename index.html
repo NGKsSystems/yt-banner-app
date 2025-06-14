@@ -17,7 +17,10 @@
       margin: 20px auto;
       background-color: #222;
     }
-    input, button {
+    .hidden {
+      display: none;
+    }
+    button, input[type="file"] {
       margin: 8px;
     }
   </style>
@@ -25,28 +28,42 @@
 <body>
   <h2>NGKs Banner Editor</h2>
 
-  <!-- Upload prompts -->
-  <div>
+  <div id="step1">
     <p>Step 1: Choose your background image</p>
-    <input type="file" id="imageInput" accept="image/*" multiple />
-  </div>
-  <div>
-    <p>Step 2: Choose your mobile view image (autoplaced)</p>
-  </div>
-  <div>
-    <p>Step 3: Add additional images (movable, resizable, deletable)</p>
+    <input type="file" id="bgInput" accept="image/*" />
   </div>
 
-  <button id="clearBtn">Clear Canvas</button>
-  <button id="deleteBtn">Delete Selected</button>
-  <button id="exportBtn">Export Banner</button>
-  
+  <div id="step2" class="hidden">
+    <p>Step 2: Choose your mobile view image (autoplaced)</p>
+    <input type="file" id="mobileInput" accept="image/*" />
+  </div>
+
+  <div id="step3" class="hidden">
+    <p>Step 3: Add additional images (movable, resizable, deletable)</p>
+    <input type="file" id="extraInput" accept="image/*" />
+  </div>
+
+  <div id="actions" class="hidden">
+    <button id="clearBtn">Clear Canvas</button>
+    <button id="deleteBtn">Delete Selected</button>
+    <button id="exportBtn">Export Banner</button>
+  </div>
+
   <canvas id="canvas" width="2560" height="1440"></canvas>
 
   <script>
     const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext("2d");
-    const imageInput = document.getElementById("imageInput");
+
+    const bgInput = document.getElementById("bgInput");
+    const mobileInput = document.getElementById("mobileInput");
+    const extraInput = document.getElementById("extraInput");
+
+    const step1 = document.getElementById("step1");
+    const step2 = document.getElementById("step2");
+    const step3 = document.getElementById("step3");
+    const actions = document.getElementById("actions");
+
     const exportBtn = document.getElementById("exportBtn");
     const deleteBtn = document.getElementById("deleteBtn");
     const clearBtn = document.getElementById("clearBtn");
@@ -56,19 +73,18 @@
     let dragging = false;
     let resizing = false;
     let activeHandle = null;
-    let dragOffsetX, dragOffsetY;
+    let dragOffsetX = 0;
+    let dragOffsetY = 0;
     const HANDLE_SIZE = 10;
 
     function drawCanvas() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Draw all images
       images.forEach((img, i) => {
         ctx.drawImage(img.img, img.x, img.y, img.width, img.height);
         if (i === selectedIndex) drawHandles(img);
       });
 
-      // Mobile Safe Zone
+      // Draw mobile safe zone
       ctx.strokeStyle = "lime";
       ctx.lineWidth = 2;
       ctx.strokeRect(507, 509, 1546, 423);
@@ -84,13 +100,9 @@
     function getHandlePoints(img) {
       const {x, y, width, height} = img;
       return [
-        {x, y},
-        {x: x + width/2, y},
-        {x: x + width, y},
-        {x, y: y + height/2},
-        {x: x + width, y: y + height/2},
-        {x, y: y + height},
-        {x: x + width/2, y: y + height},
+        {x, y}, {x: x + width/2, y}, {x: x + width, y},
+        {x, y: y + height/2}, {x: x + width, y: y + height/2},
+        {x, y: y + height}, {x: x + width/2, y: y + height},
         {x: x + width, y: y + height}
       ];
     }
@@ -132,33 +144,28 @@
     });
 
     canvas.addEventListener("mousemove", e => {
-      if (resizing && selectedIndex !== null) {
+      if ((resizing || dragging) && selectedIndex !== null) {
         const img = images[selectedIndex];
         const rect = canvas.getBoundingClientRect();
         const mx = e.clientX - rect.left;
         const my = e.clientY - rect.top;
 
-        switch (activeHandle) {
-          case 0: img.width += img.x - mx; img.height += img.y - my; img.x = mx; img.y = my; break;
-          case 1: img.height += img.y - my; img.y = my; break;
-          case 2: img.width = mx - img.x; img.height += img.y - my; img.y = my; break;
-          case 3: img.width += img.x - mx; img.x = mx; break;
-          case 4: img.width = mx - img.x; break;
-          case 5: img.width += img.x - mx; img.height = my - img.y; img.x = mx; break;
-          case 6: img.height = my - img.y; break;
-          case 7: img.width = mx - img.x; img.height = my - img.y; break;
+        if (resizing) {
+          switch (activeHandle) {
+            case 0: img.width += img.x - mx; img.height += img.y - my; img.x = mx; img.y = my; break;
+            case 1: img.height += img.y - my; img.y = my; break;
+            case 2: img.width = mx - img.x; img.height += img.y - my; img.y = my; break;
+            case 3: img.width += img.x - mx; img.x = mx; break;
+            case 4: img.width = mx - img.x; break;
+            case 5: img.width += img.x - mx; img.height = my - img.y; img.x = mx; break;
+            case 6: img.height = my - img.y; break;
+            case 7: img.width = mx - img.x; img.height = my - img.y; break;
+          }
+        } else if (dragging) {
+          img.x = mx - dragOffsetX;
+          img.y = my - dragOffsetY;
         }
 
-        drawCanvas();
-      }
-
-      if (dragging && selectedIndex !== null) {
-        const rect = canvas.getBoundingClientRect();
-        const mx = e.clientX - rect.left;
-        const my = e.clientY - rect.top;
-        const img = images[selectedIndex];
-        img.x = mx - dragOffsetX;
-        img.y = my - dragOffsetY;
         drawCanvas();
       }
     });
@@ -169,28 +176,54 @@
       activeHandle = null;
     });
 
-    imageInput.addEventListener("change", e => {
-      const files = Array.from(e.target.files);
-      files.forEach((file, i) => {
-        const reader = new FileReader();
-        reader.onload = function(evt) {
-          const img = new Image();
-          img.onload = () => {
-            let imgObj;
-            if (images.length === 0) {
-              imgObj = { img, x: 0, y: 0, width: canvas.width, height: canvas.height };
-            } else if (images.length === 1) {
-              imgObj = { img, x: 740, y: 620, width: 1080, height: 200 };
-            } else {
-              imgObj = { img, x: 100, y: 100, width: 300, height: 100 };
-            }
-            images.push(imgObj);
-            drawCanvas();
-          };
-          img.src = evt.target.result;
+    bgInput.addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = evt => {
+        const img = new Image();
+        img.onload = () => {
+          images = [{ img, x: 0, y: 0, width: canvas.width, height: canvas.height }];
+          step1.classList.add("hidden");
+          step2.classList.remove("hidden");
+          drawCanvas();
         };
-        reader.readAsDataURL(file);
-      });
+        img.src = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    mobileInput.addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = evt => {
+        const img = new Image();
+        img.onload = () => {
+          images.push({ img, x: 740, y: 620, width: 1080, height: 200 });
+          step2.classList.add("hidden");
+          step3.classList.remove("hidden");
+          actions.classList.remove("hidden");
+          drawCanvas();
+        };
+        img.src = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    extraInput.addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = evt => {
+        const img = new Image();
+        img.onload = () => {
+          images.push({ img, x: 100, y: 100, width: 300, height: 100 });
+          drawCanvas();
+        };
+        img.src = evt.target.result;
+      };
+      reader.readAsDataURL(file);
     });
 
     exportBtn.addEventListener("click", () => {
@@ -206,7 +239,7 @@
     });
 
     deleteBtn.addEventListener("click", () => {
-      if (selectedIndex && selectedIndex > 0) {
+      if (selectedIndex !== null && selectedIndex > 0) {
         images.splice(selectedIndex, 1);
         selectedIndex = null;
         drawCanvas();
@@ -216,11 +249,15 @@
     clearBtn.addEventListener("click", () => {
       images = [];
       selectedIndex = null;
+      step1.classList.remove("hidden");
+      step2.classList.add("hidden");
+      step3.classList.add("hidden");
+      actions.classList.add("hidden");
       drawCanvas();
     });
 
     document.addEventListener("keydown", e => {
-      if (selectedIndex && images[selectedIndex]) {
+      if (selectedIndex !== null && images[selectedIndex]) {
         const img = images[selectedIndex];
         switch (e.key) {
           case "ArrowUp": img.y -= 5; break;
