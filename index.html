@@ -11,6 +11,10 @@
   </style>
 </head>
 <body>
+<div id="step1">Step 1: Add background</div>
+<div id="step2" style="display:none;">Step 2: Add mobile zone</div>
+<div id="step3" style="display:none;">Step 3: Add overlay image</div>
+<div id="step4" style="display:none;">Step 4: Export</div>
   <h3>NGKs Banner Editor</h3>
 
   <div id="step1">
@@ -223,6 +227,33 @@
       link.click();
       drawCanvas(true);
     });
-  </script>
+  
+let currentStep = 1;
+
+function goToNextStep() {
+  currentStep++;
+  for (let i = 1; i <= 4; i++) {
+    const el = document.getElementById('step' + i);
+    if (el) el.style.display = i === currentStep ? 'block' : 'none';
+  }
+}
+
+document.getElementById('bgInput').addEventListener('change', () => {
+  loadImage(bgInput, img => addImage(img, 0, 0, canvas.width, canvas.height));
+  goToNextStep();
+});
+document.getElementById('mobileInput').addEventListener('change', () => {
+  loadImage(mobileInput, img => {
+    img.ignoreExport = true;
+    addImage(img, safeZone.x, safeZone.y, safeZone.w, safeZone.h);
+  });
+  goToNextStep();
+});
+document.getElementById('extraInput').addEventListener('change', () => {
+  loadImage(extraInput, img => addImage(img, 100, 100, img.width / 2, img.height / 2));
+  goToNextStep();
+});
+
+</script>
 </body>
 </html>
