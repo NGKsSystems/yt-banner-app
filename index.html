@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -244,6 +243,33 @@ let hovering = false;
       link.click();
       drawCanvas(true);
     });
-  </script>
+  
+document.addEventListener("keydown", (e) => {
+  const selected = overlays.find(o => o.selected);
+  if (!selected) return;
+
+  const moveStep = e.shiftKey ? 10 : 1;
+
+  switch (e.key) {
+    case "ArrowUp":
+      selected.y -= moveStep;
+      break;
+    case "ArrowDown":
+      selected.y += moveStep;
+      break;
+    case "ArrowLeft":
+      selected.x -= moveStep;
+      break;
+    case "ArrowRight":
+      selected.x += moveStep;
+      break;
+    default:
+      return;
+  }
+
+  drawCanvas();
+});
+
+</script>
 </body>
 </html>
