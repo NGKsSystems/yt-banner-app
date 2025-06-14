@@ -116,6 +116,9 @@
     const ctx = canvas.getContext('2d');
     const overlays = [];
     let selected = null;
+let currentStep = 0;
+const steps = ["step1", "step2", "step3", "step4"];
+
 let isDragging = false;
 let isResizing = false;
 let resizeHandle = null;
