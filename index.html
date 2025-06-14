@@ -89,6 +89,46 @@ let exporting = false;
     const extraInput = document.getElementById("extraInput");
     const exportBtn = document.getElementById("exportBtn");
 
+bgInput.addEventListener("change", e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const img = new Image();
+  img.onload = () => {
+    overlays.push({ img, bg: true });
+    drawCanvas();
+    document.getElementById("step1").classList.add("hidden");
+    document.getElementById("step2").classList.remove("hidden");
+  };
+  img.src = URL.createObjectURL(file);
+});
+
+skipBg.addEventListener("click", () => {
+  drawCanvas();
+  document.getElementById("step1").classList.add("hidden");
+  document.getElementById("step2").classList.remove("hidden");
+});
+
+mobileInput.addEventListener("change", e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const img = new Image();
+  img.onload = () => {
+    overlays.push({
+      img,
+      x: 507,
+      y: 509,
+      width: 1546,
+      height: 423,
+      mobileSafe: true
+    });
+    drawCanvas();
+    document.getElementById("step2").classList.add("hidden");
+    document.getElementById("step3").classList.remove("hidden");
+    document.getElementById("exportSection").classList.remove("hidden");
+  };
+  img.src = URL.createObjectURL(file);
+});
+
     function drawHandles(obj) {
       const x = obj.x, y = obj.y, w = obj.width, h = obj.height;
       const points = [
