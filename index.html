@@ -16,9 +16,7 @@
       display: block;
       margin: 20px auto;
     }
-    .hidden {
-      display: none;
-    }
+    .hidden { display: none; }
     .handle {
       width: 8px;
       height: 8px;
@@ -27,16 +25,14 @@
       position: absolute;
       z-index: 10;
     }
-    #controls {
-      margin-bottom: 10px;
-    }
+    #controls { margin-bottom: 10px; }
   </style>
 </head>
 <body>
   <h3>NGKs Banner Editor</h3>
   <div id="controls">
     <div id="stepText">Step 1: Choose your background image</div>
-    <input type="file" id="bgInput" accept="image/*" />
+    <input type="file" id="fileInput" accept="image/*" />
     <button id="skipBtn">Skip</button>
   </div>
 
@@ -52,7 +48,7 @@
     const canvas = document.getElementById("bannerCanvas");
     const ctx = canvas.getContext("2d");
 
-    const bgInput = document.getElementById("bgInput");
+    const fileInput = document.getElementById("fileInput");
     const skipBtn = document.getElementById("skipBtn");
     const deleteBtn = document.getElementById("deleteBtn");
     const exportBtn = document.getElementById("exportBtn");
@@ -60,19 +56,13 @@
     const stepText = document.getElementById("stepText");
     const actions = document.getElementById("actions");
 
-    const mobileZone = {
-      x: 507,
-      y: 508,
-      width: 1546,
-      height: 423
-    };
+    const mobileZone = { x: 507, y: 508, width: 1546, height: 423 };
 
     let step = 1;
     let background = null;
     const images = [];
     let selectedIndex = -1;
     let dragging = false;
-    let resizing = false;
     let dragOffsetX = 0;
     let dragOffsetY = 0;
 
@@ -80,67 +70,48 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       if (background) ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
 
-      // Draw all images
-      images.forEach((item, index) => {
-        ctx.drawImage(item.img, item.x, item.y, item.w, item.h);
-
-        if (index === selectedIndex) {
-          // Draw border
+      images.forEach((img, i) => {
+        ctx.drawImage(img.img, img.x, img.y, img.w, img.h);
+        if (i === selectedIndex) {
           ctx.strokeStyle = 'lime';
           ctx.lineWidth = 2;
-          ctx.strokeRect(item.x, item.y, item.w, item.h);
-
-          // Draw 8-point handles
-          const corners = [
-            [item.x, item.y],
-            [item.x + item.w / 2, item.y],
-            [item.x + item.w, item.y],
-            [item.x + item.w, item.y + item.h / 2],
-            [item.x + item.w, item.y + item.h],
-            [item.x + item.w / 2, item.y + item.h],
-            [item.x, item.y + item.h],
-            [item.x, item.y + item.h / 2]
+          ctx.strokeRect(img.x, img.y, img.w, img.h);
+          const pts = [
+            [img.x, img.y], [img.x + img.w / 2, img.y], [img.x + img.w, img.y],
+            [img.x + img.w, img.y + img.h / 2], [img.x + img.w, img.y + img.h],
+            [img.x + img.w / 2, img.y + img.h], [img.x, img.y + img.h],
+            [img.x, img.y + img.h / 2]
           ];
-          ctx.fillStyle = "white";
-          corners.forEach(([cx, cy]) => {
-            ctx.fillRect(cx - 4, cy - 4, 8, 8);
-            ctx.strokeStyle = "black";
-            ctx.strokeRect(cx - 4, cy - 4, 8, 8);
-          });
+          ctx.fillStyle = 'white';
+          pts.forEach(([x, y]) => ctx.fillRect(x - 4, y - 4, 8, 8));
         }
       });
 
-      // Mobile safe zone overlay
-      ctx.strokeStyle = "lime";
-      ctx.lineWidth = 2;
-      ctx.strokeRect(mobileZone.x, mobileZone.y, mobileZone.width, mobileZone.height);
+      // Overlay safe zone
+      if (step >= 2) {
+        ctx.strokeStyle = 'lime';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(mobileZone.x, mobileZone.y, mobileZone.width, mobileZone.height);
+      }
     }
 
-    bgInput.addEventListener("change", function () {
-      const file = this.files[0];
-      if (!file) return;
-      const img = new Image();
-      img.onload = () => {
-        background = img;
-        step++;
-        updateStep();
-        draw();
-      };
-      img.src = URL.createObjectURL(file);
-    });
-
-    skipBtn.addEventListener("click", () => {
-      step++;
-      updateStep();
-    });
-
     function updateStep() {
-      if (step === 2) {
-        stepText.innerText = "Step 2: Choose your mobile view image (autoplaced)";
-        bgInput.value = "";
-        bgInput.onchange = function () {
-          const file = this.files[0];
-          if (!file) return;
+      if (step === 1) {
+        stepText.textContent = "Step 1: Choose your background image";
+        fileInput.onchange = e => {
+          const img = new Image();
+          img.onload = () => {
+            background = img;
+            step++;
+            updateStep();
+            draw();
+          };
+          img.src = URL.createObjectURL(e.target.files[0]);
+        };
+      } else if (step === 2) {
+        stepText.textContent = "Step 2: Choose your mobile view image (autoplaced)";
+        fileInput.value = '';
+        fileInput.onchange = e => {
           const img = new Image();
           img.onload = () => {
             images.push({
@@ -150,53 +121,42 @@
               w: mobileZone.width,
               h: mobileZone.height
             });
+            selectedIndex = images.length - 1;
             step++;
             updateStep();
             draw();
           };
-          img.src = URL.createObjectURL(file);
+          img.src = URL.createObjectURL(e.target.files[0]);
         };
       } else if (step === 3) {
-        stepText.innerText = "Step 3: Add additional images (movable, resizable, deletable)";
-        bgInput.value = "";
-        bgInput.onchange = function () {
-          const file = this.files[0];
-          if (!file) return;
+        stepText.textContent = "Step 3: Add additional images (movable, resizable, deletable)";
+        fileInput.value = '';
+        fileInput.onchange = e => {
           const img = new Image();
           img.onload = () => {
-            images.push({
-              img,
-              x: 100,
-              y: 100,
-              w: img.width * 0.5,
-              h: img.height * 0.5
-            });
+            images.push({ img, x: 100, y: 100, w: img.width * 0.5, h: img.height * 0.5 });
             selectedIndex = images.length - 1;
             draw();
           };
-          img.src = URL.createObjectURL(file);
+          img.src = URL.createObjectURL(e.target.files[0]);
         };
         actions.classList.remove("hidden");
       }
     }
 
-    canvas.addEventListener("mousedown", (e) => {
-      const rect = canvas.getBoundingClientRect();
-      const mouseX = e.clientX - rect.left;
-      const mouseY = e.clientY - rect.top;
+    fileInput.addEventListener('change', () => updateStep());
+    skipBtn.addEventListener('click', () => { step++; updateStep(); draw(); });
 
+    canvas.addEventListener("mousedown", e => {
+      const r = canvas.getBoundingClientRect();
+      const mx = e.clientX - r.left, my = e.clientY - r.top;
       selectedIndex = -1;
       for (let i = images.length - 1; i >= 0; i--) {
         const img = images[i];
-        if (
-          mouseX >= img.x &&
-          mouseX <= img.x + img.w &&
-          mouseY >= img.y &&
-          mouseY <= img.y + img.h
-        ) {
+        if (mx >= img.x && mx <= img.x + img.w && my >= img.y && my <= img.y + img.h) {
           selectedIndex = i;
-          dragOffsetX = mouseX - img.x;
-          dragOffsetY = mouseY - img.y;
+          dragOffsetX = mx - img.x;
+          dragOffsetY = my - img.y;
           dragging = true;
           break;
         }
@@ -204,19 +164,15 @@
       draw();
     });
 
-    canvas.addEventListener("mouseup", () => {
-      dragging = false;
-      resizing = false;
-    });
+    canvas.addEventListener("mouseup", () => dragging = false);
 
-    canvas.addEventListener("mousemove", (e) => {
+    canvas.addEventListener("mousemove", e => {
       if (selectedIndex === -1 || !dragging) return;
-      const rect = canvas.getBoundingClientRect();
-      const mouseX = e.clientX - rect.left;
-      const mouseY = e.clientY - rect.top;
+      const r = canvas.getBoundingClientRect();
+      const mx = e.clientX - r.left, my = e.clientY - r.top;
       const img = images[selectedIndex];
-      img.x = mouseX - dragOffsetX;
-      img.y = mouseY - dragOffsetY;
+      img.x = mx - dragOffsetX;
+      img.y = my - dragOffsetY;
       draw();
     });
 
@@ -238,24 +194,23 @@
     });
 
     exportBtn.addEventListener("click", () => {
-      draw(); // Ensure final render
-      const dataURL = canvas.toDataURL("image/png");
-      const link = document.createElement("a");
-      link.download = "yt_banner_final.png";
-      link.href = dataURL;
-      link.click();
+      draw();
+      const url = canvas.toDataURL("image/png");
+      const a = document.createElement("a");
+      a.download = "yt_banner_final.png";
+      a.href = url;
+      a.click();
     });
 
-    // Arrow key movement
-    window.addEventListener("keydown", (e) => {
+    window.addEventListener("keydown", e => {
       if (selectedIndex === -1) return;
       const img = images[selectedIndex];
-      const step = e.shiftKey ? 10 : 1;
+      const moveBy = e.shiftKey ? 10 : 1;
       switch (e.key) {
-        case "ArrowUp": img.y -= step; break;
-        case "ArrowDown": img.y += step; break;
-        case "ArrowLeft": img.x -= step; break;
-        case "ArrowRight": img.x += step; break;
+        case "ArrowUp": img.y -= moveBy; break;
+        case "ArrowDown": img.y += moveBy; break;
+        case "ArrowLeft": img.x -= moveBy; break;
+        case "ArrowRight": img.x += moveBy; break;
       }
       draw();
     });
