@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,11 +8,46 @@
     body { background: #111; color: white; text-align: center; font-family: Arial; }
     canvas { border: 2px solid yellow; background: #000; margin-top: 10px; }
     .hidden { display: none; }
-  </style>
+  .control-panel {
+  background: #222;
+  border: 2px solid #555;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 0 auto;
+  width: fit-content;
+  text-align: left;
+  box-shadow: 0 0 10px rgba(255,255,255,0.1);
+}
+button, input[type="file"] {
+  margin: 5px;
+  padding: 8px 12px;
+  background: #444;
+  border: 1px solid #888;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+button:hover {
+  background: #666;
+}
+body {
+  background: #111;
+  color: #eee;
+  text-align: center;
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  font-size: 16px;
+}
+h3 {
+  font-size: 1.8rem;
+  color: #00ccff;
+  margin-bottom: 10px;
+}
+</style>
 </head>
 <body>
-  <h3>NGKs Banner Editor</h3>
-
+  
+<h3>NGKs Banner Editor</h3>
+<div class="control-panel">
   <div id="step1">
     Step 1: Choose your background 
     <input type="file" id="bgInput" accept="image/*" />
@@ -29,8 +65,11 @@
   </div>
 
   <button onclick="resetCanvas()">Clear All</button>
+  
   <div id="exportSection" class="hidden">
     <button id="exportBtn">Export Banner</button>
+  </div>
+
   </div>
 
   <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
@@ -42,6 +81,7 @@
     const handleSize = 10;
     let dragging = null, resizing = null, selectedHandle = null;
     let dragOffsetX = 0, dragOffsetY = 0;
+let exporting = false;
 
     const bgInput = document.getElementById("bgInput");
     const skipBg = document.getElementById("skipBg");
@@ -71,11 +111,21 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       const bg = overlays.find(o => o.bg);
       if (bg) ctx.drawImage(bg.img, 0, 0, canvas.width, canvas.height);
+// Draw static yellow mobile-safe zone overlay (YouTube spec)
+  if (!exporting) {
+  ctx.strokeStyle = "yellow";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(507, 509, 1546, 423);
+}
 
       overlays.forEach(o => {
         if (!o.bg) ctx.drawImage(o.img, o.x, o.y, o.width, o.height);
-        ctx.strokeStyle = o.mobileSafe ? "lime" : "red";
-        ctx.strokeRect(o.x, o.y, o.width, o.height);
+        if (o.selected) {
+        if (showHandles && o.selected) {
+  ctx.strokeStyle = o.mobileSafe ? "lime" : "red";
+  ctx.strokeRect(o.x, o.y, o.width, o.height);
+}
+      }
         if (showHandles && o.selected) drawHandles(o);
       });
     }
@@ -176,39 +226,44 @@ let hovering = false;
     });
 
     bgInput.addEventListener("change", e => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const img = new Image();
-      img.onload = () => {
-        overlays.push({ img, bg: true });
-        drawCanvas();
-        document.getElementById("step2").classList.remove("hidden");
-      };
-      img.src = URL.createObjectURL(file);
-    });
+  const file = e.target.files[0];
+  if (!file) return;
+  const img = new Image();
+  img.onload = () => {
+    overlays.push({ img, bg: true });
+    drawCanvas();
+    document.getElementById("step1").classList.add("hidden");
+    document.getElementById("step2").classList.remove("hidden");
+  };
+  img.src = URL.createObjectURL(file);
+});
 
-    skipBg.addEventListener("click", () => {
-      drawCanvas();
-      document.getElementById("step2").classList.remove("hidden");
-    });
+skipBg.addEventListener("click", () => {
+  drawCanvas();
+  document.getElementById("step1").classList.add("hidden");
+  document.getElementById("step2").classList.remove("hidden");
+});
 
-    mobileInput.addEventListener("change", e => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const img = new Image();
-      img.onload = () => {
-        overlays.push({
-          img,
-          x: 507,
-          y: 509,
-          width: 1546,
-          height: 423,
-          mobileSafe: true
-        });
-        drawCanvas();
-        document.getElementById("step3").classList.remove("hidden");
-        document.getElementById("exportSection").classList.remove("hidden");
-      };
+mobileInput.addEventListener("change", e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const img = new Image();
+  img.onload = () => {
+    overlays.push({
+      img,
+      x: 507,
+      y: 509,
+      width: 1546,
+      height: 423,
+      mobileSafe: true
+    });
+    drawCanvas();
+    document.getElementById("step2").classList.add("hidden");
+    document.getElementById("step3").classList.remove("hidden");
+    document.getElementById("exportSection").classList.remove("hidden");
+  };
+  img.src = URL.createObjectURL(file);
+});
       img.src = URL.createObjectURL(file);
     });
 
@@ -236,11 +291,13 @@ let hovering = false;
 
     exportBtn.addEventListener("click", () => {
       overlays.forEach(o => o.selected = false);
+      exporting = true;
       drawCanvas(false);
       const link = document.createElement("a");
       link.download = `yt_banner_${Date.now()}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
+      exporting = false;
       drawCanvas(true);
     });
   
