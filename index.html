@@ -1,4 +1,4 @@
-<!-- File: YT_Banner_Editor_Full_8Handle.html -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,25 +13,22 @@
 <body>
   <h3>NGKs Banner Editor</h3>
 
-  <div id="step1">
+  
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 0 20px;">
+  <img src="https://raw.githubusercontent.com/NGKsSystems/yt-banner-app/main/NGKsExactFit.png" alt="ExactFit" height="40" />
+  <div>
     Step 1: Choose your background 
     <input type="file" id="bgInput" accept="image/*" />
     <button id="skipBg">Skip</button>
-  </div>
-
-  <div id="step2" class="hidden">
-    Step 2: Choose your mobile-safe image
     <input type="file" id="mobileInput" accept="image/*" />
-  </div>
-
-  <div id="step3" class="hidden">
-    Step 3: Add additional images
     <input type="file" id="extraInput" accept="image/*" />
-  </div>
-
-  <div id="exportSection" class="hidden">
     <button id="exportBtn">Export Banner</button>
   </div>
+  <a href="https://NGKsSystems.com" target="_blank">
+    <img src="https://raw.githubusercontent.com/NGKsSystems/yt-banner-app/main/NGKsSystems%204.png" alt="NGKsSystems" height="40" />
+  </a>
+</div>
+
 
   <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
 
@@ -70,11 +67,9 @@
 
       overlays.forEach(o => {
         if (!o.bg) ctx.drawImage(o.img, o.x, o.y, o.width, o.height);
-        if (showHandles && o.selected) {
-          ctx.strokeStyle = o.mobileSafe ? "lime" : "red";
-          ctx.strokeRect(o.x, o.y, o.width, o.height);
-          drawHandles(o);
-        }
+        ctx.strokeStyle = o.mobileSafe ? "lime" : "red";
+        ctx.strokeRect(o.x, o.y, o.width, o.height);
+        if (showHandles && o.selected) drawHandles(o);
       });
     }
 
@@ -97,7 +92,7 @@
     }
 
     function resizeByHandle(obj, handleIndex, mx, my) {
-      const old = { x: obj.x, y: obj.y, width: obj.width, height: obj.height };
+      const x = obj.x, y = obj.y, w = obj.width, h = obj.height;
       switch (handleIndex) {
         case 0: obj.width += obj.x - mx; obj.height += obj.y - my; obj.x = mx; obj.y = my; break;
         case 1: obj.height += obj.y - my; obj.y = my; break;
@@ -108,8 +103,6 @@
         case 6: obj.width += obj.x - mx; obj.height = my - obj.y; obj.x = mx; break;
         case 7: obj.width += obj.x - mx; obj.x = mx; break;
       }
-      obj.width = Math.max(10, obj.width);
-      obj.height = Math.max(10, obj.height);
     }
 
     canvas.addEventListener("mousedown", e => {
