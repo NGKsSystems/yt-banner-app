@@ -11,7 +11,6 @@
       font-family: Arial, sans-serif;
       text-align: center;
     }
-
     #controls {
       margin: 10px auto;
       display: flex;
@@ -19,23 +18,14 @@
       gap: 15px;
       flex-wrap: wrap;
     }
-
     canvas {
       border: 2px solid yellow;
       margin-top: 20px;
       background-color: #333;
+      cursor: default;
     }
-
     .hidden {
       display: none;
-    }
-
-    .resize-handle {
-      width: 10px;
-      height: 10px;
-      background: white;
-      position: absolute;
-      cursor: se-resize;
     }
   </style>
 </head>
@@ -73,10 +63,11 @@
 
     const overlays = [];
     let selected = null;
-    let offsetX = 0;
-    let offsetY = 0;
     let dragging = false;
     let resizing = false;
+    let offsetX, offsetY;
+    let activeHandle = null;
+    const HANDLE_SIZE = 10;
 
     bgInput.addEventListener("change", e => {
       const file = e.target.files[0];
@@ -84,10 +75,8 @@
       const img = new Image();
       img.onload = () => {
         overlays.push({ img, bg: true });
-        setTimeout(() => {
-          drawCanvas();
-          document.getElementById("step2").classList.remove("hidden");
-        }, 50);
+        drawCanvas();
+        document.getElementById("step2").classList.remove("hidden");
       };
       img.src = URL.createObjectURL(file);
     });
@@ -121,56 +110,84 @@
     });
 
     exportBtn.addEventListener("click", () => {
-      drawCanvas(true); // remove handles
+      drawCanvas(true); // hide handles
       const link = document.createElement('a');
       link.download = 'yt_banner_final.png';
       link.href = canvas.toDataURL('image/png');
       link.click();
-      drawCanvas(); // redraw with handles
+      drawCanvas(false); // restore handles
     });
 
     function drawCanvas(hideHandles = false) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
       overlays.forEach(o => {
         if (o.bg) {
           ctx.drawImage(o.img, 0, 0, canvas.width, canvas.height);
         } else {
           ctx.drawImage(o.img, o.x, o.y, o.w, o.h);
-          if (!hideHandles && !o.lock) {
-            ctx.strokeStyle = 'white';
-            ctx.strokeRect(o.x, o.y, o.w, o.h);
-            ctx.fillStyle = 'white';
-            ctx.fillRect(o.x + o.w - 5, o.y + o.h - 5, 10, 10);
-          }
+          if (!hideHandles && o === selected && !o.lock) drawHandles(o);
         }
       });
-
-      // Draw zones
       ctx.strokeStyle = 'lime';
-      ctx.strokeRect(740, 620, 1080, 200); // Mobile safe
-
+      ctx.strokeRect(740, 620, 1080, 200); // Mobile-safe
       ctx.strokeStyle = 'yellow';
-      ctx.strokeRect(0, 0, canvas.width, canvas.height); // TV safe
+      ctx.strokeRect(0, 0, canvas.width, canvas.height); // Full canvas border
+    }
+
+    function drawHandles(obj) {
+      const points = getHandlePoints(obj);
+      ctx.fillStyle = "white";
+      points.forEach(([x, y]) => {
+        ctx.fillRect(x - HANDLE_SIZE/2, y - HANDLE_SIZE/2, HANDLE_SIZE, HANDLE_SIZE);
+      });
+    }
+
+    function getHandlePoints(o) {
+      const { x, y, w, h } = o;
+      return [
+        [x, y],
+        [x + w / 2, y],
+        [x + w, y],
+        [x, y + h / 2],
+        [x + w, y + h / 2],
+        [x, y + h],
+        [x + w / 2, y + h],
+        [x + w, y + h]
+      ];
+    }
+
+    function getHandleAt(mx, my, o) {
+      const points = getHandlePoints(o);
+      for (let i = 0; i < points.length; i++) {
+        const [x, y] = points[i];
+        if (
+          mx >= x - HANDLE_SIZE / 2 &&
+          mx <= x + HANDLE_SIZE / 2 &&
+          my >= y - HANDLE_SIZE / 2 &&
+          my <= y + HANDLE_SIZE / 2
+        ) return i;
+      }
+      return -1;
     }
 
     canvas.addEventListener("mousedown", e => {
       const mx = e.offsetX;
       const my = e.offsetY;
+      selected = null;
 
       for (let i = overlays.length - 1; i >= 0; i--) {
         const o = overlays[i];
-        if (o.lock || o.bg) continue;
-        if (
-          mx >= o.x + o.w - 10 &&
-          mx <= o.x + o.w &&
-          my >= o.y + o.h - 10 &&
-          my <= o.y + o.h
-        ) {
+        if (o.bg || o.lock) continue;
+
+        const handleIndex = getHandleAt(mx, my, o);
+        if (handleIndex !== -1) {
           selected = o;
           resizing = true;
+          activeHandle = handleIndex;
           return;
-        } else if (
+        }
+
+        if (
           mx >= o.x &&
           mx <= o.x + o.w &&
           my >= o.y &&
@@ -180,9 +197,12 @@
           dragging = true;
           offsetX = mx - o.x;
           offsetY = my - o.y;
+          drawCanvas();
           return;
         }
       }
+
+      drawCanvas(); // unselect if nothing hit
     });
 
     canvas.addEventListener("mousemove", e => {
@@ -191,25 +211,67 @@
       const my = e.offsetY;
 
       if (resizing) {
-        selected.w = mx - selected.x;
-        selected.h = my - selected.y;
-      } else if (dragging) {
+        const o = selected;
+        const minSize = 20;
+        let x = o.x, y = o.y, w = o.w, h = o.h;
+
+        switch (activeHandle) {
+          case 0: // top-left
+            w += x - mx; h += y - my;
+            x = mx; y = my;
+            break;
+          case 1: // top-center
+            h += y - my;
+            y = my;
+            break;
+          case 2: // top-right
+            w = mx - x; h += y - my;
+            y = my;
+            break;
+          case 3: // mid-left
+            w += x - mx;
+            x = mx;
+            break;
+          case 4: // mid-right
+            w = mx - x;
+            break;
+          case 5: // bottom-left
+            w += x - mx; h = my - y;
+            x = mx;
+            break;
+          case 6: // bottom-center
+            h = my - y;
+            break;
+          case 7: // bottom-right
+            w = mx - x; h = my - y;
+            break;
+        }
+
+        // Clamp minimum
+        o.x = x;
+        o.y = y;
+        o.w = Math.max(w, minSize);
+        o.h = Math.max(h, minSize);
+      }
+
+      if (dragging) {
         selected.x = mx - offsetX;
         selected.y = my - offsetY;
       }
+
       drawCanvas();
     });
 
     canvas.addEventListener("mouseup", () => {
       dragging = false;
       resizing = false;
-      selected = null;
+      activeHandle = null;
     });
 
     canvas.addEventListener("mouseout", () => {
       dragging = false;
       resizing = false;
-      selected = null;
+      activeHandle = null;
     });
   </script>
 </body>
