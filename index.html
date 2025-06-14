@@ -1,110 +1,59 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NGKs Banner Editor</title>
-  <style>
-    html, body {
-      margin: 0;
-      background-color: #111;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      text-align: center;
-      overflow-x: hidden;
-    }
+<script>
+  const canvas = document.getElementById('bannerCanvas');
+  const ctx = canvas.getContext('2d');
+  const imageInput = document.getElementById('imageInput');
+  const exportBtn = document.getElementById('exportBtn');
 
-    h2 {
-      margin: 15px;
-    }
+  let images = [];
 
-    #canvasWrapper {
-      width: 90%;
-      max-width: 1280px;
-      margin: 20px auto;
-      position: relative;
-    }
+  imageInput.addEventListener('change', function () {
+    const files = Array.from(this.files);
+    images = [];
 
-    #bannerCanvas {
-      width: 100%;
-      height: auto;
-      display: block;
-      border: 2px solid yellow;
-    }
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    input[type="file"],
-    button {
-      margin: 10px;
-    }
-  </style>
-</head>
-<body>
-  <h2>NGKs Banner Editor</h2>
-  <input type="file" id="imageInput" accept="image/*" multiple />
-  <br />
+    let loadedCount = 0;
 
-  <div id="canvasWrapper">
-    <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
-  </div>
-
-  <button id="exportBtn">Export Banner</button>
-
-  <script>
-    const canvas = document.getElementById('bannerCanvas');
-    const ctx = canvas.getContext('2d');
-    const imageInput = document.getElementById('imageInput');
-    const exportBtn = document.getElementById('exportBtn');
-
-    let images = [];
-
-    imageInput.addEventListener('change', function () {
-      images = [];
-      const files = Array.from(this.files);
-      if (!files.length) return;
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      let loadedCount = 0;
-
-      files.forEach((file, index) => {
-        const img = new Image();
-        img.onload = () => {
-          images[index] = img;
-          loadedCount++;
-          if (loadedCount === files.length) {
-            drawAll();
-          }
-        };
-        img.src = URL.createObjectURL(file);
-      });
+    files.forEach((file, index) => {
+      const img = new Image();
+      img.onload = () => {
+        images[index] = img;
+        loadedCount++;
+        if (loadedCount === files.length) {
+          drawAll();
+        }
+      };
+      img.src = URL.createObjectURL(file);
     });
+  });
 
-    function drawAll() {
-      // Background image
-      if (images[0]) ctx.drawImage(images[0], 0, 0, canvas.width, canvas.height);
+  function drawAll() {
+    // Background
+    if (images[0]) ctx.drawImage(images[0], 0, 0, canvas.width, canvas.height);
 
-      // Overlay 1 (Mobile safe zone graphic)
-      if (images[1]) ctx.drawImage(images[1], 740, 620, 1080, 200);
+    // Mobile overlay
+    if (images[1]) ctx.drawImage(images[1], 740, 620, 1080, 200);
 
-      // Overlay 2 (Top header bar or brand strip)
-      if (images[2]) ctx.drawImage(images[2], 0, 0, canvas.width, 300);
+    // Header banner
+    if (images[2]) ctx.drawImage(images[2], 0, 0, 2560, 300);
 
-      drawGuides();
-    }
+    drawOverlays();
+  }
 
-    function drawGuides() {
-      ctx.strokeStyle = 'lime';
-      ctx.strokeRect(740, 620, 1080, 200); // Mobile zone
+  function drawOverlays() {
+    ctx.strokeStyle = 'lime';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(740, 620, 1080, 200); // Mobile safe
 
-      ctx.strokeStyle = 'yellow';
-      ctx.strokeRect(0, 0, canvas.width, canvas.height); // TV safe zone
-    }
+    ctx.strokeStyle = 'yellow';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(0, 0, canvas.width, canvas.height); // Full canvas guide
+  }
 
-    exportBtn.addEventListener('click', function () {
-      const link = document.createElement('a');
-      link.download = 'yt_banner_final.png';
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    });
-  </script>
-</body>
-</html>
+  exportBtn.addEventListener('click', () => {
+    const link = document.createElement('a');
+    link.download = 'yt_banner_final.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  });
+</script>
