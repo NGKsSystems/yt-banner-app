@@ -2,212 +2,208 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>NGKs Banner Editor</title>
   <style>
     body {
-      background-color: #111;
-      color: #fff;
+      background: #111;
+      color: white;
       font-family: Arial, sans-serif;
       text-align: center;
     }
-    #canvasWrapper {
-      position: relative;
-      margin: 10px auto;
-      width: fit-content;
-    }
     canvas {
       border: 2px solid yellow;
-      display: block;
+      background: #000;
+      cursor: default;
     }
-    .step {
-      margin-top: 10px;
-    }
+    .hidden { display: none; }
     .handle {
+      position: absolute;
       width: 10px;
       height: 10px;
       background: white;
-      border: 1px solid red;
-      position: absolute;
+      border: 1px solid black;
       cursor: nwse-resize;
     }
   </style>
 </head>
 <body>
-  <h2>NGKs Banner Editor</h2>
+  <h3>NGKs Banner Editor</h3>
 
-  <div class="step">
-    Step 1: Choose your background or 
-    <button onclick="skipBackground()">Skip</button><br />
+  <div id="step1">
+    Step 1: Choose your background 
     <input type="file" id="bgInput" accept="image/*" />
+    <button id="skipBg">Skip</button>
   </div>
 
-  <div class="step" style="display:none" id="step2">
-    Step 2: Choose your mobile view image<br />
+  <div id="step2" class="hidden">
+    Step 2: Choose your mobile-safe image
     <input type="file" id="mobileInput" accept="image/*" />
   </div>
 
-  <div class="step" style="display:none" id="step3">
-    Step 3: Add additional images (optional)<br />
+  <div id="step3" class="hidden">
+    Step 3: Add additional images
     <input type="file" id="extraInput" accept="image/*" />
   </div>
 
-  <div id="canvasWrapper">
-    <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
+  <div id="exportSection" class="hidden">
+    <br />
+    <button id="exportBtn">Export Banner</button>
   </div>
 
-  <button id="exportBtn">Export Banner</button>
+  <br />
+  <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
 
   <script>
-    const canvas = document.getElementById('bannerCanvas');
-    const ctx = canvas.getContext('2d');
-    const bgInput = document.getElementById('bgInput');
-    const mobileInput = document.getElementById('mobileInput');
-    const extraInput = document.getElementById('extraInput');
-    const step2 = document.getElementById('step2');
-    const step3 = document.getElementById('step3');
-    const exportBtn = document.getElementById('exportBtn');
+    const canvas = document.getElementById("bannerCanvas");
+    const ctx = canvas.getContext("2d");
+    const bgInput = document.getElementById("bgInput");
+    const skipBg = document.getElementById("skipBg");
+    const mobileInput = document.getElementById("mobileInput");
+    const extraInput = document.getElementById("extraInput");
+    const exportBtn = document.getElementById("exportBtn");
 
-    let backgroundImage = null;
-    let mobileImage = null;
-    let overlays = [];
-
-    let selectedOverlay = null;
-    let offsetX, offsetY;
+    const overlays = [];
+    let dragging = null;
+    let dragOffsetX = 0;
+    let dragOffsetY = 0;
     let resizing = false;
 
-    function skipBackground() {
-      step2.style.display = 'block';
-    }
-
-    bgInput.addEventListener('change', e => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const img = new Image();
-      img.onload = () => {
-        backgroundImage = img;
-        drawCanvas();
-        step2.style.display = 'block';
-      };
-      img.src = URL.createObjectURL(file);
-    });
-
-    mobileInput.addEventListener('change', e => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const img = new Image();
-      img.onload = () => {
-        mobileImage = img;
-        overlays.push({ img, x: 740, y: 620, width: 1080, height: 200 });
-        drawCanvas();
-        step3.style.display = 'block';
-      };
-      img.src = URL.createObjectURL(file);
-    });
-
-    extraInput.addEventListener('change', e => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const img = new Image();
-      img.onload = () => {
-        overlays.push({ img, x: 100, y: 100, width: img.width / 2, height: img.height / 2 });
-        drawCanvas();
-      };
-      img.src = URL.createObjectURL(file);
-    });
-
-    function drawCanvas() {
+    function drawCanvas(showBoxes = true) {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      if (backgroundImage) {
-        ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
-      }
 
-      for (const overlay of overlays) {
-        ctx.drawImage(overlay.img, overlay.x, overlay.y, overlay.width, overlay.height);
-      }
+      // Draw background first if present
+      const bg = overlays.find(o => o.bg);
+      if (bg) ctx.drawImage(bg.img, 0, 0, canvas.width, canvas.height);
 
-      if (selectedOverlay) {
-        ctx.strokeStyle = 'lime';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(
-          selectedOverlay.x,
-          selectedOverlay.y,
-          selectedOverlay.width,
-          selectedOverlay.height
-        );
-        // draw handles
-        drawHandle(selectedOverlay.x + selectedOverlay.width, selectedOverlay.y + selectedOverlay.height);
-      }
+      // Draw all overlays
+      overlays.forEach(o => {
+        ctx.drawImage(o.img, o.x, o.y, o.width, o.height);
+        if (showBoxes && !o.bg) {
+          ctx.strokeStyle = o.mobileSafe ? "lime" : "red";
+          ctx.strokeRect(o.x, o.y, o.width, o.height);
+        }
+      });
     }
 
-    function drawHandle(x, y) {
-      ctx.fillStyle = 'white';
-      ctx.fillRect(x - 5, y - 5, 10, 10);
-      ctx.strokeStyle = 'red';
-      ctx.strokeRect(x - 5, y - 5, 10, 10);
-    }
+    // Step 1
+    bgInput.addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const img = new Image();
+      img.onload = () => {
+        overlays.push({ img, bg: true });
+        drawCanvas();
+        document.getElementById("step2").classList.remove("hidden");
+      };
+      img.src = URL.createObjectURL(file);
+    });
 
-    canvas.addEventListener('mousedown', e => {
+    skipBg.addEventListener("click", () => {
+      drawCanvas();
+      document.getElementById("step2").classList.remove("hidden");
+    });
+
+    // Step 2
+    mobileInput.addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const img = new Image();
+      img.onload = () => {
+        overlays.push({
+          img,
+          x: 507,
+          y: 509,
+          width: 1546,
+          height: 423,
+          mobileSafe: true
+        });
+        drawCanvas();
+        document.getElementById("step3").classList.remove("hidden");
+        document.getElementById("exportSection").classList.remove("hidden");
+      };
+      img.src = URL.createObjectURL(file);
+    });
+
+    // Step 3
+    extraInput.addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const img = new Image();
+      img.onload = () => {
+        overlays.push({
+          img,
+          x: 100,
+          y: 100,
+          width: 300,
+          height: 100
+        });
+        drawCanvas();
+      };
+      img.src = URL.createObjectURL(file);
+    });
+
+    // Drag + Resize
+    canvas.addEventListener("mousedown", e => {
       const rect = canvas.getBoundingClientRect();
       const mx = e.clientX - rect.left;
       const my = e.clientY - rect.top;
-
-      selectedOverlay = null;
       for (let i = overlays.length - 1; i >= 0; i--) {
         const o = overlays[i];
-        const handleX = o.x + o.width;
-        const handleY = o.y + o.height;
+        if (o.bg || o.mobileSafe) continue;
 
-        if (mx >= handleX - 5 && mx <= handleX + 5 && my >= handleY - 5 && my <= handleY + 5) {
-          selectedOverlay = o;
-          resizing = true;
+        // Resize handle check
+        if (mx >= o.x + o.width - 10 && mx <= o.x + o.width &&
+            my >= o.y + o.height - 10 && my <= o.y + o.height) {
+          resizing = o;
+          dragOffsetX = mx - o.x;
+          dragOffsetY = my - o.y;
           return;
-        } else if (
-          mx >= o.x && mx <= o.x + o.width &&
-          my >= o.y && my <= o.y + o.height
-        ) {
-          selectedOverlay = o;
-          resizing = false;
-          offsetX = mx - o.x;
-          offsetY = my - o.y;
-          drawCanvas();
+        }
+
+        // Drag check
+        if (mx >= o.x && mx <= o.x + o.width &&
+            my >= o.y && my <= o.y + o.height) {
+          dragging = o;
+          dragOffsetX = mx - o.x;
+          dragOffsetY = my - o.y;
           return;
         }
       }
-      drawCanvas();
     });
 
-    canvas.addEventListener('mousemove', e => {
-      if (!selectedOverlay) return;
+    canvas.addEventListener("mousemove", e => {
+      if (!dragging && !resizing) return;
       const rect = canvas.getBoundingClientRect();
       const mx = e.clientX - rect.left;
       const my = e.clientY - rect.top;
 
-      if (resizing) {
-        selectedOverlay.width = mx - selectedOverlay.x;
-        selectedOverlay.height = my - selectedOverlay.y;
-      } else {
-        selectedOverlay.x = mx - offsetX;
-        selectedOverlay.y = my - offsetY;
+      if (dragging) {
+        dragging.x = mx - dragOffsetX;
+        dragging.y = my - dragOffsetY;
       }
+
+      if (resizing) {
+        resizing.width = Math.max(10, mx - resizing.x);
+        resizing.height = Math.max(10, my - resizing.y);
+      }
+
       drawCanvas();
     });
 
-    canvas.addEventListener('mouseup', () => {
-      selectedOverlay = null;
+    canvas.addEventListener("mouseup", () => {
+      dragging = null;
+      resizing = null;
     });
 
-    exportBtn.addEventListener('click', () => {
-      const tempSelected = selectedOverlay;
-      selectedOverlay = null;
-      drawCanvas();
-
-      const link = document.createElement('a');
-      link.download = 'yt_banner_final.png';
-      link.href = canvas.toDataURL('image/png');
+    // Export
+    exportBtn.addEventListener("click", () => {
+      drawCanvas(false); // Hide boxes
+      const link = document.createElement("a");
+      link.download = "yt_banner_final.png";
+      link.href = canvas.toDataURL("image/png");
       link.click();
-
-      selectedOverlay = tempSelected;
-      drawCanvas();
+      drawCanvas(true); // Restore
     });
   </script>
 </body>
