@@ -179,6 +179,14 @@ canvas.addEventListener("mouseup", () => {
   dragType = null;
   dragHandle = null;
 });
+
+document.getElementById("nextBtn").addEventListener("click", () => {
+  advanceStep(1);
+});
+document.getElementById("skipBg").addEventListener("click", () => {
+  advanceStep(1);
+});
+
 // Start on Step 1
 drawCanvas();
 showStep(1);
