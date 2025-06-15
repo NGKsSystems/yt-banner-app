@@ -65,10 +65,10 @@ window.onload = () => {
     img.onload = () => {
       overlays.push({
         img,
-        x: 740,
-        y: 620,
-        width: 1080,
-        height: 200,
+        x: 507,
+        y: 509,
+        width: 1546,
+        height: 423,
         mobileSafe: true
       });
       drawCanvas();
