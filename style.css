@@ -20,13 +20,10 @@ canvas {
 .hidden {
   display: none;
 }
-#step1 p,
-#step2 p,
-#step3 p,
-#step4 p {
-  font-size: 2em !important;
+.step-label {
+  font-size: 3em;
   font-weight: bold;
   color: white;
   text-shadow: 1px 1px 3px black;
+  margin-bottom: 20px;
 }
-
