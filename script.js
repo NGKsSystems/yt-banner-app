@@ -15,8 +15,44 @@ function showStep(stepNum) {
     const el = document.getElementById(`step${i}`);
     if (el) el.classList.add("hidden");
   }
-  const next = document.getElementById(`step${stepNum}`);
-  if (next) next.classList.remove("hidden");
+
+  const stepUI = document.getElementById("stepUI");
+  if (!stepUI) return;
+
+  if (stepNum === 1) {
+    stepUI.innerHTML = `
+      <p>Step 1: Choose your background</p>
+      <input type="file" id="bgInput" accept="image/*" />
+      <button id="skipBg">Skip</button>
+    `;
+    document.getElementById("bgInput").addEventListener("change", handleBackgroundUpload);
+    document.getElementById("skipBg").addEventListener("click", () => showStep(2));
+  }
+
+  else if (stepNum === 2) {
+    stepUI.innerHTML = `
+      <p>Step 2: Choose your mobile-safe image</p>
+      <input type="file" id="mobileInput" accept="image/*" />
+    `;
+    document.getElementById("mobileInput").addEventListener("change", handleMobileSafeUpload);
+  }
+
+  else if (stepNum === 3) {
+    stepUI.innerHTML = `
+      <p>Step 3: Add additional images</p>
+      <input type="file" id="extraInput" accept="image/*" />
+    `;
+    document.getElementById("extraInput").addEventListener("change", handleOverlayUpload);
+  }
+
+  else if (stepNum === 4) {
+    stepUI.innerHTML = `
+      <p>Step 4: Export your banner</p>
+      <button id="exportBtn">Export Banner</button>
+    `;
+    document.getElementById("exportBtn").addEventListener("click", exportBanner);
+  }
+
   currentStep = stepNum;
 }
 
