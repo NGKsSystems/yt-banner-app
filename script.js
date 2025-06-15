@@ -4,10 +4,83 @@ const ctx = canvas.getContext("2d");
 let overlays = [];
 let currentStep = 1;
 
-let dragTarget = null;
-let dragType = null;
-let dragHandle = null;
-let startx, starty;
+// Mouse Down
+canvas.addEventListener("mousedown", (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+
+  for (let i = overlays.length - 1; i >= 0; i--) {
+    const img = overlays[i];
+    const x = img.x;
+    const y = img.y;
+    const w = img.width * img.scale;
+    const h = img.height * img.scale;
+
+    const handles = [
+      { x: x, y: y, type: "nw" },
+      { x: x + w / 2, y: y, type: "n" },
+      { x: x + w, y: y, type: "ne" },
+      { x: x, y: y + h / 2, type: "w" },
+      { x: x + w, y: y + h / 2, type: "e" },
+      { x: x, y: y + h, type: "sw" },
+      { x: x + w / 2, y: y + h, type: "s" },
+      { x: x + w, y: y + h, type: "se" }
+    ];
+
+    for (const handle of handles) {
+      if (Math.abs(mouseX - handle.x) < 10 && Math.abs(mouseY - handle.y) < 10) {
+        dragTarget = img;
+        dragType = handle.type;
+        startX = mouseX;
+        startY = mouseY;
+        return;
+      }
+    }
+
+    if (
+      mouseX >= x && mouseX <= x + w &&
+      mouseY >= y && mouseY <= y + h
+    ) {
+      dragTarget = img;
+      dragType = "move";
+      startX = mouseX;
+      startY = mouseY;
+      return;
+    }
+  }
+});
+
+// Mouse Move
+canvas.addEventListener("mousemove", (e) => {
+  if (!dragTarget) return;
+
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+  const dx = mouseX - startX;
+  const dy = mouseY - startY;
+
+  if (dragType === "move") {
+    dragTarget.x += dx;
+    dragTarget.y += dy;
+  } else {
+    const scaleAmount = 1 + dx / dragTarget.width;
+    dragTarget.scale *= scaleAmount;
+    if (dragTarget.scale < 0.1) dragTarget.scale = 0.1;
+  }
+
+  startX = mouseX;
+  startY = mouseY;
+  drawCanvas();
+});
+
+// Mouse Up
+canvas.addEventListener("mouseup", () => {
+  dragTarget = null;
+  dragType = null;
+});
+
 
 
 function showStep(stepNum) {
