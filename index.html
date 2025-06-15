@@ -2,50 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>NGKsExactFit</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background: #111;
-      color: white;
-      font-family: Arial;
-      text-align: center;
-    }
-
-    canvas {
-      border: 2px solid yellow;
-      background: #000;
-      margin-top: 10px;
-    }
-
-    #logoBar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      width: 100%;
-      max-width: 2560px;
-      margin: 0 auto;
-      padding: 0 40px;
-      box-sizing: border-box;
-    }
-
-    #logoBar img {
-      height: 120px;
-    }
-
-    .hidden {
-      display: none;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NGKsSystems YT Banner App</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div id="logoBar">
-    <img src="NGKsExactFit.png" alt="ExactFit" />
-    <div></div>
-    <a href="https://NGKsSystems.com" target="_blank">
-      <img src="NGKsSystems4.png" alt="NGKsSystems" />
-    </a>
+    <img src="logo-left.png" alt="NGKS ExactFit" style="float:left" />
+    <img src="logo-right.png" alt="NGKS Systems" style="float:right" />
   </div>
 
   <!-- Step Panels -->
@@ -71,7 +35,6 @@
   </div>
 
   <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
-
   <script src="script.js"></script>
 </body>
 </html>
