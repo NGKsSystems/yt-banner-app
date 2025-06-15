@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,39 +8,37 @@
     body {
       background: #111;
       color: white;
-      text-align: center;
-      font-family: Arial;
+      font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
     }
-    #header {
+    .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 60px;
+      padding: 10px 40px;
+      margin-bottom: 10px;
     }
     #stepUI {
       text-align: center;
-      margin-bottom: 20px;
+      flex-grow: 1;
     }
     canvas {
       border: 2px solid yellow;
       background: #000;
       display: block;
-      margin: auto;
+      margin: 0 auto;
     }
   </style>
 </head>
 <body>
-  <!-- Header with logos and step UI -->
-<div style="display: flex; justify-content: space-between; align-items: center; padding: 0 40px; max-width: 2560px; margin: 0 auto;">
-  <img src="NGKsExactFit.png" alt="ExactFit" height="100" />
-  <div id="stepUI" style="text-align: center; flex-grow: 1;"></div>
-  <img src="NGKsSystems4.png" alt="NGKsSystems" height="100" />
-</div>
+  <div class="header">
+    <img src="NGKsExactFit.png" alt="ExactFit" height="100" />
+    <div id="stepUI"></div>
+    <img src="NGKsSystems4.png" alt="NGKsSystems" height="100" />
+  </div>
 
   <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
-
   <script src="script.js"></script>
 </body>
 </html>
