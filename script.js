@@ -1,9 +1,14 @@
+const canvas = document.getElementById("bannerCanvas");
+const ctx = canvas.getContext("2d");
 
+let overlays = [];
 let currentStep = 1;
+
 let dragTarget = null;
-let offsetX, offsetY;
-let resizeTarget = null;
-let startX, startY, startWidth, startHeight;
+let dragType = null;
+let dragHandle = null;
+let startX, startY;
+
 
 function showStep(stepNumber) {
   document.querySelectorAll('.step').forEach((el, i) => {
