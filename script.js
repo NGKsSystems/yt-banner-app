@@ -156,6 +156,7 @@ canvas.addEventListener("mousedown", e => {
         dragType = i;
         startX = mouseX;
         startY = mouseY;
+        dragType = "resize";
         return;
       }
     }
