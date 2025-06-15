@@ -1,133 +1,41 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-16" />
+  <meta charset="UTF-8" />
   <title>NGKsExactFit</title>
-  <style>
-    body {
-      background: #111;
-      color: white;
-      text-align: center;
-      font-family: Arial;
-    }
-    canvas {
-      border: 2px solid yellow;
-      background: #000;
-      margin-top: 10px;
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    .hidden {
-      display: none;
-    }
-    h3 {
-      font-size: 24px;
-      margin: 10px 0;
-      font-weight: normal;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 650px;">
+    <img src="NGKsExactFit.png" alt="ExactFit" height="150" />
+    <a href="https://NGKsSystems.com" target="_blank">
+      <img src="NGKsSystems4.png" alt="NGKsSystems" height="150" />
+    </a>
+  </div>
 
-<!-- STEP 1 -->
-<div id="step1">
-  <p>Step 1: Choose your background</p>
-  <input type="file" id="bgInput" accept="image/*" />
-  <button id="skipBg">Skip</button>
-</div>
+  <div id="step1">
+    <p>Step 1: Choose your background</p>
+    <input type="file" id="bgInput" accept="image/*" />
+    <button id="skipBg">Skip</button>
+  </div>
 
-<!-- STEP 2 -->
-<div id="step2" class="hidden">
-  <p>Step 2: Choose your mobile-safe image</p>
-  <input type="file" id="mobileInput" accept="image/*" />
-</div>
+  <div id="step2" class="hidden">
+    <p>Step 2: Choose your mobile-safe image</p>
+    <input type="file" id="mobileInput" accept="image/*" />
+  </div>
 
-<!-- STEP 3 -->
-<div id="step3" class="hidden">
-  <p>Step 3: Add additional images</p>
-  <input type="file" id="extraInput" accept="image/*" />
-</div>
+  <div id="step3" class="hidden">
+    <p>Step 3: Add additional images</p>
+    <input type="file" id="extraInput" accept="image/*" />
+  </div>
 
-<!-- STEP 4 -->
-<div id="step4" class="hidden">
-  <p>Step 4: Export your banner</p>
-  <button id="exportBtn">Export Banner</button>
-</div>
+  <div id="step4" class="hidden">
+    <p>Step 4: Export your banner</p>
+    <button id="exportBtn">Export Banner</button>
+  </div>
 
-<canvas id="bannerCanvas" width="2560" height="1440"></canvas>
-
-<script>
-  const canvas = document.getElementById("bannerCanvas");
-  const ctx = canvas.getContext("2d");
-  const overlays = [];
-  const handleSize = 10;
-  let dragging = null, resizing = null, selectedHandle = null;
-  let dragOffsetX = 0, dragOffsetY = 0;
-
-  const bgInput = document.getElementById("bgInput");
-  const skipBg = document.getElementById("skipBg");
-  const mobileInput = document.getElementById("mobileInput");
-  const extraInput = document.getElementById("extraInput");
-  const exportBtn = document.getElementById("exportBtn");
-
-  // Step logic
-  let currentStep = 1;
-  function showStep(stepNum) {
-    const totalSteps = 4;
-    for (let i = 1; i <= totalSteps; i++) {
-      const el = document.getElementById(`step${i}`);
-      if (el) el.classList.add("hidden");
-    }
-    const next = document.getElementById(`step${stepNum}`);
-    if (next) next.classList.remove("hidden");
-    currentStep = stepNum;
-  }
-
-  function advanceStep() {
-    showStep(currentStep + 1);
-  }
-
-  function drawHandles(obj) {
-    const x = obj.x, y = obj.y, w = obj.width, h = obj.height;
-    const points = [
-      [x, y], [x + w/2, y], [x + w, y],
-      [x + w, y + h/2], [x + w, y + h],
-      [x + w/2, y + h], [x, y + h],
-      [x, y + h/2]
-    ];
-    ctx.fillStyle = "white";
-    points.forEach(([px, py]) => {
-      ctx.fillRect(px - handleSize/2, py - handleSize/2, handleSize, handleSize);
-    });
-  }
-
-  function drawCanvas(showHandles = true) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const bg = overlays.find(o => o.bg);
-    if (bg) ctx.drawImage(bg.img, 0, 0, canvas.width, canvas.height);
-
-    overlays.forEach(o => {
-      if (!o.bg) ctx.drawImage(o.img, o.x, o.y, o.width, o.height);
-      ctx.strokeStyle = o.mobileSafe ? "lime" : "red";
-      ctx.strokeRect(o.x, o.y, o.width, o.height);
-      if (showHandles && o.selected) drawHandles(o);
-    });
-  }
-
-  function hitTestHandle(obj, mx, my) {
-    const x = obj.x, y = obj.y, w = obj.width, h = obj.height;
-    const positions = [
-      [x, y], [x + w/2, y], [x + w, y],
-      [x + w, y + h/2], [x + w, y + h],
-      [x + w/2, y + h], [x, y + h],
-      [x, y + h/2]
-    ];
-    for (let i = 0; i < positions.length; i++) {
-      const [px, py] = positions[i];
-      if (mx >= px - handleSize && mx <= px + handleSize &&
-          my >= py - handleSize && my <= py + handleSize) {
-        return i;
-      }
-    }
-    return -
+  <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
+  <script src="script.js"></script>
+</body>
+</html>
