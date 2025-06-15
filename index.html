@@ -11,31 +11,27 @@
   </style>
 </head>
 <body>
-<div id="step1">Step 1: Add background</div>
-<div id="step2" style="display:none;">Step 2: Add mobile zone</div>
-<div id="step3" style="display:none;">Step 3: Add overlay image</div>
-<div id="step4" style="display:none;">Step 4: Export</div>
   <h3>NGKs Banner Editor</h3>
 
-  <div id="step1">
+  
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 650px;">
+  <img src="https://raw.githubusercontent.com/NGKsSystems/yt-banner-app/main/NGKsExactFit.png" alt="ExactFit" height="150" />
+
+  <div style="text-align: center;">
+    <strong style="font-size: 1.2em;">NGKs Banner Editor</strong><br>
     Step 1: Choose your background 
     <input type="file" id="bgInput" accept="image/*" />
-    <button id="skipBg">Skip</button>
-  </div>
-
-  <div id="step2" class="hidden">
-    Step 2: Choose your mobile-safe image
-    <input type="file" id="mobileInput" accept="image/*" />
-  </div>
-
-  <div id="step3" class="hidden">
-    Step 3: Add additional images
-    <input type="file" id="extraInput" accept="image/*" />
-  </div>
-
-  <div id="exportSection" class="hidden">
+    <button id="skipBg">Skip</button><br>
+    Step 2: Choose your mobile-safe image 
+    <input type="file" id="mobileInput" accept="image/*" /><br>
+    Step 3: Add additional images 
+    <input type="file" id="extraInput" accept="image/*" /><br>
     <button id="exportBtn">Export Banner</button>
   </div>
+
+  <a href="https://NGKsSystems.com" target="_blank"><img src="https://raw.githubusercontent.com/NGKsSystems/yt-banner-app/main/NGKsSystems%204.png" alt="NGKsSystems" height="150" /></a>
+</div>
+
 
   <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
 
@@ -113,11 +109,6 @@
     }
 
     canvas.addEventListener("mousedown", e => {
-  const rect = canvas.getBoundingClientRect();
-  const mx = e.clientX - rect.left;
-  const my = e.clientY - rect.top;
-  let clicked = false;
-
       const rect = canvas.getBoundingClientRect();
       const mx = e.clientX - rect.left, my = e.clientY - rect.top;
 
@@ -227,33 +218,6 @@
       link.click();
       drawCanvas(true);
     });
-  
-let currentStep = 1;
-
-function goToNextStep() {
-  currentStep++;
-  for (let i = 1; i <= 4; i++) {
-    const el = document.getElementById('step' + i);
-    if (el) el.style.display = i === currentStep ? 'block' : 'none';
-  }
-}
-
-document.getElementById('bgInput').addEventListener('change', () => {
-  loadImage(bgInput, img => addImage(img, 0, 0, canvas.width, canvas.height));
-  goToNextStep();
-});
-document.getElementById('mobileInput').addEventListener('change', () => {
-  loadImage(mobileInput, img => {
-    img.ignoreExport = true;
-    addImage(img, safeZone.x, safeZone.y, safeZone.w, safeZone.h);
-  });
-  goToNextStep();
-});
-document.getElementById('extraInput').addEventListener('change', () => {
-  loadImage(extraInput, img => addImage(img, 100, 100, img.width / 2, img.height / 2));
-  goToNextStep();
-});
-
-</script>
+  </script>
 </body>
 </html>
