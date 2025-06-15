@@ -21,6 +21,7 @@ canvas {
   display: none;
 }
 
+/* Step label style */
 .step-label {
   font-size: 3em;
   font-weight: bold;
@@ -29,10 +30,30 @@ canvas {
   margin-bottom: 20px;
 }
 
-/* Buttons like "Skip", "Export" */
+/* Buttons like Skip, Export */
 button {
   font-size: 1.5em;
   font-weight: bold;
   padding: 10px 20px;
   color: white;
-  background-color: #1
+  background-color: #1a73e8;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 5px;
+}
+
+button:hover {
+  background-color: #155ab6;
+}
+
+/* File input style */
+input[type="file"] {
+  font-size: 1.3em;
+  padding: 8px;
+  color: white;
+  background-color: #333;
+  border: 1px solid #888;
+  border-radius: 5px;
+  margin: 5px;
+}
