@@ -29,18 +29,23 @@ window.onload = () => {
     showStep(currentStep + 1);
   }
 
-  function drawCanvas(showHandles = true) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const bg = overlays.find(o => o.bg);
-    if (bg) ctx.drawImage(bg.img, 0, 0, canvas.width, canvas.height);
+ function drawCanvas(showHandles = true) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const bg = overlays.find(o => o.bg);
+  if (bg) ctx.drawImage(bg.img, 0, 0, canvas.width, canvas.height);
 
-    overlays.forEach(o => {
-      if (!o.bg) ctx.drawImage(o.img, o.x, o.y, o.width, o.height);
+  overlays.forEach(o => {
+    if (!o.bg) ctx.drawImage(o.img, o.x, o.y, o.width, o.height);
+
+    if (showHandles) {
       ctx.strokeStyle = o.mobileSafe ? "lime" : "red";
       ctx.strokeRect(o.x, o.y, o.width, o.height);
-      if (showHandles && o.selected) drawHandles(o);
-    });
-  }
+
+      if (o.selected) drawHandles(o);
+    }
+  });
+}
+
 
   function drawHandles(obj) {
     const x = obj.x, y = obj.y, w = obj.width, h = obj.height;
