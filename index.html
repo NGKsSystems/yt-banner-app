@@ -2,42 +2,76 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>NGKS ExactFit</title>
+  <title>NGKsExactFit</title>
   <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #111;
+      color: white;
+      font-family: Arial;
+      text-align: center;
+    }
+
     canvas {
-      border: 1px solid yellow;
-      background-color: black;
+      border: 2px solid yellow;
+      background: #000;
+      margin-top: 10px;
     }
-    input, button {
-      margin: 5px;
-    }
-    .header {
+
+    #logoBar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 20px;
-      margin-bottom: 10px;
+      width: 100%;
+      max-width: 2560px;
+      margin: 0 auto;
+      padding: 0 40px;
+      box-sizing: border-box;
     }
-    #stepUI {
-      text-align: center;
-      margin-bottom: 20px;
-      color: white;
+
+    #logoBar img {
+      height: 120px;
     }
-    body {
-      background-color: #111;
-      color: white;
-      font-family: Arial, sans-serif;
+
+    .hidden {
+      display: none;
     }
   </style>
 </head>
 <body>
-  <div class="header">
-    <img src="NGKsExactFit.png" alt="ExactFit" height="100" />
-    <div id="stepUI">Loading...</div>
-    <img src="NGKsSystems4.png" alt="NGKsSystems" height="100" />
+  <div id="logoBar">
+    <img src="NGKsExactFit.png" alt="ExactFit" />
+    <div></div>
+    <a href="https://NGKsSystems.com" target="_blank">
+      <img src="NGKsSystems4.png" alt="NGKsSystems" />
+    </a>
   </div>
+
+  <!-- Step Panels -->
+  <div id="step1">
+    <p>Step 1: Choose your background</p>
+    <input type="file" id="bgInput" accept="image/*" />
+    <button id="skipBg">Skip</button>
+  </div>
+
+  <div id="step2" class="hidden">
+    <p>Step 2: Choose your mobile-safe image</p>
+    <input type="file" id="mobileInput" accept="image/*" />
+  </div>
+
+  <div id="step3" class="hidden">
+    <p>Step 3: Add additional images</p>
+    <input type="file" id="extraInput" accept="image/*" />
+  </div>
+
+  <div id="step4" class="hidden">
+    <p>Step 4: Export your banner</p>
+    <button id="exportBtn">Export Banner</button>
+  </div>
+
   <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
+
   <script src="script.js"></script>
 </body>
 </html>
