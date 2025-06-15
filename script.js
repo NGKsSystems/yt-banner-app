@@ -21,10 +21,10 @@ function advanceStep() {
 function drawHandles(obj) {
   const x = obj.x, y = obj.y, w = obj.width, h = obj.height;
   const points = [
-    [x, y], [x + w/2, y], [x + w, y],
-    [x + w, y + h/2], [x + w, y + h],
-    [x + w/2, y + h], [x, y + h],
-    [x, y + h/2]
+    [x, y], [x + w / 2, y], [x + w, y],
+    [x + w, y + h / 2], [x + w, y + h],
+    [x + w / 2, y + h], [x, y + h],
+    [x, y + h / 2]
   ];
   ctx.fillStyle = "white";
   points.forEach(([px, py]) => {
@@ -39,7 +39,7 @@ function drawCanvas(showHandles = true) {
 
   overlays.forEach(o => {
     if (!o.bg) ctx.drawImage(o.img, o.x, o.y, o.width, o.height);
-    ctx.strokeStyle = o.mobileSafe ? "lime" : "red";
+    ctx.strokeStyle = o.strokeStyle || (o.mobileSafe ? "lime" : "red");
     ctx.strokeRect(o.x, o.y, o.width, o.height);
     if (showHandles && o.selected) drawHandles(o);
   });
@@ -60,16 +60,14 @@ document.getElementById("bgInput").addEventListener("change", e => {
       strokeStyle: "transparent"
     });
     drawCanvas();
-    advanceStep();  // << restore this
+    advanceStep();
   };
   img.src = URL.createObjectURL(file);
 });
 
-
 document.getElementById("skipBg").addEventListener("click", () => {
-  advanceStep();  // << restore this
+  advanceStep();
 });
-
 
 document.getElementById("mobileInput").addEventListener("change", e => {
   const file = e.target.files[0];
@@ -90,11 +88,10 @@ document.getElementById("mobileInput").addEventListener("change", e => {
       strokeStyle: "lime"
     });
     drawCanvas();
-    advanceStep();  // << restore this
+    advanceStep();
   };
   img.src = URL.createObjectURL(file);
 });
-
 
 document.getElementById("extraInput").addEventListener("change", e => {
   const file = e.target.files[0];
@@ -111,30 +108,24 @@ document.getElementById("extraInput").addEventListener("change", e => {
       strokeStyle: "red"
     });
     drawCanvas();
-    advanceStep();  // << restore this
+    advanceStep();
   };
   img.src = URL.createObjectURL(file);
 });
 
-
 document.getElementById("exportBtn").addEventListener("click", () => {
-  // Deselect overlays to hide resize handles
   overlays.forEach(o => o.selected = false);
 
-  // Save current stroke styles and temporarily hide outlines
   const previousStrokeStyles = overlays.map(o => o.strokeStyle);
   overlays.forEach(o => o.strokeStyle = "transparent");
 
-  // Redraw without handles or outlines
   drawCanvas(false);
 
-  // Trigger export
   const link = document.createElement("a");
   link.download = "yt_banner_final.png";
   link.href = canvas.toDataURL("image/png");
   link.click();
 
-  // Restore outlines and selection
   overlays.forEach((o, i) => o.strokeStyle = previousStrokeStyles[i]);
   overlays.forEach(o => o.selected = true);
   drawCanvas(true);
@@ -169,7 +160,6 @@ canvas.addEventListener("mousedown", e => {
       }
     }
 
-    // fallback: drag entire image if clicked inside
     if (mouseX >= o.x && mouseX <= o.x + o.width &&
         mouseY >= o.y && mouseY <= o.y + o.height) {
       dragTarget = o;
@@ -190,41 +180,55 @@ canvas.addEventListener("mousemove", e => {
   const dy = mouseY - startY;
 
   switch (dragType) {
-  case 0: // top-left
-    dragTarget.width += dragTarget.x - mouseX;
-    dragTarget.height += dragTarget.y - mouseY;
-    dragTarget.x = mouseX;
-    dragTarget.y = mouseY;
-    break;
-  case 1: // top-center
-    dragTarget.height += dragTarget.y - mouseY;
-    dragTarget.y = mouseY;
-    break;
-  case 2: // top-right
-    dragTarget.width = mouseX - dragTarget.x;
-    dragTarget.height += dragTarget.y - mouseY;
-    dragTarget.y = mouseY;
-    break;
-  case 3: // right-center
-    dragTarget.width = mouseX - dragTarget.x;
-    break;
-  case 4: // bottom-right
-    dragTarget.width = mouseX - dragTarget.x;
-    dragTarget.height = mouseY - dragTarget.y;
-    break;
-  case 5: // bottom-center
-    dragTarget.height = mouseY - dragTarget.y;
-    break;
-  case 6: // bottom-left
-    dragTarget.width += dragTarget.x - mouseX;
-    dragTarget.height = mouseY - dragTarget.y;
-    dragTarget.x = mouseX;
-    break;
-  case 7: // left-center
-    dragTarget.width += dragTarget.x - mouseX;
-    dragTarget.x = mouseX;
-    break;
-}
+    case "move":
+      dragTarget.x = mouseX - startX;
+      dragTarget.y = mouseY - startY;
+      break;
+    case 0:
+      dragTarget.width += dragTarget.x - mouseX;
+      dragTarget.height += dragTarget.y - mouseY;
+      dragTarget.x = mouseX;
+      dragTarget.y = mouseY;
+      break;
+    case 1:
+      dragTarget.height += dragTarget.y - mouseY;
+      dragTarget.y = mouseY;
+      break;
+    case 2:
+      dragTarget.width = mouseX - dragTarget.x;
+      dragTarget.height += dragTarget.y - mouseY;
+      dragTarget.y = mouseY;
+      break;
+    case 3:
+      dragTarget.width = mouseX - dragTarget.x;
+      break;
+    case 4:
+      dragTarget.width = mouseX - dragTarget.x;
+      dragTarget.height = mouseY - dragTarget.y;
+      break;
+    case 5:
+      dragTarget.height = mouseY - dragTarget.y;
+      break;
+    case 6:
+      dragTarget.width += dragTarget.x - mouseX;
+      dragTarget.height = mouseY - dragTarget.y;
+      dragTarget.x = mouseX;
+      break;
+    case 7:
+      dragTarget.width += dragTarget.x - mouseX;
+      dragTarget.x = mouseX;
+      break;
+  }
 
-   showStep(1);                     
+  dragTarget.width = Math.max(20, dragTarget.width);
+  dragTarget.height = Math.max(20, dragTarget.height);
+  drawCanvas();
+});
+
+canvas.addEventListener("mouseup", () => {
+  dragTarget = null;
+  dragType = null;
+});
+
+showStep(1);
 window.advanceStep = advanceStep;
