@@ -164,38 +164,38 @@ canvas.addEventListener("mousemove", e => {
   const dy = mouseY - startY;
 
   switch (dragType) {
-    case "move":
-      dragTarget.x = mouseX - startX;
-      dragTarget.y = mouseY - startY;
-      break;
-    case 0: // top-left
-      dragTarget.width += dragTarget.x - mouseX;
-      dragTarget.height += dragTarget.y - mouseY;
-      dragTarget.x = mouseX;
-      dragTarget.y = mouseY;
-      break;
-    case 2: // top-right
-      dragTarget.width = mouseX - dragTarget.x;
-      dragTarget.height += dragTarget.y - mouseY;
-      dragTarget.y = mouseY;
-      break;
-    case 4: // bottom-right
-      dragTarget.width = mouseX - dragTarget.x;
-      dragTarget.height = mouseY - dragTarget.y;
-      break;
-    case 6: // bottom-left
-      dragTarget.width += dragTarget.x - mouseX;
-      dragTarget.height = mouseY - dragTarget.y;
-      dragTarget.x = mouseX;
-      break;
-    // Add more for edge-only if needed
-  }
-
-  drawCanvas();
-});
-
-canvas.addEventListener("mouseup", () => {
-  dragTarget = null;
-  dragType = null;
-});
-
+  case 0: // top-left
+    dragTarget.width += dragTarget.x - mouseX;
+    dragTarget.height += dragTarget.y - mouseY;
+    dragTarget.x = mouseX;
+    dragTarget.y = mouseY;
+    break;
+  case 1: // top-center
+    dragTarget.height += dragTarget.y - mouseY;
+    dragTarget.y = mouseY;
+    break;
+  case 2: // top-right
+    dragTarget.width = mouseX - dragTarget.x;
+    dragTarget.height += dragTarget.y - mouseY;
+    dragTarget.y = mouseY;
+    break;
+  case 3: // right-center
+    dragTarget.width = mouseX - dragTarget.x;
+    break;
+  case 4: // bottom-right
+    dragTarget.width = mouseX - dragTarget.x;
+    dragTarget.height = mouseY - dragTarget.y;
+    break;
+  case 5: // bottom-center
+    dragTarget.height = mouseY - dragTarget.y;
+    break;
+  case 6: // bottom-left
+    dragTarget.width += dragTarget.x - mouseX;
+    dragTarget.height = mouseY - dragTarget.y;
+    dragTarget.x = mouseX;
+    break;
+  case 7: // left-center
+    dragTarget.width += dragTarget.x - mouseX;
+    dragTarget.x = mouseX;
+    break;
+}
