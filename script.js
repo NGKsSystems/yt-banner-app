@@ -1,169 +1,73 @@
-window.onload = () => {
-  const canvas = document.getElementById("bannerCanvas");
-  const ctx = canvas.getContext("2d");
-
-  const overlays = [];
-  const handleSize = 10;
-  let dragging = null, resizing = null, selectedHandle = null;
-  let dragOffsetX = 0, dragOffsetY = 0;
-
-  const bgInput = document.getElementById("bgInput");
-  const skipBg = document.getElementById("skipBg");
-  const mobileInput = document.getElementById("mobileInput");
-  const extraInput = document.getElementById("extraInput");
-  const exportBtn = document.getElementById("exportBtn");
-
-  let currentStep = 1;
-
-  function showStep(stepNum) {
-    const totalSteps = 4;
-    for (let i = 1; i <= totalSteps; i++) {
-      const el = document.getElementById(`step${i}`);
-      if (el) el.classList.add("hidden");
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NGKs Banner Editor</title>
+  <style>
+    body {
+      background-color: #111;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      text-align: center;
     }
-    const next = document.getElementById(`step${stepNum}`);
-    if (next) next.classList.remove("hidden");
-    currentStep = stepNum;
-  }
+    canvas {
+      border: 2px solid yellow;
+      margin: 20px auto;
+      display: block;
+    }
+    .step-line {
+      margin: 20px;
+    }
+    .step-line span {
+      margin: 0 10px;
+    }
+  </style>
+</head>
+<body>
+  <h2>NGKs Banner Editor</h2>
 
-  function advanceStep() {
-    showStep(currentStep + 1);
-  }
+  <div class="step-line">
+    Step 1: Choose your background
+    <input type="file" id="backgroundInput" accept="image/*" />
+    <span>or</span>
+    <button id="skipBtn">Skip</button>
+  </div>
 
-  function drawHandles(obj) {
-    const x = obj.x, y = obj.y, w = obj.width, h = obj.height;
-    const points = [
-      [x, y], [x + w / 2, y], [x + w, y],
-      [x + w, y + h / 2], [x + w, y + h],
-      [x + w / 2, y + h], [x, y + h],
-      [x, y + h / 2]
-    ];
-    ctx.fillStyle = "white";
-    points.forEach(([px, py]) => {
-      ctx.fillRect(px - handleSize / 2, py - handleSize / 2, handleSize, handleSize);
+  <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
+
+  <script>
+    const canvas = document.getElementById('bannerCanvas');
+    const ctx = canvas.getContext('2d');
+    const backgroundInput = document.getElementById('backgroundInput');
+    const skipBtn = document.getElementById('skipBtn');
+
+    backgroundInput.addEventListener('change', () => {
+      const file = backgroundInput.files[0];
+      if (!file) return;
+      const img = new Image();
+      img.onload = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        drawSafeZones();
+      };
+      img.src = URL.createObjectURL(file);
     });
-  }
 
-  function drawCanvas(showHandles = true) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const bg = overlays.find(o => o.bg);
-    if (bg) ctx.drawImage(bg.img, 0, 0, canvas.width, canvas.height);
-
-    overlays.forEach(o => {
-      if (!o.bg) ctx.drawImage(o.img, o.x, o.y, o.width, o.height);
-      ctx.strokeStyle = o.mobileSafe ? "lime" : "red";
-      ctx.strokeRect(o.x, o.y, o.width, o.height);
-      if (showHandles && o.selected) drawHandles(o);
+    skipBtn.addEventListener('click', () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawSafeZones();
     });
-  }
 
-  function hitTestHandle(obj, mx, my) {
-    const x = obj.x, y = obj.y, w = obj.width, h = obj.height;
-    const positions = [
-      [x, y], [x + w / 2, y], [x + w, y],
-      [x + w, y + h / 2], [x + w, y + h],
-      [x + w / 2, y + h], [x, y + h],
-      [x, y + h / 2]
-    ];
-    for (let i = 0; i < positions.length; i++) {
-      const [px, py] = positions[i];
-      if (mx >= px - handleSize && mx <= px + handleSize &&
-          my >= py - handleSize && my <= py + handleSize) {
-        return i;
-      }
+    function drawSafeZones() {
+      // Outer TV zone
+      ctx.strokeStyle = 'yellow';
+      ctx.strokeRect(0, 0, canvas.width, canvas.height);
+
+      // Mobile safe zone
+      ctx.strokeStyle = 'lime';
+      ctx.strokeRect(740, 620, 1080, 200);
     }
-    return -1;
-  }
-
-  function resizeByHandle(obj, handleIndex, mx, my) {
-    switch (handleIndex) {
-      case 0: obj.width += obj.x - mx; obj.height += obj.y - my; obj.x = mx; obj.y = my; break;
-      case 1: obj.height += obj.y - my; obj.y = my; break;
-      case 2: obj.width = mx - obj.x; obj.height += obj.y - my; obj.y = my; break;
-      case 3: obj.width = mx - obj.x; break;
-      case 4: obj.width = mx - obj.x; obj.height = my - obj.y; break;
-      case 5: obj.height = my - obj.y; break;
-      case 6: obj.width += obj.x - mx; obj.height = my - obj.y; obj.x = mx; break;
-      case 7: obj.width += obj.x - mx; obj.x = mx; break;
-    }
-  }
-
-  canvas.addEventListener("mousedown", e => {
-    const rect = canvas.getBoundingClientRect();
-    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
-
-    for (let i = overlays.length - 1; i >= 0; i--) {
-      const o = overlays[i];
-      if (o.bg) continue;
-      o.selected = false;
-      const hIndex = hitTestHandle(o, mx, my);
-      if (hIndex !== -1) {
-        resizing = o;
-        selectedHandle = hIndex;
-        o.selected = true;
-        drawCanvas();
-        return;
-      }
-      if (mx >= o.x && mx <= o.x + o.width && my >= o.y && my <= o.y + o.height) {
-        dragging = o;
-        dragOffsetX = mx - o.x;
-        dragOffsetY = my - o.y;
-        o.selected = true;
-        drawCanvas();
-        return;
-      }
-    }
-  });
-
-  canvas.addEventListener("mousemove", e => {
-    const rect = canvas.getBoundingClientRect();
-    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
-
-    if (dragging) {
-      dragging.x = mx - dragOffsetX;
-      dragging.y = my - dragOffsetY;
-      drawCanvas();
-    } else if (resizing) {
-      resizeByHandle(resizing, selectedHandle, mx, my);
-      drawCanvas();
-    }
-  });
-
-  canvas.addEventListener("mouseup", () => {
-    dragging = null;
-    resizing = null;
-    selectedHandle = null;
-  });
-
-  bgInput.addEventListener("change", e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const img = new Image();
-    img.onload = () => {
-      overlays.push({ img, bg: true });
-      drawCanvas();
-      advanceStep();
-    };
-    img.src = URL.createObjectURL(file);
-  });
-
-  skipBg.addEventListener("click", () => {
-    drawCanvas();
-    advanceStep();
-  });
-
-  mobileInput.addEventListener("change", e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const img = new Image();
-    img.onload = () => {
-      overlays.push({
-        img,
-        x: 740,
-        y: 620,
-        width: 1080,
-        height: 200,
-        mobileSafe: true
-      });
-      drawCanvas();
-      advanceStep();
+  </script>
+</body>
+</html>
