@@ -7,33 +7,37 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="logoBar">
-  <img src="https://raw.githubusercontent.com/NGKsSystems/yt-banner-app/main/NGKsExactFit.png" alt="NGKS ExactFit" class="logo left" />
-  <img src="https://raw.githubusercontent.com/NGKsSystems/yt-banner-app/main/NGKsSystems4.png" alt="NGKS Systems" class="logo right" />
+ <!-- Top Bar Fixed: Logos + Dynamic Step Content -->
+<div id="canvasTopBar">
+  <img src="https://raw.githubusercontent.com/NGKsSystems/yt-banner-app/main/NGKsExactFit.png" class="logo left" alt="NGKS ExactFit" />
+
+  <!-- Step Panel Container: still controlled by showStep() -->
+  <div id="stepPanelContainer">
+    <div id="step1">
+      <p class="step-label">Step 1: Choose your background</p>
+      <input type="file" id="bgInput" accept="image/*" />
+      <button id="skipBg">Skip</button>
+    </div>
+
+    <div id="step2" class="hidden">
+      <p class="step-label">Step 2: Choose your mobile-safe image</p>
+      <input type="file" id="mobileInput" accept="image/*" />
+    </div>
+
+    <div id="step3" class="hidden">
+      <p class="step-label">Step 3: Add additional images</p>
+      <input type="file" id="extraInput" accept="image/*" />
+    </div>
+
+    <div id="step4" class="hidden">
+      <p class="step-label">Step 4: Export your banner</p>
+      <button id="exportBtn">Export Banner</button>
+    </div>
+  </div>
+
+  <img src="https://raw.githubusercontent.com/NGKsSystems/yt-banner-app/main/NGKsSystems4.png" class="logo right" alt="NGKS Systems" />
 </div>
 
-
-  <!-- Step Panels -->
-  <div id="step1">
-    <p class="step-label">Step 1: Choose your background</p>
-    <input type="file" id="bgInput" accept="image/*" />
-    <button id="skipBg">Skip</button>
-  </div>
-
-  <div id="step2" class="hidden">
-    <p class="step-label">Step 2: Choose your mobile-safe image</p>
-    <input type="file" id="mobileInput" accept="image/*" />
-  </div>
-
-  <div id="step3" class="hidden">
-    <p class="step-label">Step 3: Add additional images</p>
-    <input type="file" id="extraInput" accept="image/*" />
-  </div>
-
-  <div id="step4" class="hidden">
-    <p class="step-label">Step 4: Export your banner</p>
-    <button id="exportBtn">Export Banner</button>
-  </div>
 
   <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
   <script src="script.js"></script>
