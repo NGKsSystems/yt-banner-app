@@ -1,31 +1,67 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>NGKsExactFit</title>
-  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #111;
+      color: white;
+      font-family: Arial;
+      text-align: center;
+    }
+
+    canvas {
+      border: 2px solid yellow;
+      background: #000;
+      margin-top: 10px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    #uploadPanel input,
+    #uploadPanel button {
+      margin-top: 5px;
+    }
+
+    #headerRow {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 2560px;
+      margin: 0 auto;
+      padding: 0 40px;
+      box-sizing: border-box;
+    }
+
+    #headerRow img {
+      height: 120px;
+    }
+
+    #uploadPanel {
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
- <div style="display: flex; justify-content: space-between; align-items: center; width: 2560px; margin: 0 auto; padding: 0 40px; box-sizing: border-box;">
-  <!-- Left Logo -->
-  <img src="NGKsExactFit.png" alt="ExactFit" height="120" />
 
-  <!-- Step Control Area -->
-  <div style="text-align: center;">
-    <p style="margin: 0; font-size: 14px;">Step 1: Choose your background</p>
-    <input type="file" id="bgInput" accept="image/*" />
-    <button id="skipBg">Skip</button>
+  <!-- Logo bar + dynamic upload area -->
+  <div id="headerRow">
+    <img src="NGKsExactFit.png" alt="ExactFit" />
+
+    <div id="uploadPanel">
+      <!-- Step UI will be injected here -->
+    </div>
+
+    <a href="https://NGKsSystems.com" target="_blank">
+      <img src="NGKsSystems4.png" alt="NGKsSystems" />
+    </a>
   </div>
 
-  <!-- Right Logo -->
-  <a href="https://NGKsSystems.com" target="_blank">
-    <img src="NGKsSystems4.png" alt="NGKsSystems" height="120" />
-  </a>
-</div>
-
-
   <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
-  <script src="script.js"></script>
-</body>
-</html>
+
+  <scri
