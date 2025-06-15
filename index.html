@@ -1,16 +1,49 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>NGKsExactFit</title>
-  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #111;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    #logoBar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      width: 2560px;
+      margin: 0 auto;
+      padding: 0 40px;
+      box-sizing: border-box;
+    }
+
+    #logoBar img {
+      height: 120px;
+      margin-bottom: -10px;
+    }
+
+    canvas {
+      border: 2px solid yellow;
+      background: #000;
+      margin-top: 10px;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
 </head>
 <body>
-  <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 650px;">
-    <img src="NGKsExactFit.png" alt="ExactFit" height="150" />
+  <div id="logoBar">
+    <img src="NGKsExactFit.png" alt="ExactFit" />
     <a href="https://NGKsSystems.com" target="_blank">
-      <img src="NGKsSystems4.png" alt="NGKsSystems" height="150" />
+      <img src="NGKsSystems4.png" alt="NGKsSystems" />
     </a>
   </div>
 
