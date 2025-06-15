@@ -50,16 +50,26 @@ document.getElementById("bgInput").addEventListener("change", e => {
   if (!file) return;
   const img = new Image();
   img.onload = () => {
-    overlays.push({ img, x: 0, y: 0, width: canvas.width, height: canvas.height, bg: true });
+    overlays.push({
+      img,
+      x: 0,
+      y: 0,
+      width: canvas.width,
+      height: canvas.height,
+      bg: true,
+      strokeStyle: "transparent"
+    });
     drawCanvas();
-    advanceStep();
+    advanceStep();  // << restore this
   };
   img.src = URL.createObjectURL(file);
 });
 
+
 document.getElementById("skipBg").addEventListener("click", () => {
-  advanceStep();
+  advanceStep();  // << restore this
 });
+
 
 document.getElementById("mobileInput").addEventListener("change", e => {
   const file = e.target.files[0];
@@ -69,12 +79,22 @@ document.getElementById("mobileInput").addEventListener("change", e => {
     const width = 1546, height = 423;
     const x = (canvas.width - width) / 2;
     const y = (canvas.height - height) / 2;
-    overlays.push({ img, x, y, width, height, mobileSafe: true, selected: true });
+    overlays.push({
+      img,
+      x,
+      y,
+      width,
+      height,
+      mobileSafe: true,
+      selected: true,
+      strokeStyle: "lime"
+    });
     drawCanvas();
-    advanceStep();
+    advanceStep();  // << restore this
   };
   img.src = URL.createObjectURL(file);
 });
+
 
 document.getElementById("extraInput").addEventListener("change", e => {
   const file = e.target.files[0];
