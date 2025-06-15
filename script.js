@@ -179,3 +179,7 @@ canvas.addEventListener("mouseup", () => {
   dragType = null;
   dragHandle = null;
 });
+// Start on Step 1
+drawCanvas();
+showStep(1);
+window.advanceStep = advanceStep;
