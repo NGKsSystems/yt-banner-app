@@ -33,7 +33,8 @@
 <div id="uploadPanel" style="text-align: center; padding-top: 40px; color: white;">
   <progress id="progressBar" value="0" max="3" style="width: 60%; height: 20px;"></progress>
   <h2 id="stepTitle">Choose Your Background</h2>
-  <input type="file" id="bgInput" accept="image/*" />
+  <input type="file" id="bgInput" accept="image/*" onchange="handleStep(this.files[0])" />
+
   <br />
   <button onclick="skipStep()">Skip</button>
 </div>
@@ -268,9 +269,6 @@ function handleStep(file) {
   }
 }
 
-document.getElementById("bgInput").addEventListener("change", e => handleStep(e.target.files[0]));
-</script>
-
-    
+</script>    
 </body>
 </html>
