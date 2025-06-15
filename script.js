@@ -16,6 +16,22 @@ document.getElementById("nextBtn").addEventListener("click", () => {
   showStep(currentStep);
 });
 
+document.getElementById("bgInput").addEventListener("change", (e) => {
+  loadImageToCanvas(e.target.files[0]);
+  advanceStep(1);
+});
+
+document.getElementById("mobileInput").addEventListener("change", (e) => {
+  loadImageToCanvas(e.target.files[0]);
+  advanceStep(1);
+});
+
+document.getElementById("extraInput").addEventListener("change", (e) => {
+  loadImageToCanvas(e.target.files[0]);
+  advanceStep(1);
+});
+
+
 document.getElementById("prevBtn").addEventListener("click", () => {
   if (currentStep > 1) currentStep--;
   showStep(currentStep);
@@ -83,6 +99,29 @@ function advanceStep(delta) {
     showStep(newStep);
   }
 }
+
+function loadImageToCanvas(file) {
+  const reader = new FileReader();
+  reader.onload = function (event) {
+    const img = new Image();
+    img.onload = function () {
+      const overlay = {
+        x: 100,
+        y: 100,
+        width: img.width / 2,
+        height: img.height / 2,
+        image: img,
+        selected: false
+      };
+      overlays.push(overlay);
+      drawCanvas(true);
+    };
+    img.src = event.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+
 
 document.addEventListener("click", (e) => {
   if (e.target.id === "nextBtn") {
