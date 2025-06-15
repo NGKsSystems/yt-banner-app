@@ -66,7 +66,6 @@ document.querySelectorAll('.resize-handle').forEach(handle => {
   });
 });
 // Step navigation state
-let currentStep = 1;
 
 function showStep(stepNum) {
   for (let i = 1; i <= 4; i++) {
@@ -97,3 +96,4 @@ document.addEventListener("click", (e) => {
 
 // Initialize step 1 on load
 showStep(1);
+window.advanceStep = advanceStep;
