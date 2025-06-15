@@ -27,6 +27,7 @@ canvas {
   text-shadow: 1px 1px 3px black;
   margin-bottom: 20px;
 }
+/* Style real buttons */
 button {
   font-size: 1.5em;
   font-weight: bold;
@@ -42,3 +43,15 @@ button {
 button:hover {
   background-color: #155ab6;
 }
+
+/* Style file input to look more like a button */
+input[type="file"] {
+  font-size: 1.1em;
+  padding: 6px;
+  color: white;
+  background-color: #444;
+  border: 1px solid #999;
+  border-radius: 5px;
+  margin: 5px;
+}
+
