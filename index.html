@@ -30,19 +30,14 @@
 <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 650px;">
   <img src="https://raw.githubusercontent.com/NGKsSystems/yt-banner-app/main/NGKsExactFit.png" alt="ExactFit" height="150" />
 
-  <div style="text-align: center; padding-top: 40px;">
-    <p>Step 1: Choose your background 
-      <input type="file" id="bgInput" accept="image/*" /> 
-      <button id="skipBg">Skip</button>
-    </p>
-    <p>Step 2: Choose your mobile-safe image 
-      <input type="file" id="mobileInput" accept="image/*" />
-    </p>
-    <p>Step 3: Add additional images 
-      <input type="file" id="extraInput" accept="image/*" />
-    </p>
-    <button id="exportBtn">Export Banner</button>
-  </div>
+<div id="uploadPanel" style="text-align: center; padding-top: 40px; color: white;">
+  <progress id="progressBar" value="0" max="3" style="width: 60%; height: 20px;"></progress>
+  <h2 id="stepTitle">Choose Your Background</h2>
+  <input type="file" id="bgInput" accept="image/*" />
+  <br />
+  <button onclick="skipStep()">Skip</button>
+</div>
+
 
   <a href="https://NGKsSystems.com" target="_blank">
     <img src="https://raw.githubusercontent.com/NGKsSystems/yt-banner-app/main/NGKsSystems4.png" alt="NGKsSystems" height="150" />
@@ -235,6 +230,47 @@
       link.click();
       drawCanvas(true);
     });
-  </script>
+  <script>
+let step = 0;
+
+const steps = [
+  { title: "Choose Your Background", inputId: "bgInput" },
+  { title: "Choose Your Mobile Safe Zone", inputId: "mobileInput" },
+  { title: "Add Additional Images", inputId: "extraInput" }
+];
+
+function skipStep() {
+  handleStep(null);
+}
+
+function handleStep(file) {
+  if (file) {
+    // handle image data if needed
+  }
+
+  step++;
+  document.getElementById("progressBar").value = step;
+
+  if (step < steps.length) {
+    const panel = document.getElementById("uploadPanel");
+    panel.innerHTML = `
+      <progress id="progressBar" value="${step}" max="${steps.length}" style="width: 60%; height: 20px;"></progress>
+      <h2 id="stepTitle">${steps[step].title}</h2>
+      <input type="file" id="${steps[step].inputId}" accept="image/*" onchange="handleStep(this.files[0])" />
+      <br />
+      <button onclick="skipStep()">Skip</button>
+    `;
+  } else {
+    document.getElementById("uploadPanel").innerHTML = `
+      <h2>Ready to Export</h2>
+      <button onclick="exportBanner()">Export Banner</button>
+    `;
+  }
+}
+
+document.getElementById("bgInput").addEventListener("change", e => handleStep(e.target.files[0]));
+</script>
+
+    
 </body>
 </html>
