@@ -65,3 +65,35 @@ document.querySelectorAll('.resize-handle').forEach(handle => {
     document.addEventListener("mouseup", stopResize);
   });
 });
+// Step navigation state
+let currentStep = 1;
+
+function showStep(stepNum) {
+  for (let i = 1; i <= 4; i++) {
+    const el = document.getElementById(`step${i}`);
+    if (el) el.classList.add("hidden");
+  }
+  const next = document.getElementById(`step${stepNum}`);
+  if (next) next.classList.remove("hidden");
+  currentStep = stepNum;
+}
+
+function advanceStep(delta) {
+  const newStep = currentStep + delta;
+  if (newStep >= 1 && newStep <= 4) {
+    showStep(newStep);
+  }
+}
+
+document.addEventListener("click", (e) => {
+  if (e.target.id === "nextBtn") {
+    advanceStep(1);
+  } else if (e.target.id === "prevBtn") {
+    advanceStep(-1);
+  } else if (e.target.id === "skipBg") {
+    advanceStep(1);
+  }
+});
+
+// Initialize step 1 on load
+showStep(1);
