@@ -16,10 +16,12 @@ canvas {
 .hidden {
   display: none;
 }
-#step1,
-#step2,
-#step3,
-#step4 {
-  font-size: 2em;
+#step1 p,
+#step2 p,
+#step3 p,
+#step4 p {
+  font-size: 2em !important;
+  font-weight: bold;
+  color: white;
+  text-shadow: 1px 1px 3px black;
 }
-
