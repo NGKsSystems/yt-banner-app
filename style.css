@@ -27,3 +27,18 @@ canvas {
   text-shadow: 1px 1px 3px black;
   margin-bottom: 20px;
 }
+button {
+  font-size: 1.5em;
+  font-weight: bold;
+  padding: 10px 20px;
+  color: white;
+  background-color: #1a73e8;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 5px;
+}
+
+button:hover {
+  background-color: #155ab6;
+}
