@@ -89,14 +89,28 @@ document.getElementById("extraInput").addEventListener("change", e => {
 });
 
 document.getElementById("exportBtn").addEventListener("click", () => {
+  // Deselect overlays to hide resize handles
   overlays.forEach(o => o.selected = false);
+
+  // Save current stroke styles and temporarily hide outlines
+  const previousStrokeStyles = overlays.map(o => o.strokeStyle);
+  overlays.forEach(o => o.strokeStyle = "transparent");
+
+  // Redraw without handles or outlines
   drawCanvas(false);
+
+  // Trigger export
   const link = document.createElement("a");
   link.download = "yt_banner_final.png";
   link.href = canvas.toDataURL("image/png");
   link.click();
+
+  // Restore outlines and selection
+  overlays.forEach((o, i) => o.strokeStyle = previousStrokeStyles[i]);
+  overlays.forEach(o => o.selected = true);
   drawCanvas(true);
 });
+
 
 showStep(1);
 
