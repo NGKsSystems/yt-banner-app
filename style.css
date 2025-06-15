@@ -1,10 +1,10 @@
-
 body {
   background: #111;
   color: white;
   text-align: center;
   font-family: Arial;
 }
+
 canvas {
   border: 2px solid yellow;
   background: #000;
@@ -20,6 +20,7 @@ canvas {
 .hidden {
   display: none;
 }
+
 .step-label {
   font-size: 3em;
   font-weight: bold;
@@ -27,38 +28,11 @@ canvas {
   text-shadow: 1px 1px 3px black;
   margin-bottom: 20px;
 }
-/* Style real buttons */
-/* Real buttons */
-button,
-input[type="button"],
-input[type="submit"] {
-  font-size: 1.5em !important;
+
+/* Buttons like "Skip", "Export" */
+button {
+  font-size: 1.5em;
   font-weight: bold;
   padding: 10px 20px;
   color: white;
-  background-color: #1a73e8;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin: 5px;
-}
-
-button:hover,
-input[type="button"]:hover,
-input[type="submit"]:hover {
-  background-color: #155ab6;
-}
-
-/* File input container styling */
-input[type="file"] {
-  font-size: 1.3em !important;
-  color: white;
-  background-color: #222;
-  border: 1px solid #555;
-  padding: 10px;
-  border-radius: 5px;
-  margin: 5px;
-}
-
-}
-
+  background-color: #1
