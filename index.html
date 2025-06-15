@@ -30,21 +30,43 @@
 <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 650px;">
   <img src="https://raw.githubusercontent.com/NGKsSystems/yt-banner-app/main/NGKsExactFit.png" alt="ExactFit" height="150" />
 
-<div id="uploadPanel" style="text-align: center; padding-top: 40px; color: white;">
-  <progress id="progressBar" value="0" max="3" style="width: 60%; height: 20px;"></progress>
-  <h2 id="stepTitle">Choose Your Background</h2>
-  <input type="file" id="bgInput" accept="image/*" onchange="handleStep(this.files[0])" />
-
-  <br />
-  <button onclick="skipStep()">Skip</button>
+<!-- Step Titles -->
+<div id="stepGuide" style="text-align:center; color:white; margin-top: 20px;">
+  <div id="step1">Step 1: Add background</div>
+  <div id="step2" style="display:none;">Step 2: Add mobile zone</div>
+  <div id="step3" style="display:none;">Step 3: Add overlay image</div>
+  <div id="step4" style="display:none;">Step 4: Export</div>
 </div>
 
+<!-- Step Forms -->
+<div id="formSteps" style="text-align:center; color:white; padding-top:20px;">
+  <div id="step1Form">
+    Choose your background<br>
+    <input type="file" id="bgInput" accept="image/*" />
+    <button onclick="nextStep()">Skip</button>
+  </div>
+
+  <div id="step2Form" style="display:none;">
+    Choose your mobile-safe image<br>
+    <input type="file" id="mobileInput" accept="image/*" />
+    <button onclick="nextStep()">Skip</button>
+  </div>
+
+  <div id="step3Form" style="display:none;">
+    Add additional images<br>
+    <input type="file" id="extraInput" accept="image/*" />
+    <button onclick="nextStep()">Skip</button>
+  </div>
+
+  <div id="exportSection" style="display:none;">
+    <button id="exportBtn">Export Banner</button>
+  </div>
+</div>
 
   <a href="https://NGKsSystems.com" target="_blank">
     <img src="https://raw.githubusercontent.com/NGKsSystems/yt-banner-app/main/NGKsSystems4.png" alt="NGKsSystems" height="150" />
   </a>
 </div>
-
 
   <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
 
@@ -232,42 +254,26 @@
       drawCanvas(true);
     });
   <script>
-let step = 0;
+let currentStep = 1;
 
-const steps = [
-  { title: "Choose Your Background", inputId: "bgInput" },
-  { title: "Choose Your Mobile Safe Zone", inputId: "mobileInput" },
-  { title: "Add Additional Images", inputId: "extraInput" }
-];
+function nextStep() {
+  document.getElementById(`step${currentStep}`).style.display = "none";
+  document.getElementById(`step${currentStep}Form`).style.display = "none";
 
-function skipStep() {
-  handleStep(null);
-}
+  currentStep++;
 
-function handleStep(file) {
-  if (file) {
-    // handle image data if needed
-  }
-
-  step++;
-  document.getElementById("progressBar").value = step;
-
-  if (step < steps.length) {
-    const panel = document.getElementById("uploadPanel");
-    panel.innerHTML = `
-      <progress id="progressBar" value="${step}" max="${steps.length}" style="width: 60%; height: 20px;"></progress>
-      <h2 id="stepTitle">${steps[step].title}</h2>
-      <input type="file" id="${steps[step].inputId}" accept="image/*" onchange="handleStep(this.files[0])" />
-      <br />
-      <button onclick="skipStep()">Skip</button>
-    `;
+  if (currentStep <= 3) {
+    document.getElementById(`step${currentStep}`).style.display = "block";
+    document.getElementById(`step${currentStep}Form`).style.display = "block";
   } else {
-    document.getElementById("uploadPanel").innerHTML = `
-      <h2>Ready to Export</h2>
-      <button onclick="exportBanner()">Export Banner</button>
-    `;
+    document.getElementById("step4").style.display = "block";
+    document.getElementById("exportSection").style.display = "block";
   }
 }
+
+document.getElementById("bgInput").addEventListener("change", nextStep);
+document.getElementById("mobileInput").addEventListener("change", nextStep);
+document.getElementById("extraInput").addEventListener("change", nextStep);
 
 </script>    
 </body>
