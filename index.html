@@ -43,26 +43,73 @@
 
     #uploadPanel input,
     #uploadPanel button {
-      margin-top: 5px;
+      margin: 5px;
     }
   </style>
 </head>
 <body>
 
-  <!-- Logos + Step UI container -->
+  <!-- Logo bar + step container -->
   <div id="logoBar">
     <img src="NGKsExactFit.png" alt="ExactFit" />
-    <div id="uploadPanel"></div>
+
+    <div id="uploadPanel">
+      <!-- Steps are dynamically injected here -->
+    </div>
+
     <a href="https://NGKsSystems.com" target="_blank">
       <img src="NGKsSystems4.png" alt="NGKsSystems" />
     </a>
   </div>
 
-  <!-- Banner canvas -->
+  <!-- Canvas -->
   <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
 
-  <!-- Core logic -->
-  <script src="script.js"></script>
+  <!-- Script -->
+  <script>
+    const canvas = document.getElementById("bannerCanvas");
+    const ctx = canvas.getContext("2d");
 
-</body>
-</html>
+    let overlays = [];
+    let step = 0;
+
+    const steps = [
+      { title: "Choose your background", inputId: "bgInput", tag: "bg" },
+      { title: "Choose your mobile-safe image", inputId: "mobileInput", mobileSafe: true },
+      { title: "Add additional images", inputId: "extraInput" }
+    ];
+
+    function drawCanvas(showHandles = true) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const bg = overlays.find(o => o.bg);
+      if (bg) ctx.drawImage(bg.img, 0, 0, canvas.width, canvas.height);
+
+      overlays.forEach(o => {
+        if (!o.bg) ctx.drawImage(o.img, o.x, o.y, o.width, o.height);
+        if (showHandles) {
+          ctx.strokeStyle = o.mobileSafe ? "lime" : "red";
+          ctx.strokeRect(o.x, o.y, o.width, o.height);
+        }
+      });
+    }
+
+    function showStep(num) {
+      const panel = document.getElementById("uploadPanel");
+      if (num >= steps.length) {
+        panel.innerHTML = `
+          <p>Step 4: Export your banner</p>
+          <button id="exportBtn">Export Banner</button>
+        `;
+        document.getElementById("exportBtn").addEventListener("click", () => {
+          overlays.forEach(o => o.selected = false);
+          drawCanvas(false);
+          const link = document.createElement("a");
+          link.download = "yt_banner_final.png";
+          link.href = canvas.toDataURL("image/png");
+          link.click();
+          drawCanvas(true);
+        });
+        return;
+      }
+
+      const s = steps[num];
