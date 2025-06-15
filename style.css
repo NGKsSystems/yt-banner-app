@@ -16,10 +16,10 @@ canvas {
 .hidden {
   display: none;
 }
-#step1 p,
-#step2 p,
-#step3 p,
-#step4 p {
+#step1,
+#step2,
+#step3,
+#step4 {
   font-size: 2em;
-  margin: 20px 0;
 }
+
