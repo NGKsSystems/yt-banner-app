@@ -214,5 +214,5 @@ window.onload = () => {
     drawCanvas(true);
   });
 
-  showStep(1);
+  showStep(0);
 };
