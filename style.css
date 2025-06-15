@@ -28,8 +28,11 @@ canvas {
   margin-bottom: 20px;
 }
 /* Style real buttons */
-button {
-  font-size: 1.5em;
+/* Real buttons */
+button,
+input[type="button"],
+input[type="submit"] {
+  font-size: 1.5em !important;
   font-weight: bold;
   padding: 10px 20px;
   color: white;
@@ -40,18 +43,22 @@ button {
   margin: 5px;
 }
 
-button:hover {
+button:hover,
+input[type="button"]:hover,
+input[type="submit"]:hover {
   background-color: #155ab6;
 }
 
-/* Style file input to look more like a button */
+/* File input container styling */
 input[type="file"] {
-  font-size: 1.1em;
-  padding: 6px;
+  font-size: 1.3em !important;
   color: white;
-  background-color: #444;
-  border: 1px solid #999;
+  background-color: #222;
+  border: 1px solid #555;
+  padding: 10px;
   border-radius: 5px;
   margin: 5px;
+}
+
 }
 
