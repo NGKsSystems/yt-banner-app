@@ -256,4 +256,7 @@ document.getElementById("exportBtn").addEventListener("click", () => {
   drawCanvas(true);
 });
 
-showStep(1);
+window.addEventListener("DOMContentLoaded", () => {
+  showStep(1);
+});
+
