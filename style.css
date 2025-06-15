@@ -65,8 +65,11 @@ input[type="file"] {
   justify-content: space-between;
   align-items: flex-start;
   padding: 0 48px;
-  transform: translateY(30px);
+  .logo.left,
+.logo.right {
+  margin-top: 28px;
 }
+
 
 .logo {
   height: 50px;
