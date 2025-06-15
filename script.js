@@ -9,93 +9,12 @@ let dragType = null;
 let dragHandle = null;
 let startX, startY;
 
-
+// STEP SYSTEM
 function showStep(stepNumber) {
   document.querySelectorAll('.step').forEach((el, i) => {
     el.classList.toggle('hidden', i + 1 !== stepNumber);
   });
-}
-
-document.getElementById("nextBtn").addEventListener("click", () => {
-  if (currentStep < 4) currentStep++;
-  showStep(currentStep);
-});
-
-document.getElementById("bgInput").addEventListener("change", (e) => {
-  loadImageToCanvas(e.target.files[0]);
-  advanceStep(1);
-});
-
-document.getElementById("mobileInput").addEventListener("change", (e) => {
-  loadImageToCanvas(e.target.files[0]);
-  advanceStep(1);
-});
-
-document.getElementById("extraInput").addEventListener("change", (e) => {
-  loadImageToCanvas(e.target.files[0]);
-  advanceStep(1);
-});
-
-
-document.getElementById("prevBtn").addEventListener("click", () => {
-  if (currentStep > 1) currentStep--;
-  showStep(currentStep);
-});
-
-function makeDraggable(el) {
-  el.addEventListener("mousedown", (e) => {
-    dragTarget = el;
-    offsetX = e.clientX - el.offsetLeft;
-    offsetY = e.clientY - el.offsetTop;
-  });
-
-  document.addEventListener("mousemove", (e) => {
-    if (dragTarget) {
-      dragTarget.style.left = (e.clientX - offsetX) + "px";
-      dragTarget.style.top = (e.clientY - offsetY) + "px";
-    }
-  });
-
-  document.addEventListener("mouseup", () => {
-    dragTarget = null;
-  });
-}
-
-document.querySelectorAll('.resize-handle').forEach(handle => {
-  handle.addEventListener('mousedown', (e) => {
-    e.stopPropagation();
-    resizeTarget = handle.parentElement;
-    startX = e.clientX;
-    startY = e.clientY;
-    startWidth = resizeTarget.offsetWidth;
-    startHeight = resizeTarget.offsetHeight;
-
-    function resizeMouseMove(e) {
-      const newWidth = startWidth + (e.clientX - startX);
-      const newHeight = startHeight + (e.clientY - startY);
-      resizeTarget.style.width = newWidth + "px";
-      resizeTarget.style.height = newHeight + "px";
-    }
-
-    function stopResize() {
-      document.removeEventListener("mousemove", resizeMouseMove);
-      document.removeEventListener("mouseup", stopResize);
-    }
-
-    document.addEventListener("mousemove", resizeMouseMove);
-    document.addEventListener("mouseup", stopResize);
-  });
-});
-// Step navigation state
-
-function showStep(stepNum) {
-  for (let i = 1; i <= 4; i++) {
-    const el = document.getElementById(`step${i}`);
-    if (el) el.classList.add("hidden");
-  }
-  const next = document.getElementById(`step${stepNum}`);
-  if (next) next.classList.remove("hidden");
-  currentStep = stepNum;
+  currentStep = stepNumber;
 }
 
 function advanceStep(delta) {
@@ -105,39 +24,158 @@ function advanceStep(delta) {
   }
 }
 
-function loadImageToCanvas(file) {
-  const reader = new FileReader();
-  reader.onload = function (event) {
-    const img = new Image();
-    img.onload = function () {
-      const overlay = {
-        x: 100,
-        y: 100,
-        width: img.width / 2,
-        height: img.height / 2,
-        image: img,
-        selected: false
-      };
-      overlays.push(overlay);
-      drawCanvas(true);
-    };
-    img.src = event.target.result;
-  };
-  reader.readAsDataURL(file);
+document.addEventListener("click", (e) => {
+  if (e.target.id === "nextBtn") advanceStep(1);
+  else if (e.target.id === "prevBtn") advanceStep(-1);
+  else if (e.target.id === "skipBg") advanceStep(1);
+});
+
+// DRAWING LOGIC
+function drawHandles(obj) {
+  const x = obj.x, y = obj.y, w = obj.width, h = obj.height;
+  const points = [
+    [x, y], [x + w / 2, y], [x + w, y],
+    [x + w, y + h / 2], [x + w, y + h],
+    [x + w / 2, y + h], [x, y + h],
+    [x, y + h / 2]
+  ];
+  ctx.fillStyle = "white";
+  points.forEach(([px, py]) => {
+    ctx.fillRect(px - 5, py - 5, 10, 10);
+  });
 }
 
+function drawCanvas() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for (const overlay of overlays) {
+    ctx.drawImage(overlay.img, overlay.x, overlay.y, overlay.width, overlay.height);
+    if (overlay.selected) {
+      ctx.strokeStyle = "lime";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(overlay.x, overlay.y, overlay.width, overlay.height);
+      drawHandles(overlay);
+    }
+  }
+}
 
+function loadImageToCanvas(file) {
+  const img = new Image();
+  img.onload = () => {
+    const overlay = {
+      img,
+      x: 100,
+      y: 100,
+      width: img.width / 2,
+      height: img.height / 2,
+      selected: true
+    };
+    overlays.forEach(o => o.selected = false);
+    overlays.push(overlay);
+    drawCanvas();
+  };
+  img.src = URL.createObjectURL(file);
+}
 
-document.addEventListener("click", (e) => {
-  if (e.target.id === "nextBtn") {
-    advanceStep(1);
-  } else if (e.target.id === "prevBtn") {
-    advanceStep(-1);
-  } else if (e.target.id === "skipBg") {
+// INPUT HOOKS
+document.getElementById("bgInput").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    loadImageToCanvas(file);
     advanceStep(1);
   }
 });
 
-// Initialize step 1 on load
-showStep(1);
-window.advanceStep = advanceStep;
+document.getElementById("mobileInput").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    loadImageToCanvas(file);
+    advanceStep(1);
+  }
+});
+
+document.getElementById("extraInput").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    loadImageToCanvas(file);
+    advanceStep(1);
+  }
+});
+
+// MOUSE EVENTS FOR DRAGGING AND RESIZING
+canvas.addEventListener("mousedown", e => {
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+
+  for (let o of overlays.slice().reverse()) {
+    if (!o.selected) continue;
+    const handles = [
+      [o.x, o.y], [o.x + o.width / 2, o.y], [o.x + o.width, o.y],
+      [o.x + o.width, o.y + o.height / 2], [o.x + o.width, o.y + o.height],
+      [o.x + o.width / 2, o.y + o.height], [o.x, o.y + o.height],
+      [o.x, o.y + o.height / 2]
+    ];
+
+    for (let i = 0; i < handles.length; i++) {
+      const [hx, hy] = handles[i];
+      if (Math.abs(mouseX - hx) < 10 && Math.abs(mouseY - hy) < 10) {
+        dragTarget = o;
+        dragType = "resize";
+        dragHandle = i;
+        startX = mouseX;
+        startY = mouseY;
+        return;
+      }
+    }
+
+    if (mouseX > o.x && mouseX < o.x + o.width && mouseY > o.y && mouseY < o.y + o.height) {
+      dragTarget = o;
+      dragType = "move";
+      startX = mouseX;
+      startY = mouseY;
+      return;
+    }
+  }
+});
+
+canvas.addEventListener("mousemove", e => {
+  if (!dragTarget) return;
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+  const dx = mouseX - startX;
+  const dy = mouseY - startY;
+
+  if (dragType === "move") {
+    dragTarget.x += dx;
+    dragTarget.y += dy;
+  } else if (dragType === "resize") {
+    if (dragHandle === 0) {
+      dragTarget.x += dx;
+      dragTarget.y += dy;
+      dragTarget.width -= dx;
+      dragTarget.height -= dy;
+    } else if (dragHandle === 2) {
+      dragTarget.y += dy;
+      dragTarget.width += dx;
+      dragTarget.height -= dy;
+    } else if (dragHandle === 4) {
+      dragTarget.width += dx;
+      dragTarget.height += dy;
+    } else if (dragHandle === 6) {
+      dragTarget.x += dx;
+      dragTarget.width -= dx;
+      dragTarget.height += dy;
+    }
+  }
+
+  startX = mouseX;
+  startY = mouseY;
+  drawCanvas();
+});
+
+canvas.addEventListener("mouseup", () => {
+  dragTarget = null;
+  dragType = null;
+  dragHandle = null;
+});
