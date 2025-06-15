@@ -101,12 +101,21 @@ document.getElementById("extraInput").addEventListener("change", e => {
   if (!file) return;
   const img = new Image();
   img.onload = () => {
-    overlays.push({ img, x: 100, y: 100, width: 300, height: 100, selected: true });
+    overlays.push({
+      img,
+      x: 100,
+      y: 100,
+      width: 300,
+      height: 100,
+      selected: true,
+      strokeStyle: "red"
+    });
     drawCanvas();
-    advanceStep();
+    advanceStep();  // << restore this
   };
   img.src = URL.createObjectURL(file);
 });
+
 
 document.getElementById("exportBtn").addEventListener("click", () => {
   // Deselect overlays to hide resize handles
@@ -130,9 +139,6 @@ document.getElementById("exportBtn").addEventListener("click", () => {
   overlays.forEach(o => o.selected = true);
   drawCanvas(true);
 });
-
-
-showStep(1);
 
 let dragTarget = null;
 let dragType = null;
@@ -219,3 +225,5 @@ canvas.addEventListener("mousemove", e => {
     dragTarget.x = mouseX;
     break;
 }
+
+   showStep(1);                     
