@@ -227,3 +227,4 @@ canvas.addEventListener("mousemove", e => {
 }
 
    showStep(1);                     
+window.advanceStep = advanceStep;
