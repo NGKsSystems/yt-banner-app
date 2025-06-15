@@ -12,7 +12,11 @@ canvas {
   display: block;
   margin-left: auto;
   margin-right: auto;
+  width: 100%;
+  max-width: 1280px;
+  height: auto;
 }
+
 .hidden {
   display: none;
 }
@@ -25,3 +29,4 @@ canvas {
   color: white;
   text-shadow: 1px 1px 3px black;
 }
+
