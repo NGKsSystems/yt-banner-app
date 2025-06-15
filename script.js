@@ -39,11 +39,12 @@ function showStep(stepNum) {
   currentStep = stepNum;
 
   if (stepNum === 1) {
-    stepUI.innerHTML = \`
-      <p>Step 1: Choose your background</p>
-      <input type="file" id="bgInput" accept="image/*" />
-      <button id="skipBg">Skip</button>
-    \`;
+    stepUI.innerHTML = `
+  <p>Step 1: Choose your background</p>
+  <input type="file" id="bgInput" accept="image/*" />
+  <button id="skipBg">Skip</button>
+`;
+
     document.getElementById("bgInput").addEventListener("change", handleBackgroundUpload);
     document.getElementById("skipBg").addEventListener("click", () => showStep(2));
   }
