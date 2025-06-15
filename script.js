@@ -1,6 +1,9 @@
+
+// === Canvas Setup ===
 const canvas = document.getElementById("bannerCanvas");
 const ctx = canvas.getContext("2d");
 
+// === State ===
 let overlays = [];
 let currentStep = 1;
 
@@ -9,10 +12,10 @@ let dragType = null;
 let dragHandle = null;
 let startX, startY;
 
-// STEP SYSTEM
+// === Step Logic ===
 function showStep(stepNumber) {
-  document.querySelectorAll('.step').forEach((el, i) => {
-    el.classList.toggle('hidden', i + 1 !== stepNumber);
+  document.querySelectorAll(".step").forEach((el, i) => {
+    el.classList.toggle("hidden", i + 1 !== stepNumber);
   });
   currentStep = stepNumber;
 }
@@ -23,14 +26,9 @@ function advanceStep(delta) {
     showStep(newStep);
   }
 }
+window.advanceStep = advanceStep;
 
-document.addEventListener("click", (e) => {
-  if (e.target.id === "nextBtn") advanceStep(1);
-  else if (e.target.id === "prevBtn") advanceStep(-1);
-  else if (e.target.id === "skipBg") advanceStep(1);
-});
-
-// DRAWING LOGIC
+// === Image Upload & Drawing ===
 function drawHandles(obj) {
   const x = obj.x, y = obj.y, w = obj.width, h = obj.height;
   const points = [
@@ -69,14 +67,13 @@ function loadImageToCanvas(file) {
       height: img.height / 2,
       selected: true
     };
-    overlays.forEach(o => o.selected = false);
     overlays.push(overlay);
     drawCanvas();
   };
   img.src = URL.createObjectURL(file);
 }
 
-// INPUT HOOKS
+// === Input Hooks ===
 document.getElementById("bgInput").addEventListener("change", (e) => {
   const file = e.target.files[0];
   if (file) {
@@ -101,35 +98,50 @@ document.getElementById("extraInput").addEventListener("change", (e) => {
   }
 });
 
-// MOUSE EVENTS FOR DRAGGING AND RESIZING
-canvas.addEventListener("mousedown", e => {
-  const rect = canvas.getBoundingClientRect();
-  const mouseX = e.clientX - rect.left;
-  const mouseY = e.clientY - rect.top;
+// === Step Buttons ===
+document.getElementById("nextBtn").addEventListener("click", () => {
+  advanceStep(1);
+});
 
-  for (let o of overlays.slice().reverse()) {
-    if (!o.selected) continue;
+document.getElementById("prevBtn")?.addEventListener("click", () => {
+  advanceStep(-1);
+});
+
+document.getElementById("skipBg")?.addEventListener("click", () => {
+  advanceStep(1);
+});
+
+// === Drag & Resize ===
+canvas.addEventListener("mousedown", (e) => {
+  const mouseX = e.offsetX;
+  const mouseY = e.offsetY;
+
+  for (let i = overlays.length - 1; i >= 0; i--) {
+    const obj = overlays[i];
+    const x = obj.x, y = obj.y, w = obj.width, h = obj.height;
     const handles = [
-      [o.x, o.y], [o.x + o.width / 2, o.y], [o.x + o.width, o.y],
-      [o.x + o.width, o.y + o.height / 2], [o.x + o.width, o.y + o.height],
-      [o.x + o.width / 2, o.y + o.height], [o.x, o.y + o.height],
-      [o.x, o.y + o.height / 2]
+      [x, y], [x + w / 2, y], [x + w, y],
+      [x + w, y + h / 2], [x + w, y + h],
+      [x + w / 2, y + h], [x, y + h],
+      [x, y + h / 2]
     ];
 
-    for (let i = 0; i < handles.length; i++) {
-      const [hx, hy] = handles[i];
-      if (Math.abs(mouseX - hx) < 10 && Math.abs(mouseY - hy) < 10) {
-        dragTarget = o;
+    for (let j = 0; j < handles.length; j++) {
+      const [hx, hy] = handles[j];
+      if (mouseX >= hx - 5 && mouseX <= hx + 5 &&
+          mouseY >= hy - 5 && mouseY <= hy + 5) {
+        dragTarget = obj;
         dragType = "resize";
-        dragHandle = i;
+        dragHandle = j;
         startX = mouseX;
         startY = mouseY;
         return;
       }
     }
 
-    if (mouseX > o.x && mouseX < o.x + o.width && mouseY > o.y && mouseY < o.y + o.height) {
-      dragTarget = o;
+    if (mouseX >= x && mouseX <= x + w &&
+        mouseY >= y && mouseY <= y + h) {
+      dragTarget = obj;
       dragType = "move";
       startX = mouseX;
       startY = mouseY;
@@ -138,11 +150,11 @@ canvas.addEventListener("mousedown", e => {
   }
 });
 
-canvas.addEventListener("mousemove", e => {
+canvas.addEventListener("mousemove", (e) => {
   if (!dragTarget) return;
-  const rect = canvas.getBoundingClientRect();
-  const mouseX = e.clientX - rect.left;
-  const mouseY = e.clientY - rect.top;
+
+  const mouseX = e.offsetX;
+  const mouseY = e.offsetY;
   const dx = mouseX - startX;
   const dy = mouseY - startY;
 
@@ -150,22 +162,16 @@ canvas.addEventListener("mousemove", e => {
     dragTarget.x += dx;
     dragTarget.y += dy;
   } else if (dragType === "resize") {
-    if (dragHandle === 0) {
-      dragTarget.x += dx;
-      dragTarget.y += dy;
-      dragTarget.width -= dx;
-      dragTarget.height -= dy;
-    } else if (dragHandle === 2) {
-      dragTarget.y += dy;
-      dragTarget.width += dx;
-      dragTarget.height -= dy;
-    } else if (dragHandle === 4) {
-      dragTarget.width += dx;
-      dragTarget.height += dy;
-    } else if (dragHandle === 6) {
-      dragTarget.x += dx;
-      dragTarget.width -= dx;
-      dragTarget.height += dy;
+    const handle = dragHandle;
+    switch (handle) {
+      case 0: dragTarget.x += dx; dragTarget.y += dy; dragTarget.width -= dx; dragTarget.height -= dy; break;
+      case 1: dragTarget.y += dy; dragTarget.height -= dy; break;
+      case 2: dragTarget.y += dy; dragTarget.width += dx; dragTarget.height -= dy; break;
+      case 3: dragTarget.width += dx; break;
+      case 4: dragTarget.width += dx; dragTarget.height += dy; break;
+      case 5: dragTarget.height += dy; break;
+      case 6: dragTarget.x += dx; dragTarget.height += dy; dragTarget.width -= dx; break;
+      case 7: dragTarget.x += dx; dragTarget.width -= dx; break;
     }
   }
 
@@ -176,19 +182,4 @@ canvas.addEventListener("mousemove", e => {
 
 canvas.addEventListener("mouseup", () => {
   dragTarget = null;
-  dragHandle = null;
-  dragType = null;
 });
-
-
-document.getElementById("nextBtn").addEventListener("click", () => {
-  advanceStep(1);
-});
-document.getElementById("skipBg").addEventListener("click", () => {
-  advanceStep(1);
-});
-
-// Start on Step 1
-drawCanvas();
-showStep(1);
-window.advanceStep = advanceStep;
