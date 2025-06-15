@@ -58,14 +58,34 @@ input[type="file"] {
   margin: 5px;
 }
 
-#logoBar {
+#canvasTopBar {
+  width: 1280px;
+  margin: 0 auto 10px auto;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 10px 20px;
+  align-items: flex-start;
+  padding: 0 48px;
 }
 
 .logo {
   height: 50px;
   object-fit: contain;
+}
+
+#stepPanelContainer {
+  text-align: center;
+  flex: 1;
+  margin: 0 20px;
+}
+
+#stepPanelContainer .step-label {
+  font-size: 2em;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+#stepPanelContainer input[type="file"],
+#stepPanelContainer button {
+  font-size: 1em;
+  margin-top: 5px;
 }
