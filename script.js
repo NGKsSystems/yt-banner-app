@@ -176,9 +176,10 @@ canvas.addEventListener("mousemove", e => {
 
 canvas.addEventListener("mouseup", () => {
   dragTarget = null;
-  dragType = null;
   dragHandle = null;
+  dragType = null;
 });
+
 
 document.getElementById("nextBtn").addEventListener("click", () => {
   advanceStep(1);
