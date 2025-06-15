@@ -40,15 +40,27 @@
   </style>
 </head>
 <body>
-<div style="position: relative; height: 140px; margin-bottom: 10px;">
-  <!-- Left Logo -->
-  <img src="NGKsExactFit.png" alt="ExactFit"
-       style="position: absolute; left: 20px; top: 20px; height: 100px;" />
+<div id="workspace" style="position: relative; width: fit-content; margin: auto;">
+  <!-- Logo Row -->
+  <div style="position: relative; height: 140px; margin-bottom: 10px;">
+    <!-- Left Logo -->
+    <img src="NGKsExactFit.png" alt="ExactFit"
+         style="position: absolute; left: 20px; top: 20px; height: 100px;" />
 
-  <!-- Center Step UI -->
-  <div id="stepUI"
-       style="position: absolute; top: 40px; left: 50%; transform: translateX(-50%); text-align: center;">
+    <!-- Center Step UI -->
+    <div id="stepUI"
+         style="position: absolute; top: 40px; left: 50%; transform: translateX(-50%); text-align: center;">
+    </div>
+
+    <!-- Right Logo -->
+    <img src="NGKsSystems4.png" alt="NGKsSystems"
+         style="position: absolute; right: 20px; top: 20px; height: 100px;" />
   </div>
+
+  <!-- Canvas -->
+  <canvas id="bannerCanvas" width="2560" height="1440"
+          style="border: 2px solid yellow; background: #000;"></canvas>
+</div>
 
   <!-- Right Logo -->
   <img src="NGKsSystems4.png" alt="NGKsSystems"
