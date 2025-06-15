@@ -191,7 +191,8 @@ document.getElementById("mobileInput").addEventListener("change", e => {
   const img = new Image();
   img.onload = () => {
     const x = (canvas.width - 1546) / 2;
-    overlays.push({ img, x: x, y: 100, width: 1546, height: 423, mobileSafe: true, selected: true });
+    const y = (canvas.height - 423) / 2;
+    overlays.push({ img, x: x, y: y, width: 1546, height: 423, mobileSafe: true, selected: true });
     drawCanvas();
     advanceStep();
   };
