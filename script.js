@@ -4,6 +4,12 @@ const ctx = canvas.getContext("2d");
 let overlays = [];
 let currentStep = 1;
 
+let dragTarget = null;
+let dragType = null;
+let dragHandle = null;
+let startx, starty;
+
+
 function showStep(stepNum) {
   for (let i = 1; i <= 4; i++) {
     const el = document.getElementById(`step${i}`);
@@ -131,9 +137,6 @@ document.getElementById("exportBtn").addEventListener("click", () => {
   drawCanvas(true);
 });
 
-let dragTarget = null;
-let dragType = null;
-let startX, startY;
 
 canvas.addEventListener("mousedown", e => {
   const rect = canvas.getBoundingClientRect();
@@ -227,8 +230,7 @@ canvas.addEventListener("mousemove", e => {
 });
 
 canvas.addEventListener("mouseup", () => {
-  dragTarget = null;
-  dragType = null;
+
 });
 
 showStep(1);
