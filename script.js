@@ -1,11 +1,22 @@
+
+const canvas = document.getElementById("bannerCanvas");
+const ctx = canvas.getContext("2d");
 let overlays = [];
-let currentStep = 1;
-let dragTarget = null;
+
+function drawCanvas(showHandles = true) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const bg = overlays.find(o => o.bg);
+  if (bg) ctx.drawImage(bg.img, 0, 0, canvas.width, canvas.height);
+
+  overlays.forEach(o => {
+    if (!o.bg) ctx.drawImage(o.img, o.x, o.y, o.width, o.height);
+    if (showHandles && o.selected) drawHandles(o);
+  });
+}
 
 function showStep(stepNum) {
   const stepUI = document.getElementById("stepUI");
   if (!stepUI) return;
-  stepUI.innerHTML = "";
 
   if (stepNum === 1) {
     stepUI.innerHTML = \`
@@ -41,7 +52,6 @@ function showStep(stepNum) {
       drawCanvas(true);
     });
   }
-  currentStep = stepNum;
 }
 
 function handleBackgroundUpload(e) {
@@ -77,68 +87,15 @@ function handleOverlayUpload(e) {
   img.onload = () => {
     overlays.push({ img, x: 100, y: 100, width: 300, height: 100, selected: true });
     drawCanvas();
+    showStep(4);
   };
   img.src = URL.createObjectURL(file);
 }
 
-const canvas = document.getElementById("bannerCanvas");
-const ctx = canvas.getContext("2d");
-
-function drawCanvas(showHandles = true) {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  const bg = overlays.find(o => o.bg);
-  if (bg) ctx.drawImage(bg.img, 0, 0, canvas.width, canvas.height);
-
-  overlays.forEach(o => {
-    if (!o.bg) ctx.drawImage(o.img, o.x, o.y, o.width, o.height);
-    if (showHandles && o.mobileSafe) {
-      ctx.strokeStyle = "lime";
-      ctx.strokeRect(o.x, o.y, o.width, o.height);
-    } else if (showHandles && o.selected) {
-      ctx.strokeStyle = "white";
-      ctx.strokeRect(o.x, o.y, o.width, o.height);
-      drawHandles(o);
-    }
-  });
-}
-
 function drawHandles(o) {
-  const size = 6;
-  const corners = [
-    [o.x, o.y], [o.x + o.width, o.y],
-    [o.x, o.y + o.height], [o.x + o.width, o.y + o.height]
-  ];
-  ctx.fillStyle = "white";
-  corners.forEach(([x, y]) => ctx.fillRect(x - size / 2, y - size / 2, size, size));
+  ctx.strokeStyle = "lime";
+  ctx.strokeRect(o.x, o.y, o.width, o.height);
 }
-
-canvas.addEventListener("mousedown", e => {
-  const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
-  for (let i = overlays.length - 1; i >= 0; i--) {
-    const o = overlays[i];
-    if (!o.bg && x >= o.x && y >= o.y && x <= o.x + o.width && y <= o.y + o.height) {
-      dragTarget = o;
-      o.selected = true;
-      overlays.forEach(obj => { if (obj !== o) obj.selected = false; });
-      drawCanvas();
-      return;
-    }
-  }
-});
-
-canvas.addEventListener("mousemove", e => {
-  if (!dragTarget) return;
-  const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
-  dragTarget.x = x - dragTarget.width / 2;
-  dragTarget.y = y - dragTarget.height / 2;
-  drawCanvas();
-});
-
-canvas.addEventListener("mouseup", () => dragTarget = null);
 
 window.addEventListener("DOMContentLoaded", () => {
   showStep(1);
