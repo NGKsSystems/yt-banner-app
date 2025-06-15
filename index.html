@@ -2,36 +2,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>NGKs Banner Editor</title>
-  <style>
-    body { background: #111; color: white; text-align: center; font-family: Arial; }
-    canvas { border: 2px solid yellow; background: #000; margin-top: 10px; }
-    .hidden { display: none; }
-  </style>
-</head>
-<body>
-  <h3>NGKsExactFit Banner Editor</h3>
-
-  
 <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 650px;">
   <img src="https://raw.githubusercontent.com/NGKsSystems/yt-banner-app/main/NGKsExactFit.png" alt="ExactFit" height="150" />
-
-  <div style="text-align: center;">
-    <strong style="font-size: 1.2em;">NGKs Banner Editor</strong><br>
-    Step 1: Choose your background 
-    <input type="file" id="bgInput" accept="image/*" />
-    <button id="skipBg">Skip</button><br>
-    Step 2: Choose your mobile-safe image 
-    <input type="file" id="mobileInput" accept="image/*" /><br>
-    Step 3: Add additional images 
-    <input type="file" id="extraInput" accept="image/*" /><br>
-    <button id="exportBtn">Export Banner</button>
-  </div>
-
-  <a href="https://NGKsSystems.com" target="_blank"><img src="https://raw.githubusercontent.com/NGKsSystems/yt-banner-app/main/NGKsSystems4.png" alt="NGKsSystems" height="150" /></a>
+  <a href="https://NGKsSystems.com" target="_blank">
+    <img src="https://raw.githubusercontent.com/NGKsSystems/yt-banner-app/main/NGKsSystems4.png" alt="NGKsSystems" height="150" />
+  </a>
 </div>
 
+<div style="text-align: center;">
+  <p>Step 1: Choose your background 
+    <input type="file" id="bgInput" accept="image/*" /> 
+    <button id="skipBg">Skip</button>
+  </p>
+  <p>Step 2: Choose your mobile-safe image 
+    <input type="file" id="mobileInput" accept="image/*" />
+  </p>
+  <p>Step 3: Add additional images 
+    <input type="file" id="extraInput" accept="image/*" />
+  </p>
+  <button id="exportBtn">Export Banner</button>
+</div>
 
   <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
 
