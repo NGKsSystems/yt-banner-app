@@ -4,84 +4,10 @@ const ctx = canvas.getContext("2d");
 let overlays = [];
 let currentStep = 1;
 
-// Mouse Down
-canvas.addEventListener("mousedown", (e) => {
-  const rect = canvas.getBoundingClientRect();
-  const mouseX = e.clientX - rect.left;
-  const mouseY = e.clientY - rect.top;
-
-  for (let i = overlays.length - 1; i >= 0; i--) {
-    const img = overlays[i];
-    const x = img.x;
-    const y = img.y;
-    const w = img.width * img.scale;
-    const h = img.height * img.scale;
-
-    const handles = [
-      { x: x, y: y, type: "nw" },
-      { x: x + w / 2, y: y, type: "n" },
-      { x: x + w, y: y, type: "ne" },
-      { x: x, y: y + h / 2, type: "w" },
-      { x: x + w, y: y + h / 2, type: "e" },
-      { x: x, y: y + h, type: "sw" },
-      { x: x + w / 2, y: y + h, type: "s" },
-      { x: x + w, y: y + h, type: "se" }
-    ];
-
-    for (const handle of handles) {
-      if (Math.abs(mouseX - handle.x) < 10 && Math.abs(mouseY - handle.y) < 10) {
-        dragTarget = img;
-        dragType = handle.type;
-        startX = mouseX;
-        startY = mouseY;
-        return;
-      }
-    }
-
-    if (
-      mouseX >= x && mouseX <= x + w &&
-      mouseY >= y && mouseY <= y + h
-    ) {
-      dragTarget = img;
-      dragType = "move";
-      startX = mouseX;
-      startY = mouseY;
-      return;
-    }
-  }
-});
-
-// Mouse Move
-canvas.addEventListener("mousemove", (e) => {
-  if (!dragTarget) return;
-
-  const rect = canvas.getBoundingClientRect();
-  const mouseX = e.clientX - rect.left;
-  const mouseY = e.clientY - rect.top;
-  const dx = mouseX - startX;
-  const dy = mouseY - startY;
-
-  if (dragType === "move") {
-    dragTarget.x += dx;
-    dragTarget.y += dy;
-  } else {
-    const scaleAmount = 1 + dx / dragTarget.width;
-    dragTarget.scale *= scaleAmount;
-    if (dragTarget.scale < 0.1) dragTarget.scale = 0.1;
-  }
-
-  startX = mouseX;
-  startY = mouseY;
-  drawCanvas();
-});
-
-// Mouse Up
-canvas.addEventListener("mouseup", () => {
-  dragTarget = null;
-  dragType = null;
-});
-
-
+let dragTarget = null;
+let dragType = null;
+let dragHandle = null;
+let startx, starty;
 
 function showStep(stepNum) {
   for (let i = 1; i <= 4; i++) {
@@ -106,9 +32,7 @@ function drawHandles(obj) {
     [x, y + h / 2]
   ];
   ctx.fillStyle = "white";
-  points.forEach(([px, py]) => {
-    ctx.fillRect(px - 5, py - 5, 10, 10);
-  });
+  points.forEach(([px, py]) => ctx.fillRect(px - 5, py - 5, 10, 10));
 }
 
 function drawCanvas(showHandles = true) {
@@ -124,6 +48,7 @@ function drawCanvas(showHandles = true) {
   });
 }
 
+// Input handlers
 document.getElementById("bgInput").addEventListener("change", e => {
   const file = e.target.files[0];
   if (!file) return;
@@ -131,8 +56,7 @@ document.getElementById("bgInput").addEventListener("change", e => {
   img.onload = () => {
     overlays.push({
       img,
-      x: 0,
-      y: 0,
+      x: 0, y: 0,
       width: canvas.width,
       height: canvas.height,
       bg: true,
@@ -144,9 +68,7 @@ document.getElementById("bgInput").addEventListener("change", e => {
   img.src = URL.createObjectURL(file);
 });
 
-document.getElementById("skipBg").addEventListener("click", () => {
-  advanceStep();
-});
+document.getElementById("skipBg").addEventListener("click", advanceStep);
 
 document.getElementById("mobileInput").addEventListener("change", e => {
   const file = e.target.files[0];
@@ -158,10 +80,7 @@ document.getElementById("mobileInput").addEventListener("change", e => {
     const y = (canvas.height - height) / 2;
     overlays.push({
       img,
-      x,
-      y,
-      width,
-      height,
+      x, y, width, height,
       mobileSafe: true,
       selected: true,
       strokeStyle: "lime"
@@ -179,8 +98,7 @@ document.getElementById("extraInput").addEventListener("change", e => {
   img.onload = () => {
     overlays.push({
       img,
-      x: 100,
-      y: 100,
+      x: 100, y: 100,
       width: 300,
       height: 100,
       selected: true,
@@ -192,12 +110,11 @@ document.getElementById("extraInput").addEventListener("change", e => {
   img.src = URL.createObjectURL(file);
 });
 
+// Export
 document.getElementById("exportBtn").addEventListener("click", () => {
   overlays.forEach(o => o.selected = false);
-
   const previousStrokeStyles = overlays.map(o => o.strokeStyle);
   overlays.forEach(o => o.strokeStyle = "transparent");
-
   drawCanvas(false);
 
   const link = document.createElement("a");
@@ -210,7 +127,7 @@ document.getElementById("exportBtn").addEventListener("click", () => {
   drawCanvas(true);
 });
 
-
+// Mouse logic
 canvas.addEventListener("mousedown", e => {
   const rect = canvas.getBoundingClientRect();
   const mouseX = e.clientX - rect.left;
@@ -218,6 +135,7 @@ canvas.addEventListener("mousedown", e => {
 
   for (let o of overlays) {
     if (!o.selected) continue;
+
     const handles = [
       [o.x, o.y], [o.x + o.width / 2, o.y], [o.x + o.width, o.y],
       [o.x + o.width, o.y + o.height / 2], [o.x + o.width, o.y + o.height],
@@ -230,9 +148,8 @@ canvas.addEventListener("mousedown", e => {
       if (Math.abs(mouseX - hx) < 10 && Math.abs(mouseY - hy) < 10) {
         dragTarget = o;
         dragType = i;
-        startX = mouseX;
-        startY = mouseY;
-        dragType = "resize";
+        startx = mouseX;
+        starty = mouseY;
         return;
       }
     }
@@ -241,8 +158,9 @@ canvas.addEventListener("mousedown", e => {
         mouseY >= o.y && mouseY <= o.y + o.height) {
       dragTarget = o;
       dragType = "move";
-      startX = mouseX - o.x;
-      startY = mouseY - o.y;
+      startx = mouseX - o.x;
+      starty = mouseY - o.y;
+      return;
     }
   }
 });
@@ -253,48 +171,49 @@ canvas.addEventListener("mousemove", e => {
   const mouseX = e.clientX - rect.left;
   const mouseY = e.clientY - rect.top;
 
-  const dx = mouseX - startX;
-  const dy = mouseY - startY;
+  if (dragType === "move") {
+    dragTarget.x = mouseX - startx;
+    dragTarget.y = mouseY - starty;
+  } else {
+    const dx = mouseX - startx;
+    const dy = mouseY - starty;
 
-  switch (dragType) {
-    case "move":
-      dragTarget.x = mouseX - startX;
-      dragTarget.y = mouseY - startY;
-      break;
-    case 0:
-      dragTarget.width += dragTarget.x - mouseX;
-      dragTarget.height += dragTarget.y - mouseY;
-      dragTarget.x = mouseX;
-      dragTarget.y = mouseY;
-      break;
-    case 1:
-      dragTarget.height += dragTarget.y - mouseY;
-      dragTarget.y = mouseY;
-      break;
-    case 2:
-      dragTarget.width = mouseX - dragTarget.x;
-      dragTarget.height += dragTarget.y - mouseY;
-      dragTarget.y = mouseY;
-      break;
-    case 3:
-      dragTarget.width = mouseX - dragTarget.x;
-      break;
-    case 4:
-      dragTarget.width = mouseX - dragTarget.x;
-      dragTarget.height = mouseY - dragTarget.y;
-      break;
-    case 5:
-      dragTarget.height = mouseY - dragTarget.y;
-      break;
-    case 6:
-      dragTarget.width += dragTarget.x - mouseX;
-      dragTarget.height = mouseY - dragTarget.y;
-      dragTarget.x = mouseX;
-      break;
-    case 7:
-      dragTarget.width += dragTarget.x - mouseX;
-      dragTarget.x = mouseX;
-      break;
+    switch (dragType) {
+      case 0:
+        dragTarget.width += dragTarget.x - mouseX;
+        dragTarget.height += dragTarget.y - mouseY;
+        dragTarget.x = mouseX;
+        dragTarget.y = mouseY;
+        break;
+      case 1:
+        dragTarget.height += dragTarget.y - mouseY;
+        dragTarget.y = mouseY;
+        break;
+      case 2:
+        dragTarget.width = mouseX - dragTarget.x;
+        dragTarget.height += dragTarget.y - mouseY;
+        dragTarget.y = mouseY;
+        break;
+      case 3:
+        dragTarget.width = mouseX - dragTarget.x;
+        break;
+      case 4:
+        dragTarget.width = mouseX - dragTarget.x;
+        dragTarget.height = mouseY - dragTarget.y;
+        break;
+      case 5:
+        dragTarget.height = mouseY - dragTarget.y;
+        break;
+      case 6:
+        dragTarget.width += dragTarget.x - mouseX;
+        dragTarget.height = mouseY - dragTarget.y;
+        dragTarget.x = mouseX;
+        break;
+      case 7:
+        dragTarget.width += dragTarget.x - mouseX;
+        dragTarget.x = mouseX;
+        break;
+    }
   }
 
   dragTarget.width = Math.max(20, dragTarget.width);
@@ -303,7 +222,8 @@ canvas.addEventListener("mousemove", e => {
 });
 
 canvas.addEventListener("mouseup", () => {
-
+  dragTarget = null;
+  dragType = null;
 });
 
 showStep(1);
