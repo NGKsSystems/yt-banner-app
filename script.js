@@ -1,7 +1,10 @@
-
 const canvas = document.getElementById("bannerCanvas");
 const ctx = canvas.getContext("2d");
 let overlays = [];
+let currentStep = 1;
+let dragTarget = null;
+let offsetX = 0;
+let offsetY = 0;
 
 function drawCanvas(showHandles = true) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -14,9 +17,26 @@ function drawCanvas(showHandles = true) {
   });
 }
 
+function drawHandles(o) {
+  ctx.strokeStyle = "white";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(o.x, o.y, o.width, o.height);
+  const size = 10;
+  const handles = [
+    [o.x, o.y], [o.x + o.width / 2, o.y], [o.x + o.width, o.y],
+    [o.x, o.y + o.height / 2], [o.x + o.width, o.y + o.height / 2],
+    [o.x, o.y + o.height], [o.x + o.width / 2, o.y + o.height], [o.x + o.width, o.y + o.height],
+  ];
+  handles.forEach(([x, y]) => {
+    ctx.fillStyle = "white";
+    ctx.fillRect(x - size/2, y - size/2, size, size);
+  });
+}
+
 function showStep(stepNum) {
   const stepUI = document.getElementById("stepUI");
   if (!stepUI) return;
+  currentStep = stepNum;
 
   if (stepNum === 1) {
     stepUI.innerHTML = \`
@@ -26,31 +46,27 @@ function showStep(stepNum) {
     \`;
     document.getElementById("bgInput").addEventListener("change", handleBackgroundUpload);
     document.getElementById("skipBg").addEventListener("click", () => showStep(2));
-  } else if (stepNum === 2) {
+  }
+  else if (stepNum === 2) {
     stepUI.innerHTML = \`
       <p>Step 2: Choose your mobile-safe image</p>
       <input type="file" id="mobileInput" accept="image/*" />
     \`;
     document.getElementById("mobileInput").addEventListener("change", handleMobileSafeUpload);
-  } else if (stepNum === 3) {
+  }
+  else if (stepNum === 3) {
     stepUI.innerHTML = \`
       <p>Step 3: Add additional images</p>
       <input type="file" id="extraInput" accept="image/*" />
     \`;
     document.getElementById("extraInput").addEventListener("change", handleOverlayUpload);
-  } else if (stepNum === 4) {
+  }
+  else if (stepNum === 4) {
     stepUI.innerHTML = \`
       <p>Step 4: Export your banner</p>
       <button id="exportBtn">Export Banner</button>
     \`;
-    document.getElementById("exportBtn").addEventListener("click", () => {
-      drawCanvas(false);
-      const link = document.createElement("a");
-      link.download = "yt_banner_final.png";
-      link.href = canvas.toDataURL("image/png");
-      link.click();
-      drawCanvas(true);
-    });
+    document.getElementById("exportBtn").addEventListener("click", exportBanner);
   }
 }
 
@@ -72,8 +88,7 @@ function handleMobileSafeUpload(e) {
   const img = new Image();
   img.onload = () => {
     const x = (canvas.width - 1546) / 2;
-    const y = (canvas.height - 423) / 2;
-    overlays.push({ img, x, y, width: 1546, height: 423, mobileSafe: true, selected: true });
+    overlays.push({ img, x, y: 100, width: 1546, height: 423, mobileSafe: true, selected: true });
     drawCanvas();
     showStep(3);
   };
@@ -92,10 +107,46 @@ function handleOverlayUpload(e) {
   img.src = URL.createObjectURL(file);
 }
 
-function drawHandles(o) {
-  ctx.strokeStyle = "lime";
-  ctx.strokeRect(o.x, o.y, o.width, o.height);
+function exportBanner() {
+  drawCanvas(false);
+  const link = document.createElement("a");
+  link.download = "yt_banner_final.png";
+  link.href = canvas.toDataURL("image/png");
+  link.click();
+  drawCanvas(true);
 }
+
+canvas.addEventListener("mousedown", e => {
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  dragTarget = overlays.findLast(o =>
+    !o.bg &&
+    x >= o.x && x <= o.x + o.width &&
+    y >= o.y && y <= o.y + o.height
+  );
+  if (dragTarget) {
+    offsetX = x - dragTarget.x;
+    offsetY = y - dragTarget.y;
+    overlays.forEach(o => o.selected = false);
+    dragTarget.selected = true;
+    drawCanvas();
+  }
+});
+
+canvas.addEventListener("mousemove", e => {
+  if (!dragTarget) return;
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  dragTarget.x = x - offsetX;
+  dragTarget.y = y - offsetY;
+  drawCanvas();
+});
+
+canvas.addEventListener("mouseup", () => {
+  dragTarget = null;
+});
 
 window.addEventListener("DOMContentLoaded", () => {
   showStep(1);
