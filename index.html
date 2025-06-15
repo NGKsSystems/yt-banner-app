@@ -23,12 +23,7 @@
       display: none;
     }
 
-    #uploadPanel input,
-    #uploadPanel button {
-      margin-top: 5px;
-    }
-
-    #headerRow {
+    #logoBar {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -38,30 +33,36 @@
       box-sizing: border-box;
     }
 
-    #headerRow img {
+    #logoBar img {
       height: 120px;
     }
 
     #uploadPanel {
       text-align: center;
     }
+
+    #uploadPanel input,
+    #uploadPanel button {
+      margin-top: 5px;
+    }
   </style>
 </head>
 <body>
 
-  <!-- Logo bar + dynamic upload area -->
-  <div id="headerRow">
+  <!-- Logos + Step UI container -->
+  <div id="logoBar">
     <img src="NGKsExactFit.png" alt="ExactFit" />
-
-    <div id="uploadPanel">
-      <!-- Step UI will be injected here -->
-    </div>
-
+    <div id="uploadPanel"></div>
     <a href="https://NGKsSystems.com" target="_blank">
       <img src="NGKsSystems4.png" alt="NGKsSystems" />
     </a>
   </div>
 
+  <!-- Banner canvas -->
   <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
 
-  <scri
+  <!-- Core logic -->
+  <script src="script.js"></script>
+
+</body>
+</html>
