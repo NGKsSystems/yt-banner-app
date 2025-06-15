@@ -99,3 +99,89 @@ document.getElementById("exportBtn").addEventListener("click", () => {
 });
 
 showStep(1);
+
+let dragTarget = null;
+let dragType = null;
+let startX, startY;
+
+canvas.addEventListener("mousedown", e => {
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+
+  for (let o of overlays) {
+    if (!o.selected) continue;
+    const handles = [
+      [o.x, o.y], [o.x + o.width / 2, o.y], [o.x + o.width, o.y],
+      [o.x + o.width, o.y + o.height / 2], [o.x + o.width, o.y + o.height],
+      [o.x + o.width / 2, o.y + o.height], [o.x, o.y + o.height],
+      [o.x, o.y + o.height / 2]
+    ];
+
+    for (let i = 0; i < handles.length; i++) {
+      const [hx, hy] = handles[i];
+      if (Math.abs(mouseX - hx) < 10 && Math.abs(mouseY - hy) < 10) {
+        dragTarget = o;
+        dragType = i;
+        startX = mouseX;
+        startY = mouseY;
+        return;
+      }
+    }
+
+    // fallback: drag entire image if clicked inside
+    if (mouseX >= o.x && mouseX <= o.x + o.width &&
+        mouseY >= o.y && mouseY <= o.y + o.height) {
+      dragTarget = o;
+      dragType = "move";
+      startX = mouseX - o.x;
+      startY = mouseY - o.y;
+    }
+  }
+});
+
+canvas.addEventListener("mousemove", e => {
+  if (!dragTarget) return;
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+
+  const dx = mouseX - startX;
+  const dy = mouseY - startY;
+
+  switch (dragType) {
+    case "move":
+      dragTarget.x = mouseX - startX;
+      dragTarget.y = mouseY - startY;
+      break;
+    case 0: // top-left
+      dragTarget.width += dragTarget.x - mouseX;
+      dragTarget.height += dragTarget.y - mouseY;
+      dragTarget.x = mouseX;
+      dragTarget.y = mouseY;
+      break;
+    case 2: // top-right
+      dragTarget.width = mouseX - dragTarget.x;
+      dragTarget.height += dragTarget.y - mouseY;
+      dragTarget.y = mouseY;
+      break;
+    case 4: // bottom-right
+      dragTarget.width = mouseX - dragTarget.x;
+      dragTarget.height = mouseY - dragTarget.y;
+      break;
+    case 6: // bottom-left
+      dragTarget.width += dragTarget.x - mouseX;
+      dragTarget.height = mouseY - dragTarget.y;
+      dragTarget.x = mouseX;
+      break;
+    // Add more for edge-only if needed
+  }
+
+  drawCanvas();
+});
+
+canvas.addEventListener("mouseup", () => {
+  dragTarget = null;
+  dragType = null;
+});
+
