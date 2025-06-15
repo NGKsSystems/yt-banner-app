@@ -1,33 +1,18 @@
-<style>
-  html, body {
-    margin: 0;
-    background-color: #111;
-    color: #fff;
-    font-family: Arial, sans-serif;
-    text-align: center;
-    overflow-x: hidden;
-  }
 
-  h2 {
-    margin: 15px;
-  }
-
-  #canvasWrapper {
-    width: 90%;
-    max-width: 1280px;
-    margin: 20px auto;
-    position: relative;
-  }
-
-  #bannerCanvas {
-    width: 100%;
-    height: auto;
-    display: block;
-    border: 2px solid yellow;
-  }
-
-  input[type="file"],
-  button {
-    margin: 10px;
-  }
-</style>
+body {
+  background: #111;
+  color: white;
+  text-align: center;
+  font-family: Arial;
+}
+canvas {
+  border: 2px solid yellow;
+  background: #000;
+  margin-top: 10px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+.hidden {
+  display: none;
+}
