@@ -5,63 +5,40 @@
   <title>NGKsExactFit</title>
   <style>
     body {
-      margin: 0;
-      padding: 0;
       background: #111;
       color: white;
-      font-family: Arial, sans-serif;
       text-align: center;
+      font-family: Arial;
+      margin: 0;
+      padding: 0;
     }
-
-    #logoBar {
+    #header {
       display: flex;
       justify-content: space-between;
-      align-items: flex-end;
-      width: 2560px;
-      margin: 0 auto;
-      padding: 0 40px;
-      box-sizing: border-box;
+      align-items: center;
+      padding: 10px 60px;
     }
-
-    #logoBar img {
-      height: 120px;
-      margin-bottom: -10px;
+    #stepUI {
+      text-align: center;
+      margin-bottom: 20px;
     }
-
     canvas {
       border: 2px solid yellow;
       background: #000;
-      margin-top: 10px;
-    }
-
-    .hidden {
-      display: none;
+      display: block;
+      margin: auto;
     }
   </style>
 </head>
+<body>
+  <div id="header">
+    <img src="NGKsExactFit.png" alt="ExactFit" height="100" />
+    <div id="stepUI"></div>
+    <img src="NGKsSystems4.png" alt="NGKsSystems" height="100" />
+  </div>
 
-  <body>
-  <div id="workspace" style="position: relative; width: fit-content; margin: auto;">
-<!-- Logo + Step UI Bar -->
-<div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 40px; margin-bottom: 10px;">
-  
-  <!-- Left Logo -->
-  <img src="NGKsExactFit.png" alt="ExactFit" height="100" />
+  <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
 
-  <!-- Step Controls -->
-  <!-- Step Controls -->
-<div id="stepLabel" style="text-align: center; font-size: 16px; margin-top: 10px;"></div>
-
-  <!-- Right Logo -->
-  <img src="NGKsSystems4.png" alt="NGKsSystems" height="100" />
- </div>
-
-    <!-- Step UI Container -->
-<!-- Step UI Container -->
-<div id="stepUI" style="text-align: center; margin-bottom: 20px;"></div>
-
-<canvas id="bannerCanvas" width="2560" height="1440"></canvas>
-<script src="script.js"></script>
-
+  <script src="script.js"></script>
 </body>
 </html>
