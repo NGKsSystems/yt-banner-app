@@ -6,6 +6,9 @@ body {
 }
 
 canvas {
+  width: 100%;
+  max-width: 2560px;
+  height: auto;
   border: 2px solid yellow;
   background: #000;
   margin-top: 10px;
