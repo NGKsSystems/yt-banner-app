@@ -71,9 +71,9 @@ function loadImageToCanvas(file, stepNum) {
         selected: true
       };
     } else if (stepNum === 2) {
-      // Centered 1080x200 safe zone
-      const safeWidth = 1080;
-      const safeHeight = 200;
+      // Centered 1546x423 safe zone
+      const safeWidth = 1546;
+      const safeHeight = 423;
       overlay = {
         img,
         x: (canvas.width - safeWidth) / 2,
