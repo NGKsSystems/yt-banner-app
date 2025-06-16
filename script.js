@@ -131,6 +131,7 @@ document.getElementById("bgInput").addEventListener("change", (e) => {
   const file = e.target.files[0];
   if (file) {
     loadImageToCanvas(file, 1);
+    drawCanvas();              
     advanceStep(1);
   }
 });
