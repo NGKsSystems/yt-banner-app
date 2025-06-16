@@ -21,13 +21,17 @@
 
 </div>
 
-  <div id="step1" class="step">
-    <p class="step-label">Step 1: Choose your background</p>
-    <input type="file" id="bgInput" accept="image/*" />
-    <button id="skipBg">Skip</button>
-    <button class="prevBtn">Previous</button>
+ <!-- canvasTopBar goes above all steps -->
+<div id="canvasTopBar">
+  <img src="NGKsExactFit.png" class="logo left" alt="NGKS ExactFit" />
+  <p class="step-label">Step 1: Choose your background</p>
+  <img src="NGKsSystems4.png" class="logo right" alt="NGKS Systems" />
+</div>
 
-  </div>
+<!-- Then inside step1 -->
+<input type="file" id="bgInput" accept="image/*" />
+<button id="skipBg">Skip</button>
+<button class="prevBtn">Previous</button>
 
   <div id="step2" class="step hidden">
     <p class="step-label">Step 2: Choose your mobile-safe image</p>
