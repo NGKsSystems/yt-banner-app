@@ -8,6 +8,12 @@
 </head>
 <body>
 
+<button id="toggleEditorBtn" style="margin: 10px;">Switch to PFP Editor</button>
+
+<!-- Banner Mode Container -->
+<div id="bannerEditor">
+
+  
   <!-- Top Bar with Logos and Step Content -->
   <div id="canvasTopBar">
     <img src="https://raw.githubusercontent.com/NGKsSystems/yt-banner-app/main/NGKsExactFit.png" class="logo left" alt="NGKS ExactFit" />
@@ -51,6 +57,15 @@
 
   <!-- Canvas -->
   <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
+
+  </div> <!-- Close bannerEditor -->
+
+<!-- PFP Mode Container -->
+<div id="pfpEditor" class="hidden">
+  <p class="step-label">YouTube Profile Picture Builder</p>
+  <input type="file" id="pfpInput" accept="image/*" />
+  <canvas id="pfpCanvas" width="800" height="800" style="border: 2px solid yellow;"></canvas>
+</div>
 
   <!-- Script -->
   <script src="script.js"></script>
