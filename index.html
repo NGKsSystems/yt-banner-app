@@ -9,22 +9,15 @@
       padding: 0;
       background: #111;
       color: white;
-      font-family: Arial;
+      font-family: Arial, sans-serif;
       text-align: center;
-    }
-
-    canvas {
-      border: 2px solid yellow;
-      background: #000;
-      margin-top: 10px;
     }
 
     #logoBar {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      width: 100%;
-      max-width: 2560px;
+      align-items: flex-end;
+      width: 2560px;
       margin: 0 auto;
       padding: 0 40px;
       box-sizing: border-box;
@@ -32,6 +25,13 @@
 
     #logoBar img {
       height: 120px;
+      margin-bottom: -10px;
+    }
+
+    canvas {
+      border: 2px solid yellow;
+      background: #000;
+      margin-top: 10px;
     }
 
     .hidden {
@@ -42,13 +42,11 @@
 <body>
   <div id="logoBar">
     <img src="NGKsExactFit.png" alt="ExactFit" />
-    <div></div>
     <a href="https://NGKsSystems.com" target="_blank">
       <img src="NGKsSystems4.png" alt="NGKsSystems" />
     </a>
   </div>
 
-  <!-- Step Panels -->
   <div id="step1">
     <p>Step 1: Choose your background</p>
     <input type="file" id="bgInput" accept="image/*" />
@@ -71,7 +69,6 @@
   </div>
 
   <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
-
   <script src="script.js"></script>
 </body>
 </html>
