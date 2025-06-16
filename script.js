@@ -101,14 +101,20 @@ function loadImageToCanvas(file, stepNum) {
     }
    
    if (stepNum === 1) {
-    requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
     drawCanvas();
-    advanceStep(); // ✅ Only step forward after drawing
+    advanceStep(1); // ✅ Only step forward after drawing
   });
 }
 
-  img.src = URL.createObjectURL(file);
-}
+overlays.push(overlay);
+drawCanvas(); // fallback for non-step 1
+
+}; // ✅ <-- this was missing! closes img.onload
+
+img.src = URL.createObjectURL(file);
+
+
 
 function exportBanner() {
   // Deselect all overlays temporarily
