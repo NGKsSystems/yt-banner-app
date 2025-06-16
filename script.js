@@ -114,7 +114,7 @@ drawCanvas(); // fallback for non-step 1
 
 img.src = URL.createObjectURL(file);
 
-
+}
 
 function exportBanner() {
   // Deselect all overlays temporarily
