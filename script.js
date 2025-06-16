@@ -55,28 +55,57 @@ function drawCanvas() {
   }
 }
 
-function loadImageToCanvas(file) {
+function loadImageToCanvas(file, stepNum) {
   const img = new Image();
   img.onload = () => {
-    const overlay = {
-      img,
-      x: 100,
-      y: 100,
-      width: img.width / 2,
-      height: img.height / 2,
-      selected: true
-    };
+    let overlay;
+
+    if (stepNum === 1) {
+      // Full background
+      overlay = {
+        img,
+        x: 0,
+        y: 0,
+        width: canvas.width,
+        height: canvas.height,
+        selected: true
+      };
+    } else if (stepNum === 2) {
+      // Centered 1080x200 safe zone
+      const safeWidth = 1080;
+      const safeHeight = 200;
+      overlay = {
+        img,
+        x: (canvas.width - safeWidth) / 2,
+        y: (canvas.height - safeHeight) / 2,
+        width: safeWidth,
+        height: safeHeight,
+        selected: true
+      };
+    } else {
+      // Freely placed (additional images)
+      overlay = {
+        img,
+        x: 100,
+        y: 100,
+        width: img.width / 2,
+        height: img.height / 2,
+        selected: true
+      };
+    }
+
     overlays.push(overlay);
     drawCanvas();
   };
   img.src = URL.createObjectURL(file);
 }
 
+
 // === Input Hooks ===
 document.getElementById("bgInput").addEventListener("change", (e) => {
   const file = e.target.files[0];
   if (file) {
-    loadImageToCanvas(file);
+    loadImageToCanvas(file, 1);
     advanceStep(1);
   }
 });
@@ -84,7 +113,7 @@ document.getElementById("bgInput").addEventListener("change", (e) => {
 document.getElementById("mobileInput").addEventListener("change", (e) => {
   const file = e.target.files[0];
   if (file) {
-    loadImageToCanvas(file);
+    loadImageToCanvas(file, 2);
     advanceStep(1);
   }
 });
@@ -92,10 +121,11 @@ document.getElementById("mobileInput").addEventListener("change", (e) => {
 document.getElementById("extraInput").addEventListener("change", (e) => {
   const file = e.target.files[0];
   if (file) {
-    loadImageToCanvas(file);
+    loadImageToCanvas(file, 3);
     advanceStep(1);
   }
 });
+
 
 // === Step Buttons ===
 document.getElementById("nextBtn")?.addEventListener("click", () => {
