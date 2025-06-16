@@ -251,6 +251,34 @@ window.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+document.addEventListener("keydown", (e) => {
+  const selected = overlays.find(o => o.selected);
+  if (!selected) return;
+
+  const step = e.shiftKey ? 10 : 1; // Shift = faster movement
+
+  switch (e.key) {
+    case "ArrowUp":
+      selected.y -= step;
+      break;
+    case "ArrowDown":
+      selected.y += step;
+      break;
+    case "ArrowLeft":
+      selected.x -= step;
+      break;
+    case "ArrowRight":
+      selected.x += step;
+      break;
+    default:
+      return; // Don't redraw if key not relevant
+  }
+
+  drawCanvas();
+  e.preventDefault(); // Prevent scrolling
+});
+
+
 showStep(1);
 window.exportBanner = exportBanner;
 window.advanceStep = advanceStep;
