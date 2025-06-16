@@ -102,6 +102,12 @@ function loadImageToCanvas(file, stepNum) {
   img.src = URL.createObjectURL(file);
 }
 
+function exportBanner() {
+  const link = document.createElement("a");
+  link.download = "banner.png";
+  link.href = canvas.toDataURL("image/png");
+  link.click();
+}
 
 // === Input Hooks ===
 document.getElementById("bgInput").addEventListener("change", (e) => {
@@ -141,6 +147,9 @@ document.getElementById("prevBtn")?.addEventListener("click", () => {
 document.getElementById("skipBg")?.addEventListener("click", () => {
   advanceStep(1);
 });
+
+document.getElementById("exportBtn").addEventListener("click", exportBanner);
+
 
 // === Drag & Resize ===
 canvas.addEventListener("mousedown", (e) => {
