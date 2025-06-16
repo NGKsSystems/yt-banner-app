@@ -101,7 +101,7 @@ function loadImageToCanvas(file, stepNum) {
     }
    
    if (stepNum === 1) {
-  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
     drawCanvas();
     advanceStep(); // ✅ Only step forward after drawing
   });
