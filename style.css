@@ -18,10 +18,17 @@ canvas {
 }
 
 #canvasWrapper {
-  width: 2560px;
+  width: 100%;
+  max-width: 2560px;
   margin: 0 auto;
 }
 
+#canvasTopBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+}
 
 .hidden {
   display: none;
@@ -39,9 +46,3 @@ canvas {
   object-fit: contain;
 }
 
-#logoBar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
