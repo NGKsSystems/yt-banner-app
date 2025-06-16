@@ -30,7 +30,7 @@ function advanceStep(delta) {
     showStep(newStep);
   }
 }
-window.advanceStep = advanceStep;
+
 
 // === Image Upload & Drawing ===
 function drawHandles(obj) {
@@ -187,3 +187,4 @@ canvas.addEventListener("mousemove", (e) => {
 canvas.addEventListener("mouseup", () => {
   dragTarget = null;
 });
+window.advanceStep = advanceStep;
