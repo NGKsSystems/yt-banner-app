@@ -252,4 +252,5 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 showStep(1);
+window.exportBanner = exportBanner;
 window.advanceStep = advanceStep;
