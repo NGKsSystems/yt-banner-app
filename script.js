@@ -140,8 +140,7 @@ document.getElementById("bgInput").addEventListener("change", (e) => {
   if (file) {
     loadImageToCanvas(file, 1);
     drawCanvas();              
-    advanceStep(1);
-  }
+    }
 });
 
 document.getElementById("mobileInput").addEventListener("change", (e) => {
