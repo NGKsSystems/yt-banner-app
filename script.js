@@ -64,10 +64,6 @@ function loadImageToCanvas(file, stepNum) {
  img.onload = () => {
   let overlay;
   
-  // Remove previous overlays from same step
-  overlays = overlays.filter(ov => ov.step !== stepNum);
-
-
     if (stepNum === 1) {
       overlay = {
         img,
@@ -104,8 +100,7 @@ function loadImageToCanvas(file, stepNum) {
       };
     }
 
-    overlays.push(overlay);
-    drawCanvas();
+   
     if (stepNum === 1) {
       requestAnimationFrame(() => drawCanvas());
   };
