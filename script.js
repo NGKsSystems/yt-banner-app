@@ -12,6 +12,10 @@ let dragType = null;
 let dragHandle = null;
 let startX, startY;
 
+.hidden {
+  display: none;
+}
+
 // === Step Logic ===
 function showStep(stepNumber) {
   document.querySelectorAll(".step").forEach((el, i) => {
