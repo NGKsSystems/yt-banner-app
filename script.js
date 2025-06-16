@@ -1,191 +1,67 @@
 
-// === Canvas Setup ===
-const canvas = document.getElementById("bannerCanvas");
-const ctx = canvas.getContext("2d");
-
-// === State ===
-let overlays = [];
 let currentStep = 1;
-
 let dragTarget = null;
-let dragType = null;
-let dragHandle = null;
-let startX, startY;
+let offsetX, offsetY;
+let resizeTarget = null;
+let startX, startY, startWidth, startHeight;
 
-.hidden {
-  display: none;
-}
-
-// === Step Logic ===
 function showStep(stepNumber) {
-  document.querySelectorAll(".step").forEach((el, i) => {
-    el.classList.toggle("hidden", i + 1 !== stepNumber);
-  });
-  currentStep = stepNumber;
-}
-
-function advanceStep(delta) {
-  const newStep = currentStep + delta;
-  if (newStep >= 1 && newStep <= 4) {
-    showStep(newStep);
-  }
-}
-
-
-// === Image Upload & Drawing ===
-function drawHandles(obj) {
-  const x = obj.x, y = obj.y, w = obj.width, h = obj.height;
-  const points = [
-    [x, y], [x + w / 2, y], [x + w, y],
-    [x + w, y + h / 2], [x + w, y + h],
-    [x + w / 2, y + h], [x, y + h],
-    [x, y + h / 2]
-  ];
-  ctx.fillStyle = "white";
-  points.forEach(([px, py]) => {
-    ctx.fillRect(px - 5, py - 5, 10, 10);
+  document.querySelectorAll('.step').forEach((el, i) => {
+    el.classList.toggle('hidden', i + 1 !== stepNumber);
   });
 }
 
-function drawCanvas() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  for (const overlay of overlays) {
-    ctx.drawImage(overlay.img, overlay.x, overlay.y, overlay.width, overlay.height);
-    if (overlay.selected) {
-      ctx.strokeStyle = "lime";
-      ctx.lineWidth = 2;
-      ctx.strokeRect(overlay.x, overlay.y, overlay.width, overlay.height);
-      drawHandles(overlay);
-    }
-  }
-}
-
-function loadImageToCanvas(file) {
-  const img = new Image();
-  img.onload = () => {
-    const overlay = {
-      img,
-      x: 100,
-      y: 100,
-      width: img.width / 2,
-      height: img.height / 2,
-      selected: true
-    };
-    overlays.push(overlay);
-    drawCanvas();
-  };
-  img.src = URL.createObjectURL(file);
-}
-
-// === Input Hooks ===
-document.getElementById("bgInput").addEventListener("change", (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    loadImageToCanvas(file);
-    advanceStep(1);
-  }
-});
-
-document.getElementById("mobileInput").addEventListener("change", (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    loadImageToCanvas(file);
-    advanceStep(1);
-  }
-});
-
-document.getElementById("extraInput").addEventListener("change", (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    loadImageToCanvas(file);
-    advanceStep(1);
-  }
-});
-
-// === Step Buttons ===
 document.getElementById("nextBtn").addEventListener("click", () => {
-  advanceStep(1);
+  if (currentStep < 4) currentStep++;
+  showStep(currentStep);
 });
 
-document.getElementById("prevBtn")?.addEventListener("click", () => {
-  advanceStep(-1);
+document.getElementById("prevBtn").addEventListener("click", () => {
+  if (currentStep > 1) currentStep--;
+  showStep(currentStep);
 });
 
-document.getElementById("skipBg")?.addEventListener("click", () => {
-  advanceStep(1);
-});
+function makeDraggable(el) {
+  el.addEventListener("mousedown", (e) => {
+    dragTarget = el;
+    offsetX = e.clientX - el.offsetLeft;
+    offsetY = e.clientY - el.offsetTop;
+  });
 
-// === Drag & Resize ===
-canvas.addEventListener("mousedown", (e) => {
-  const mouseX = e.offsetX;
-  const mouseY = e.offsetY;
+  document.addEventListener("mousemove", (e) => {
+    if (dragTarget) {
+      dragTarget.style.left = (e.clientX - offsetX) + "px";
+      dragTarget.style.top = (e.clientY - offsetY) + "px";
+    }
+  });
 
-  for (let i = overlays.length - 1; i >= 0; i--) {
-    const obj = overlays[i];
-    const x = obj.x, y = obj.y, w = obj.width, h = obj.height;
-    const handles = [
-      [x, y], [x + w / 2, y], [x + w, y],
-      [x + w, y + h / 2], [x + w, y + h],
-      [x + w / 2, y + h], [x, y + h],
-      [x, y + h / 2]
-    ];
+  document.addEventListener("mouseup", () => {
+    dragTarget = null;
+  });
+}
 
-    for (let j = 0; j < handles.length; j++) {
-      const [hx, hy] = handles[j];
-      if (mouseX >= hx - 5 && mouseX <= hx + 5 &&
-          mouseY >= hy - 5 && mouseY <= hy + 5) {
-        dragTarget = obj;
-        dragType = "resize";
-        dragHandle = j;
-        startX = mouseX;
-        startY = mouseY;
-        return;
-      }
+document.querySelectorAll('.resize-handle').forEach(handle => {
+  handle.addEventListener('mousedown', (e) => {
+    e.stopPropagation();
+    resizeTarget = handle.parentElement;
+    startX = e.clientX;
+    startY = e.clientY;
+    startWidth = resizeTarget.offsetWidth;
+    startHeight = resizeTarget.offsetHeight;
+
+    function resizeMouseMove(e) {
+      const newWidth = startWidth + (e.clientX - startX);
+      const newHeight = startHeight + (e.clientY - startY);
+      resizeTarget.style.width = newWidth + "px";
+      resizeTarget.style.height = newHeight + "px";
     }
 
-    if (mouseX >= x && mouseX <= x + w &&
-        mouseY >= y && mouseY <= y + h) {
-      dragTarget = obj;
-      dragType = "move";
-      startX = mouseX;
-      startY = mouseY;
-      return;
+    function stopResize() {
+      document.removeEventListener("mousemove", resizeMouseMove);
+      document.removeEventListener("mouseup", stopResize);
     }
-  }
+
+    document.addEventListener("mousemove", resizeMouseMove);
+    document.addEventListener("mouseup", stopResize);
+  });
 });
-
-canvas.addEventListener("mousemove", (e) => {
-  if (!dragTarget) return;
-
-  const mouseX = e.offsetX;
-  const mouseY = e.offsetY;
-  const dx = mouseX - startX;
-  const dy = mouseY - startY;
-
-  if (dragType === "move") {
-    dragTarget.x += dx;
-    dragTarget.y += dy;
-  } else if (dragType === "resize") {
-    const handle = dragHandle;
-    switch (handle) {
-      case 0: dragTarget.x += dx; dragTarget.y += dy; dragTarget.width -= dx; dragTarget.height -= dy; break;
-      case 1: dragTarget.y += dy; dragTarget.height -= dy; break;
-      case 2: dragTarget.y += dy; dragTarget.width += dx; dragTarget.height -= dy; break;
-      case 3: dragTarget.width += dx; break;
-      case 4: dragTarget.width += dx; dragTarget.height += dy; break;
-      case 5: dragTarget.height += dy; break;
-      case 6: dragTarget.x += dx; dragTarget.height += dy; dragTarget.width -= dx; break;
-      case 7: dragTarget.x += dx; dragTarget.width -= dx; break;
-    }
-  }
-
-  startX = mouseX;
-  startY = mouseY;
-  drawCanvas();
-});
-
-canvas.addEventListener("mouseup", () => {
-  dragTarget = null;
-});
-showStep(1);
-window.advanceStep = advanceStep;
