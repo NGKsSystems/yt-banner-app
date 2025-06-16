@@ -47,7 +47,7 @@ canvas {
   object-fit: contain;
 }
 
-/* Base button styling */
+/* Uniform Button Base */
 button {
   padding: 12px 20px;
   font-size: 18px;
@@ -57,18 +57,18 @@ button {
   cursor: pointer;
   min-width: 100px;
   min-height: 40px;
+}
+
+/* Skip Button — Blue */
+#skipBg, .skipBtn {
+  background-color: #007bff;
   color: white;
 }
-
-/* Green for Next / Step actions */
-.stepBtn {
-  background-color: #28a745;
-}
-.stepBtn:hover {
-  background-color: #218838;
+#skipBg:hover, .skipBtn:hover {
+  background-color: #0056b3;
 }
 
-/* Yellow for Previous */
+/* Previous — Yellow with black text */
 .prevBtn {
   background-color: #ffc107;
   color: black;
@@ -77,10 +77,33 @@ button {
   background-color: #e0a800;
 }
 
-/* Red for Start Over */
+/* Start Over — Red with white text */
 .startOverBtn {
   background-color: #dc3545;
+  color: white;
 }
 .startOverBtn:hover {
   background-color: #c82333;
+}
+
+/* Next / Continue — Green with white text */
+.stepBtn {
+  background-color: #28a745;
+  color: white;
+}
+.stepBtn:hover {
+  background-color: #218838;
+}
+
+/* File Input Styling */
+input[type="file"] {
+  padding: 10px;
+  font-size: 16px;
+  background-color: #444;
+  color: white;
+  border-radius: 5px;
+  border: none;
+  min-width: 180px;
+  min-height: 40px;
+  cursor: pointer;
 }
