@@ -66,14 +66,15 @@ function loadImageToCanvas(file, stepNum) {
 
     if (stepNum === 1) {
       // Full background
-      overlay = {
-        img,
-        x: 0,
-        y: 0,
-        width: canvas.width,
-        height: canvas.height,
-        selected: true
-        step: stepNum
+    overlay = {
+  img,
+  x: 0,
+  y: 0,
+  width: canvas.width,
+  height: canvas.height,
+  selected: true,
+  step: stepNum
+};
 
       };
     } else if (stepNum === 2) {
