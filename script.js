@@ -269,6 +269,14 @@ document.addEventListener("keydown", (e) => {
   drawCanvas();
 });
 
+document.getElementById("startOverBtn").addEventListener("click", () => {
+  overlays = [];                         // Clear all images
+  currentStep = 1;                       // Reset to step 1
+  showStep(currentStep);                 // Show step 1 panel
+  drawCanvas();                          // Redraw blank canvas
+});
+
+
 showStep(1);
 window.exportBanner = exportBanner;
 window.advanceStep = advanceStep;
