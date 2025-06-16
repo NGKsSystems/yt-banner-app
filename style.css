@@ -5,6 +5,22 @@ body {
   font-family: Arial, sans-serif;
 }
 
+#landing {
+  font-family: sans-serif;
+  background-image: url("NGKsExactFit-Landing.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin: 0;
+}
+
+
 canvas {
   width: 100%;
   max-width: 2560px;
