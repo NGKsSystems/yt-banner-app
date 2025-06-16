@@ -191,6 +191,8 @@ canvas.addEventListener("mousedown", (e) => {
         dragHandle = j;
         startX = mouseX;
         startY = mouseY;
+        overlays.forEach(o => o.selected = false);
+        dragTarget.selected = true;
         return;
       }
     }
@@ -203,6 +205,8 @@ canvas.addEventListener("mousedown", (e) => {
       dragType = "move";
       startX = mouseX;
       startY = mouseY;
+      overlays.forEach(o => o.selected = false);
+      dragTarget.selected = true;
       return;
     }
   }
