@@ -64,19 +64,19 @@ function loadImageToCanvas(file, stepNum) {
     overlays = overlays.filter(ov => ov.step !== stepNum);
     let overlay;
 
-    if (stepNum === 1) {
-      // Full background
-    overlay = {
-  img,
-  x: 0,
-  y: 0,
-  width: canvas.width,
-  height: canvas.height,
-  selected: true,
-  step: stepNum
-};
+if (stepNum === 1) {
+  overlay = {
+    ...
+  };
+} else if (stepNum === 2) {
+  overlay = {
+    ...
+  };
+} else {
+  overlay = {
+    ...
+  };
 
-      };
     } else if (stepNum === 2) {
       // Centered 1546x423 safe zone
       const safeWidth = 1546;
