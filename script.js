@@ -162,13 +162,6 @@ document.getElementById("skipBg")?.addEventListener("click", () => {
 document.getElementById("exportBtn").addEventListener("click", exportBanner);
 
 
-document.querySelectorAll(".prevBtn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    advanceStep(-1);
-  });
-});
-
-
 // === Drag & Resize ===
 canvas.addEventListener("mousedown", (e) => {
   const mouseX = e.offsetX;
@@ -243,6 +236,11 @@ canvas.addEventListener("mouseup", () => {
   dragTarget = null;
 });
 
+document.querySelectorAll(".prevBtn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    advanceStep(-1);
+  });
+});
 
 
 showStep(1);
