@@ -236,13 +236,14 @@ canvas.addEventListener("mouseup", () => {
   dragTarget = null;
 });
 
-document.querySelectorAll(".prevBtn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    advanceStep(-1);
+window.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".prevBtn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      console.log("Previous clicked");
+      advanceStep(-1);
+    });
   });
 });
-
-
 
 showStep(1);
 window.advanceStep = advanceStep;
