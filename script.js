@@ -59,7 +59,9 @@ function drawCanvas() {
 
 function loadImageToCanvas(file, stepNum) {
   const img = new Image();
+  overlays = overlays.filter(ov => ov.step !== stepNum);
   img.onload = () => {
+    overlays = overlays.filter(ov => ov.step !== stepNum);
     let overlay;
 
     if (stepNum === 1) {
@@ -71,6 +73,8 @@ function loadImageToCanvas(file, stepNum) {
         width: canvas.width,
         height: canvas.height,
         selected: true
+        step: stepNum
+
       };
     } else if (stepNum === 2) {
       // Centered 1546x423 safe zone
@@ -83,6 +87,8 @@ function loadImageToCanvas(file, stepNum) {
         width: safeWidth,
         height: safeHeight,
         selected: true
+        step: stepNum
+
       };
     } else {
       // Freely placed (additional images)
@@ -93,6 +99,8 @@ function loadImageToCanvas(file, stepNum) {
         width: img.width / 2,
         height: img.height / 2,
         selected: true
+        step: stepNum
+
       };
     }
 
