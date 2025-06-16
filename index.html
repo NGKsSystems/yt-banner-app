@@ -16,29 +16,31 @@
   <div id="step1" class="step">
   <p class="step-label">Step 1: Choose your background</p>
   <input type="file" id="bgInput" accept="image/*" />
-  <button id="skipBg">Skip</button>
-  <button id="nextBtn">Next</button>
+  <button id="nextBtn" onclick="advanceStep(1)">Next</button>
+  <button id="prevBtn" onclick="advanceStep(-1)">Previous</button>
+  <button id="skipBg" onclick="advanceStep(1)">Skip</button>
+
 </div>
 
  <div id="step2" class="hidden">
   <p class="step-label">Step 2: Choose your mobile-safe image</p>
   <input type="file" id="mobileInput" accept="image/*" />
-  <button id="prevBtn">Previous</button>
-  <button id="nextBtn">Next</button>
+  <button id="nextBtn" onclick="advanceStep(1)">Next</button>
+  <button id="prevBtn" onclick="advanceStep(-1)">Previous</button>
 </div>
 
 
  <div id="step3" class="hidden">
   <p class="step-label">Step 3: Add additional images</p>
   <input type="file" id="extraInput" accept="image/*" />
-  <button id="prevBtn">Previous</button>
-  <button id="nextBtn">Next</button>
+  <button id="nextBtn" onclick="advanceStep(1)">Next</button>
+  <button id="prevBtn" onclick="advanceStep(-1)">Previous</button>
 </div>
 
 
  <div id="step4" class="hidden">
   <p class="step-label">Step 4: Export your banner</p>
-  <button id="prevBtn">Previous</button>
+  <button id="prevBtn" onclick="advanceStep(-1)">Previous</button>
   <button id="exportBtn">Export Banner</button>
 </div>
 
