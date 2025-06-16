@@ -53,9 +53,24 @@ input[type="file"] {
   cursor: pointer;
 }
 
+input[type="file"]::-webkit-file-upload-button {
+  background: transparent;
+  border: none;
+  padding: 10px 16px;
+  color: white;
+  cursor: pointer;
+}
+
+input[type="file"] {
+  background: transparent !important;
+  border: none !important;
+  outline: none;
+  color: white;
+}
+
 
 .logo {
-  height: 100px;
+  height: 150px;
   object-fit: contain;
 }
 
