@@ -87,7 +87,7 @@ if (stepNum === 1) {
         y: (canvas.height - safeHeight) / 2,
         width: safeWidth,
         height: safeHeight,
-        selected: true
+        selected: true,
         step: stepNum
 
       };
@@ -99,7 +99,7 @@ if (stepNum === 1) {
         y: 100,
         width: img.width / 2,
         height: img.height / 2,
-        selected: true
+        selected: true,
         step: stepNum
 
       };
