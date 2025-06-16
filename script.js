@@ -61,8 +61,12 @@ function loadImageToCanvas(file, stepNum) {
   const img = new Image();
   overlays = overlays.filter(ov => ov.step !== stepNum);
 
-  img.onload = () => {
-    let overlay;
+ img.onload = () => {
+  let overlay;
+  
+  // Remove previous overlays from same step
+  overlays = overlays.filter(ov => ov.step !== stepNum);
+
 
     if (stepNum === 1) {
       overlay = {
