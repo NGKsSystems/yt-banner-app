@@ -162,7 +162,7 @@ document.getElementById("skipBg")?.addEventListener("click", () => {
 document.getElementById("exportBtn").addEventListener("click", exportBanner);
 
 
-document.querySelectorAll("#prevBtn").forEach(btn => {
+document.querySelectorAll(".prevBtn").forEach(btn => {
   btn.addEventListener("click", () => {
     advanceStep(-1);
   });
