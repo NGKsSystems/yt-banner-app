@@ -23,12 +23,14 @@ canvas {
 
 #canvasTopBar {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;       /* Center contents */
   align-items: center;
-  padding: 10px 20px;
-  max-width: 2560px;
-  margin: 0 auto;
+  padding: 10px 0;
+  gap: 10px;
+  max-width: 2560px;             /* Match canvas max width */
+  margin: 0 auto;                /* Center horizontally */
 }
+
 
 .hidden {
   display: none;
