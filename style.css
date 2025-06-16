@@ -23,12 +23,12 @@ canvas {
 
 #canvasTopBar {
   display: flex;
-  justify-content: center;       /* Center contents */
   align-items: center;
-  padding: 10px 0;
-  gap: 10px;
-  max-width: 2560px;             /* Match canvas max width */
-  margin: 0 auto;                /* Center horizontally */
+  justify-content: space-between;
+  max-width: 2560px;
+  margin: 0 auto;
+  padding: 10px 20px;
+  gap: 20px;
 }
 
 
@@ -42,6 +42,22 @@ canvas {
   color: white;
   text-shadow: 1px 1px 3px black;
   margin: 10px 0;
+}
+
+#stepBar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+#stepBar p {
+  margin: 0 0 6px;
+}
+
+#stepBar input,
+#stepBar button {
+  margin: 0 5px;
 }
 
 /* === File Input Styling === */
