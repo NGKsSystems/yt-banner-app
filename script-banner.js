@@ -13,8 +13,6 @@ let dragType = null;
 let dragHandle = null;
 let startX, startY;
 
-
-
 // === Step Logic ===
 function showStep(stepNumber) {
   document.querySelectorAll(".step").forEach((el, i) => {
@@ -296,55 +294,3 @@ document.querySelectorAll(".startOverBtn").forEach(btn => {
 showStep(1);
 window.exportBanner = exportBanner;
 window.advanceStep = advanceStep;
-
-#PFP Editor
-#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-const bannerEditor = document.getElementById("bannerEditor");
-const pfpEditor = document.getElementById("pfpEditor");
-const toggleBtn = document.getElementById("toggleEditorBtn");
-
-toggleBtn.addEventListener("click", () => {
-  const bannerVisible = !bannerEditor.classList.contains("hidden");
-
-  if (bannerVisible) {
-    bannerEditor.classList.add("hidden");
-    pfpEditor.classList.remove("hidden");
-    toggleBtn.textContent = "Switch to Banner Editor";
-  } else {
-    pfpEditor.classList.add("hidden");
-    bannerEditor.classList.remove("hidden");
-    toggleBtn.textContent = "Switch to PFP Editor";
-  }
-});
-
-const pfpCanvas = document.getElementById("pfpCanvas");
-const pfpCtx = pfpCanvas.getContext("2d");
-let pfpImage = null;
-
-document.getElementById("pfpInput").addEventListener("change", (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  const img = new Image();
-  img.onload = () => {
-    // Draw full image, centered and scaled to fit canvas
-    pfpCtx.clearRect(0, 0, pfpCanvas.width, pfpCanvas.height);
-    const scale = Math.max(
-      pfpCanvas.width / img.width,
-      pfpCanvas.height / img.height
-    );
-    const x = (pfpCanvas.width - img.width * scale) / 2;
-    const y = (pfpCanvas.height - img.height * scale) / 2;
-    pfpCtx.drawImage(img, x, y, img.width * scale, img.height * scale);
-    pfpImage = img;
-  };
-  img.src = URL.createObjectURL(file);
-});
-
-document.getElementById("exportPfpBtn").addEventListener("click", () => {
-  if (!pfpImage) return;
-  const link = document.createElement("a");
-  link.download = "pfp.png";
-  link.href = pfpCanvas.toDataURL("image/png");
-  link.click();
-});
