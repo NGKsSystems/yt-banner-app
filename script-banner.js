@@ -109,7 +109,7 @@ function loadImageToCanvas(file, stepNum) {
 
 overlays.push(overlay);
 drawCanvas(); // fallback for non-step 1
-console.log("Image loaded for step", stepNum);
+
 }; // ✅ <-- this was missing! closes img.onload
 
 img.src = URL.createObjectURL(file);
