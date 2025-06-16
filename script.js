@@ -13,6 +13,8 @@ let dragType = null;
 let dragHandle = null;
 let startX, startY;
 
+
+
 // === Step Logic ===
 function showStep(stepNumber) {
   document.querySelectorAll(".step").forEach((el, i) => {
@@ -294,3 +296,23 @@ document.querySelectorAll(".startOverBtn").forEach(btn => {
 showStep(1);
 window.exportBanner = exportBanner;
 window.advanceStep = advanceStep;
+
+#PFP Editor
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+const bannerEditor = document.getElementById("bannerEditor");
+const pfpEditor = document.getElementById("pfpEditor");
+const toggleBtn = document.getElementById("toggleEditorBtn");
+
+toggleBtn.addEventListener("click", () => {
+  const bannerVisible = !bannerEditor.classList.contains("hidden");
+
+  if (bannerVisible) {
+    bannerEditor.classList.add("hidden");
+    pfpEditor.classList.remove("hidden");
+    toggleBtn.textContent = "Switch to Banner Editor";
+  } else {
+    pfpEditor.classList.add("hidden");
+    bannerEditor.classList.remove("hidden");
+    toggleBtn.textContent = "Switch to PFP Editor";
+  }
+});
