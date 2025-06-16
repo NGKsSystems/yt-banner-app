@@ -10,6 +10,8 @@ let dragOffsetY = 0;
 let resizing = false;
 let resizeCorner = null;
 
+
+
 function showStep(stepNum) {
   for (let i = 1; i <= 4; i++) {
     const el = document.getElementById(`step${i}`);
