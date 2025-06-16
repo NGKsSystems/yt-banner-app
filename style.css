@@ -11,10 +11,8 @@ canvas {
   height: auto;
   border: 2px solid yellow;
   background: #000;
-  margin-top: 10px;
+  margin: 10px auto 0 auto;
   display: block;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 #canvasWrapper {
@@ -28,6 +26,8 @@ canvas {
   justify-content: space-between;
   align-items: center;
   padding: 10px 20px;
+  max-width: 2560px;
+  margin: 0 auto;
 }
 
 .hidden {
@@ -39,10 +39,10 @@ canvas {
   font-weight: bold;
   color: white;
   text-shadow: 1px 1px 3px black;
+  margin: 10px 0;
 }
 
 .logo {
   height: 100px;
   object-fit: contain;
 }
-
