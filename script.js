@@ -187,4 +187,5 @@ canvas.addEventListener("mousemove", (e) => {
 canvas.addEventListener("mouseup", () => {
   dragTarget = null;
 });
+showStep(1);
 window.advanceStep = advanceStep;
