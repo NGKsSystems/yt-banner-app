@@ -42,6 +42,18 @@ canvas {
   margin: 10px 0;
 }
 
+/* === File Input Styling === */
+input[type="file"] {
+  padding: 0;
+  font-size: 16px;
+  color: white;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+
+
 .logo {
   height: 100px;
   object-fit: contain;
