@@ -103,10 +103,21 @@ function loadImageToCanvas(file, stepNum) {
 }
 
 function exportBanner() {
+  // Deselect all overlays temporarily
+  overlays.forEach(o => o.selected = false);
+
+  // Redraw without selection boxes
+  drawCanvas();
+
+  // Export clean image
   const link = document.createElement("a");
   link.download = "banner.png";
   link.href = canvas.toDataURL("image/png");
   link.click();
+
+  // Restore selection boxes after export
+  overlays.forEach(o => o.selected = true);
+  drawCanvas();
 }
 
 // === Input Hooks ===
