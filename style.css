@@ -1,10 +1,10 @@
+
 body {
   background: #111;
   color: white;
   text-align: center;
   font-family: Arial;
 }
-
 canvas {
   border: 2px solid yellow;
   background: #000;
@@ -12,84 +12,7 @@ canvas {
   display: block;
   margin-left: auto;
   margin-right: auto;
-  width: 100%;
-  max-width: 1280px;
-  height: auto;
 }
-
 .hidden {
   display: none;
-}
-
-/* Step label style */
-.step-label {
-  font-size: 2em;
-  font-weight: bold;
-  color: white;
-  text-shadow: 1px 1px 3px black;
-  margin-bottom: 20px;
-}
-
-/* Buttons like Skip, Export */
-button {
-  font-size: 1.5em;
-  font-weight: bold;
-  padding: 10px 20px;
-  color: white;
-  background-color: #1a73e8;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin: 5px;
-}
-
-button:hover {
-  background-color: #155ab6;
-}
-
-/* File input style */
-input[type="file"] {
-  font-size: 1.3em;
-  padding: 8px;
-  color: white;
-  background-color: #333;
-  border: 1px solid #888;
-  border-radius: 5px;
-  margin: 5px;
-}
-
-#canvasTopBar {
-  width: 1280px;
-  margin: 0 auto 10px auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 0 48px;
-  .logo.left,
-.logo.right {
-  margin-top: 28px;
-}
-
-
-.logo {
-  height: 100px;
-  object-fit: contain;
-}
-
-#stepPanelContainer {
-  text-align: center;
-  flex: 1;
-  margin: 0 20px;
-}
-
-#stepPanelContainer .step-label {
-  font-size: 2em;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
-#stepPanelContainer input[type="file"],
-#stepPanelContainer button {
-  font-size: 1em;
-  margin-top: 5px;
 }
