@@ -47,10 +47,40 @@ canvas {
   object-fit: contain;
 }
 
+/* Base button styling */
 button {
-  padding: 10px 16px;
-  font-size: 16px;
-  border-radius: 4px;
+  padding: 12px 20px;
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 5px;
   border: none;
   cursor: pointer;
+  min-width: 100px;
+  min-height: 40px;
+  color: white;
+}
+
+/* Green for Next / Step actions */
+.stepBtn {
+  background-color: #28a745;
+}
+.stepBtn:hover {
+  background-color: #218838;
+}
+
+/* Yellow for Previous */
+.prevBtn {
+  background-color: #ffc107;
+  color: black;
+}
+.prevBtn:hover {
+  background-color: #e0a800;
+}
+
+/* Red for Start Over */
+.startOverBtn {
+  background-color: #dc3545;
+}
+.startOverBtn:hover {
+  background-color: #c82333;
 }
