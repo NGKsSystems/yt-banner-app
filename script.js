@@ -103,6 +103,7 @@ function loadImageToCanvas(file, stepNum) {
    
     if (stepNum === 1) {
       requestAnimationFrame(() => drawCanvas());
+      advanceStep();
   };
 
   img.src = URL.createObjectURL(file);
