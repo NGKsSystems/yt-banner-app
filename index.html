@@ -6,58 +6,53 @@
   <title>YT Banner App</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-  
 <body>
 
-<div id="canvasWrapper">
+  <!-- Top Bar with Logos and Step Content -->
   <div id="canvasTopBar">
     <img src="https://raw.githubusercontent.com/NGKsSystems/yt-banner-app/main/NGKsExactFit.png" class="logo left" alt="NGKS ExactFit" />
-    <p class="step-label">Step 1: Choose your background</p>
+
+    <!-- Step Panels (only one visible at a time) -->
+    <div id="stepPanelContainer">
+      <div id="step1" class="step">
+        <p class="step-label">Step 1: Choose your background</p>
+        <input type="file" id="bgInput" accept="image/*" />
+        <button id="skipBg">Skip</button>
+        <button class="prevBtn">Previous</button>
+      </div>
+
+      <div id="step2" class="step hidden">
+        <p class="step-label">Step 2: Choose your mobile-safe image</p>
+        <input type="file" id="mobileInput" accept="image/*" />
+        <button class="prevBtn">Previous</button>
+        <button class="startOverBtn" id="startOverBtn2">Start Over</button>
+      </div>
+
+      <div id="step3" class="step hidden">
+        <p class="step-label">Step 3: Add additional images</p>
+        <input type="file" id="extraInput" accept="image/*" />
+        <button class="prevBtn">Previous</button>
+        <button id="exportBtn">Export Banner</button>
+        <button class="startOverBtn" id="startOverBtn3">Start Over</button>
+      </div>
+
+      <div id="step4" class="step hidden">
+        <p class="step-label">Step 4: Export your banner</p>
+        <button class="prevBtn">Previous</button>
+        <button id="exportBtnFinal">Export Banner</button>
+        <button class="startOverBtn" id="startOverBtn4">Start Over</button>
+      </div>
+    </div>
+
     <a href="https://ngkssystems.com" target="_blank">
       <img src="https://raw.githubusercontent.com/NGKsSystems/yt-banner-app/main/NGKsSystems4.png" class="logo right" alt="NGKS Systems" />
     </a>
   </div>
 
+  <!-- Canvas -->
+  <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
 
-</div>
-
- <!-- canvasTopBar goes above all steps -->
-<div id="canvasTopBar">
-  <img src="NGKsExactFit.png" class="logo left" alt="NGKS ExactFit" />
-  <p class="step-label">Step 1: Choose your background</p>
-  <img src="NGKsSystems4.png" class="logo right" alt="NGKS Systems" />
-</div>
-
-<!-- Then inside step1 -->
-<input type="file" id="bgInput" accept="image/*" />
-<button id="skipBg">Skip</button>
-<button class="prevBtn">Previous</button>
-
-  <div id="step2" class="step hidden">
-    <p class="step-label">Step 2: Choose your mobile-safe image</p>
-    <input type="file" id="mobileInput" accept="image/*" />
-    <button class="prevBtn">Previous</button>
-    <button class="startOverBtn" id="startOverBtn">Start Over</button>
-
-   </div>
-
-  <div id="step3" class="step hidden">
-    <p class="step-label">Step 3: Add additional images</p>
-    <input type="file" id="extraInput" accept="image/*" />
-    <button class="prevBtn">Previous</button>
-    <button class="exportBtn">Export Banner</button>
-    <button class="startOverBtn" id="startOverBtn">Start Over</button>
-  </div>
-
-  <div id="step4" class="step hidden">
-    <p class="step-label">Step 4: Export your banner</p>
-    <button class="prevBtn">Previous</button>
-    <button class="exportBtn">Export Banner</button>
-    <button class="startOverBtn" id="startOverBtn">Start Over</button>
-  </div>
-
-<canvas id="bannerCanvas" width="2560" height="1440"></canvas>
-
+  <!-- Script -->
   <script src="script.js"></script>
 </body>
 </html>
