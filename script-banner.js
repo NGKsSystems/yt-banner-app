@@ -261,7 +261,8 @@ canvas.addEventListener("mouseup", () => {
 window.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".prevBtn").forEach(btn => {
     btn.addEventListener("click", () => {
-      
+      console.log("Previous clicked");
+      advanceStep(-1);
     });
   });
 });
