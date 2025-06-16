@@ -220,4 +220,14 @@ document.getElementById("exportBtn").addEventListener("click", () => {
   drawCanvas(true);
 });
 
+document.addEventListener("click", (e) => {
+  if (e.target.id === "nextBtn") {
+    if (currentStep < 4) advanceStep(1);
+  } else if (e.target.id === "prevBtn") {
+    if (currentStep > 1) advanceStep(-1);
+  }
+});
+
+
 showStep(1);
+window.advanceStep = advanceStep;
