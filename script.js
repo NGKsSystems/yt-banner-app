@@ -226,4 +226,5 @@ canvas.addEventListener("mousemove", e => {
     break;
 }
 
-   showStep(1);                     
+showStep(1);                     
+window.advanceStep = advanceStep;
