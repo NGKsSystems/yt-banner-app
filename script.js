@@ -102,6 +102,8 @@ function loadImageToCanvas(file, stepNum) {
 
     overlays.push(overlay);
     drawCanvas();
+    if (stepNum === 1) {
+      requestAnimationFrame(() => drawCanvas());
   };
 
   img.src = URL.createObjectURL(file);
