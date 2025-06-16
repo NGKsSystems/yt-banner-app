@@ -20,9 +20,13 @@ function showStep(stepNum) {
   currentStep = stepNum;
 }
 
-function advanceStep() {
-  showStep(currentStep + 1);
+function advanceStep(delta) {
+  const newStep = currentStep + delta;
+  if (newStep >= 1 && newStep <= 4) {
+    showStep(newStep);
+  }
 }
+
 
 function drawCanvas(showHandles = true) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
