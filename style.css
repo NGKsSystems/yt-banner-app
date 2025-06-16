@@ -17,6 +17,12 @@ canvas {
   margin-right: auto;
 }
 
+#canvasWrapper {
+  width: 2560px;
+  margin: 0 auto;
+}
+
+
 .hidden {
   display: none;
 }
@@ -35,7 +41,7 @@ canvas {
 
 #logoBar {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 10px 20px;
+  justify-content: space-between;
+  margin-bottom: 10px;
 }
