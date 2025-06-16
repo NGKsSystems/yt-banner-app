@@ -1,5 +1,7 @@
 // === Canvas Setup ===
 const canvas = document.getElementById("bannerCanvas");
+canvas.width = 2048;
+canvas.height = 1152;
 const ctx = canvas.getContext("2d");
 
 // === State ===
