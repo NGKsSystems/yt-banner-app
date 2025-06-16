@@ -165,10 +165,11 @@ document.getElementById("skipBg")?.addEventListener("click", () => {
   advanceStep(1);
 });
 
-document.querySelectorAll(".exportBtn").forEach(btn => {
-  btn.addEventListener("click", exportBanner);
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".exportBtn").forEach(btn => {
+    btn.addEventListener("click", exportBanner);
+  });
 });
-
 
 
 // === Drag & Resize ===
