@@ -347,3 +347,7 @@ canvas.addEventListener('mouseup', () => {
   resizingCorner = null;
   canvas.style.cursor = 'grab';
 });
+
+document.getElementById('switchBanner').addEventListener('click', () => {
+  window.location.href = 'banner.html';
+});
