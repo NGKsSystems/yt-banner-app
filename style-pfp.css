@@ -8,11 +8,14 @@ body {
 }
 
 canvas {
+  width: 95vw;
+  height: 85vh;
+  display: block;
+  margin: 0 auto 20px;
   background: #222;
   border: 2px solid #0ff;
-  margin-bottom: 20px;
-  cursor: crosshair;
 }
+
 
 .controls {
   margin-bottom: 20px;
