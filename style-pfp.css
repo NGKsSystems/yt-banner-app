@@ -51,18 +51,22 @@ h1 { margin: 10px; }
 }
 
 .controls button {
-  font-size: 18px;
-  padding: 10px 16px;
+  background-color: #007BFF;  /* Bright Bootstrap blue */
+  color: #fff;
+  padding: 14px 22px;
+  font-size: 16px;
   border-radius: 6px;
-  background-color: #1e88e5;
-  color: white;
   border: none;
-  cursor: pointer;
   font-weight: bold;
+  cursor: pointer;
+  min-width: 160px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
 .controls button:hover {
- background-color: #1565c0;
+  background-color: #0056d2; /* darker pop on hover */
+  transform: translateY(-2px); /* lift effect */
 }
 
 /* Match Browse Button to blue buttons */
