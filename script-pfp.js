@@ -1,7 +1,7 @@
 const canvas = document.getElementById('pfpCanvas');
 const ctx = canvas.getContext('2d');
 
-let pfpImage = null;
+let uploadedImage = null;
 
 document.getElementById('uploadPfpImage').addEventListener('click', () => {
   const input = document.createElement('input');
@@ -14,25 +14,20 @@ document.getElementById('uploadPfpImage').addEventListener('click', () => {
 
     const img = new Image();
     img.onload = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      uploadedImage = img;
 
+      // Fit image inside canvas
       const scale = Math.min(
         canvas.width / img.width,
         canvas.height / img.height
       );
+      const newWidth = img.width * scale;
+      const newHeight = img.height * scale;
+      const x = (canvas.width - newWidth) / 2;
+      const y = (canvas.height - newHeight) / 2;
 
-      const x = (canvas.width - img.width * scale) / 2;
-      const y = (canvas.height - img.height * scale) / 2;
-
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, 0, Math.PI * 2);
-      ctx.clip();
-
-      ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
-      ctx.restore();
-
-      pfpImage = img;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, x, y, newWidth, newHeight);
     };
 
     img.src = URL.createObjectURL(file);
@@ -42,10 +37,25 @@ document.getElementById('uploadPfpImage').addEventListener('click', () => {
 });
 
 document.getElementById('exportPfp').addEventListener('click', () => {
-  if (!pfpImage) return;
+  if (!uploadedImage) return;
+
+  // Extract circular region from center of canvas
+  const cropCanvas = document.createElement('canvas');
+  cropCanvas.width = 800;
+  cropCanvas.height = 800;
+  const cropCtx = cropCanvas.getContext('2d');
+
+  cropCtx.save();
+  cropCtx.beginPath();
+  cropCtx.arc(400, 400, 400, 0, Math.PI * 2);
+  cropCtx.closePath();
+  cropCtx.clip();
+
+  cropCtx.drawImage(canvas, 0, 0);
+  cropCtx.restore();
 
   const link = document.createElement('a');
   link.download = 'pfp.png';
-  link.href = canvas.toDataURL('image/png');
+  link.href = cropCanvas.toDataURL('image/png');
   link.click();
 });
