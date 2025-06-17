@@ -348,6 +348,10 @@ canvas.addEventListener('mouseup', () => {
   canvas.style.cursor = 'grab';
 });
 
+document.getElementById('homeBtn').addEventListener('click', () => {
+  window.location.href = 'index.html'; // Adjust if your homepage file is named differently
+});
+
 document.getElementById('switchBanner').addEventListener('click', () => {
-  window.location.href = 'banner.html';
+  window.location.href = 'banner.html'; // Change if needed
 });
