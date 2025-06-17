@@ -30,12 +30,15 @@
     }
 
     .intro-block {
-      margin-top: 1in;
-      opacity: 0;
-      transform: scale(0.95) translateY(20px);
-      animation: fadeZoomUp 0.8s ease-out forwards;
-      animation-delay: 0.2s;
-    }
+  margin-top: 1in;
+  opacity: 0;
+  transform: scale(0.95) translateY(20px);
+  animation: fadeZoomUp 0.8s ease-out forwards;
+  animation-delay: 0.2s;
+  max-width: 1200px; /* wider area */
+  width: 100%;
+  padding: 0 2rem;
+}
 
     @keyframes fadeZoomUp {
       to {
@@ -102,12 +105,17 @@
       }
 
       .intro-block h2 {
-        font-size: 2rem;
-      }
+  font-size: 4rem;
+  color: white;
+  margin-bottom: 1.5rem;
+}
 
-      .intro-block p {
-        font-size: 1.1rem;
-      }
+.intro-block p {
+  font-size: 1.6rem;
+  color: #f0f0f0;
+  line-height: 1.8;
+}
+
     }
   </style>
 </head>
