@@ -88,7 +88,7 @@ addTextBtn.addEventListener('click', () => {
 // Save/load template
 saveTemplateBtn.addEventListener('click', () => {
   const json = JSON.stringify(placedObjects);
-  const blob = new Blob([json], { type: 'application/json' });
+  const blob = new Blob([JSON.stringify(placedObjects, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = 'pfp-template.json';
@@ -100,6 +100,15 @@ loadTemplateInput.addEventListener('change', (e) => {
   const file = e.target.files[0];
   const reader = new FileReader();
   reader.onload = () => {
+
+   try {
+  const data = JSON.parse(reader.result);
+  // continue as normal
+} catch (err) {
+  alert("⚠️ Failed to parse template. Make sure it's a valid .json file.");
+  console.error("JSON parse error:", err);
+}
+     
     const data = JSON.parse(reader.result);
     placedObjects = [];
     let loadCount = 0;
