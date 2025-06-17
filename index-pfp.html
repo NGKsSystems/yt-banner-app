@@ -7,13 +7,15 @@
 </head>
 <body>
   <h1>NGKs PFP Editor</h1>
-  <div class="editor-container">
-    <canvas id="pfpCanvas" width="600" height="600"></canvas>
-    <div class="overlay"></div>
+  <div class="editor-wrapper">
+    <canvas id="previewCanvas"></canvas>
+    <div class="circle-zone">
+      <canvas id="circleCanvas" width="400" height="400"></canvas>
+    </div>
   </div>
   <div class="controls">
     <input type="file" id="uploadPfpImage" accept="image/*" />
-    <label>Zoom: <input type="range" id="zoomSlider" min="0.5" max="2" step="0.01" value="1"></label>
+    <input type="range" id="zoomSlider" min="0.5" max="2" step="0.01" value="1" />
     <button id="exportPfp">Export Cropped PFP</button>
   </div>
   <script src="script-pfp.js"></script>
