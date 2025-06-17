@@ -7,15 +7,8 @@ body {
   padding: 10px;
   overflow-x: hidden;
 }
-
-h1 {
-  margin: 10px;
-}
-
-#imageLoader {
-  margin: 10px;
-}
-
+h1 { margin: 10px; }
+#imageLoader { margin: 10px; }
 #thumbnail-bar {
   display: flex;
   flex-wrap: wrap;
@@ -29,7 +22,6 @@ h1 {
   border: 1px solid #333;
   width: 95%;
 }
-
 .thumbnail {
   width: 80px;
   height: 80px;
@@ -37,11 +29,7 @@ h1 {
   border: 2px solid #666;
   cursor: grab;
 }
-
-.thumbnail:active {
-  opacity: 0.5;
-}
-
+.thumbnail:active { opacity: 0.5; }
 #editor-canvas {
   background: #222;
   border: 2px solid #555;
@@ -51,7 +39,6 @@ h1 {
   margin-right: auto;
   cursor: grab;
 }
-
 .controls {
   margin-top: 15px;
   display: flex;
