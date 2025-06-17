@@ -74,8 +74,8 @@ input[type="file"]::file-selector-button {
   background: #FFFFFF; /* Browse Button Color */
   color: black; /* font color */
   padding: 10px 20px;
-  font-size: 22px;
-  border: 1px solid #666;
+  font-size: 30px;
+  border: 1px solid #777;
   border-radius: 6px;
   font-weight: bold; 
   cursor: pointer;
@@ -129,7 +129,7 @@ input[type="file"]::file-selector-button:hover {
   margin-right: 10px;
   line-height: 1;
   transform: translateY(2px); /* ⬅ nudges label down to match slider */
-  font-size: 24px;
+  font-size: 30px;
   color: #ccc;
 }
 #file-bar {
@@ -144,14 +144,14 @@ input[type="file"]::file-selector-button:hover {
   background-color: #fff;
   color: #000;
   padding: 8px 14px;
-  font-size: 18px;
+  font-size: 30px;
   font-weight: bold;
   border-radius: 4px;
   cursor: pointer;
 }
 
 #file-status {
-  font-size: 26px;
+  font-size: 30px;
   color: #ccc;
 }
 #file-bar {
@@ -166,7 +166,7 @@ input[type="file"]::file-selector-button:hover {
   background-color: #007bff;
   color: white;
   padding: 10px 18px;
-  font-size: 18px;
+  font-size: 30px;
   font-weight: 600;
   border-radius: 5px;
   cursor: pointer;
@@ -178,6 +178,6 @@ input[type="file"]::file-selector-button:hover {
 }
 
 #file-status {
-  font-size: 18px;
+  font-size: 30px;
   color: #ddd;
 }
