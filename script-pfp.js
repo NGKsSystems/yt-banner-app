@@ -1,14 +1,6 @@
 const canvas = document.getElementById('editor-canvas');
 const ctx = canvas.getContext('2d');
 
-function resizeCanvasToWindow() {
-  canvas.width = Math.floor(window.innerWidth * 0.95);
-  canvas.height = Math.floor(window.innerHeight * 0.7);
-  drawAll();
-}
-window.addEventListener('resize', resizeCanvasToWindow);
-resizeCanvasToWindow();
-
 const imageLoader = document.getElementById('imageLoader');
 const thumbnailBar = document.getElementById('thumbnail-bar');
 const zoomSlider = document.getElementById('zoom');
@@ -20,6 +12,7 @@ const sendBackwardBtn = document.getElementById('sendBackward');
 let placedImages = [];
 let activeImage = null;
 
+// Load and create thumbnails
 imageLoader.addEventListener('change', (e) => {
   const files = e.target.files;
   [...files].forEach(file => {
@@ -30,18 +23,20 @@ imageLoader.addEventListener('change', (e) => {
       thumb.src = img.src;
       thumb.className = 'thumbnail';
       thumb.draggable = true;
+
       thumb.addEventListener('dragstart', (e) => {
         e.dataTransfer.setData('imgsrc', img.src);
       });
+
+      thumbnailBar.style.display = 'flex';
       thumbnailBar.appendChild(thumb);
-      thumbnailBar.style.display = 'flex'; // ensure reflow
     };
   });
 });
 
-canvas.addEventListener('dragover', (e) => {
-  e.preventDefault();
-});
+// Drag image onto canvas
+canvas.addEventListener('dragover', (e) => e.preventDefault());
+
 canvas.addEventListener('drop', (e) => {
   e.preventDefault();
   const rect = canvas.getBoundingClientRect();
@@ -49,6 +44,7 @@ canvas.addEventListener('drop', (e) => {
   const y = e.clientY - rect.top;
   const src = e.dataTransfer.getData('imgsrc');
   if (!src) return;
+
   const img = new Image();
   img.src = src;
   img.onload = () => {
@@ -66,6 +62,7 @@ canvas.addEventListener('drop', (e) => {
   };
 });
 
+// Zoom
 zoomSlider.addEventListener('input', () => {
   if (activeImage) {
     activeImage.zoom = parseFloat(zoomSlider.value);
@@ -73,6 +70,7 @@ zoomSlider.addEventListener('input', () => {
   }
 });
 
+// Export
 exportBtn.addEventListener('click', () => {
   const exportCanvas = document.createElement('canvas');
   exportCanvas.width = 512;
@@ -100,6 +98,7 @@ exportBtn.addEventListener('click', () => {
   link.click();
 });
 
+// Delete
 deleteBtn.addEventListener('click', () => {
   if (activeImage) {
     placedImages = placedImages.filter(i => i !== activeImage);
@@ -108,6 +107,7 @@ deleteBtn.addEventListener('click', () => {
   }
 });
 
+// Bring forward
 bringForwardBtn.addEventListener('click', () => {
   if (!activeImage) return;
   const i = placedImages.indexOf(activeImage);
@@ -116,6 +116,8 @@ bringForwardBtn.addEventListener('click', () => {
     drawAll();
   }
 });
+
+// Send backward
 sendBackwardBtn.addEventListener('click', () => {
   if (!activeImage) return;
   const i = placedImages.indexOf(activeImage);
@@ -125,24 +127,21 @@ sendBackwardBtn.addEventListener('click', () => {
   }
 });
 
+// Draw everything
 function drawAll() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
   placedImages.forEach(img => {
-    ctx.drawImage(
-      img.img,
-      img.x,
-      img.y,
-      img.width * img.zoom,
-      img.height * img.zoom
-    );
+    const w = img.width * img.zoom;
+    const h = img.height * img.zoom;
+    ctx.drawImage(img.img, img.x, img.y, w, h);
 
     if (img === activeImage) {
-      const w = img.width * img.zoom;
-      const h = img.height * img.zoom;
       ctx.strokeStyle = '#0f0';
       ctx.lineWidth = 2;
       ctx.strokeRect(img.x, img.y, w, h);
 
+      // 4 corner handles
       const handles = [
         [img.x - 4, img.y - 4],
         [img.x + w - 4, img.y - 4],
@@ -162,7 +161,7 @@ function drawAll() {
   ctx.stroke();
 }
 
-// Mouse handling
+// Drag/move/resize
 let dragging = false;
 let resizingCorner = null;
 let dragOffset = { x: 0, y: 0 };
@@ -233,6 +232,7 @@ canvas.addEventListener('mouseup', () => {
   canvas.style.cursor = 'grab';
 });
 
+// Right-click delete
 canvas.addEventListener('contextmenu', (e) => {
   e.preventDefault();
   if (activeImage) {
