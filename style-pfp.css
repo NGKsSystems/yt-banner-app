@@ -25,3 +25,7 @@ canvas {
   border: 2px solid #0ff;
   cursor: crosshair;
 }
+
+.controls {
+  margin-top: 10px;
+}
