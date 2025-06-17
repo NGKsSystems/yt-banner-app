@@ -2,41 +2,24 @@ body {
   font-family: sans-serif;
   text-align: center;
   background-color: #f0f0f0;
-  margin: 0;
 }
-
-#editorWrapper {
+.editor-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  margin: 20px;
+}
+canvas {
+  border: 1px solid #ccc;
+  background: white;
+  max-width: 100%;
+}
+.circle-zone {
   position: relative;
-  display: inline-block;
+  width: 400px;
+  height: 400px;
+}
+.controls {
   margin-top: 20px;
 }
-
-#imageCanvas {
-  max-width: 90vw;
-  max-height: 80vh;
-  border: 1px solid #ccc;
-}
-
-#circleOverlay {
-  position: absolute;
-  border: 3px solid red;
-  border-radius: 50%;
-  width: 200px;
-  height: 200px;
-  top: 100px;
-  left: 100px;
-  cursor: move;
-  box-sizing: border-box;
-}
-
-.resize-handle {
-  width: 10px;
-  height: 10px;
-  background: black;
-  position: absolute;
-}
-
-.nw { top: -5px; left: -5px; cursor: nwse-resize; }
-.ne { top: -5px; right: -5px; cursor: nesw-resize; }
-.sw { bottom: -5px; left: -5px; cursor: nesw-resize; }
-.se { bottom: -5px; right: -5px; cursor: nwse-resize; }
