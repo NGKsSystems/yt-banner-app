@@ -70,7 +70,7 @@ input[type="file"]::file-selector-button {
   background: #1e88e5;
   color: white;
   border: none;
-  padding: 6px 14px;
+  padding: 6px 18px;
   font-weight: bold;
   cursor: pointer;
   border-radius: 4px;
