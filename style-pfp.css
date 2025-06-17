@@ -1,36 +1,27 @@
-
 body {
-  background-color: #111;
-  color: #eee;
+  background: #111;
+  color: #fff;
   font-family: sans-serif;
   text-align: center;
   margin: 0;
-  padding: 0;
+  padding: 20px;
 }
-#app-container {
+
+#editor-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#canvas-wrapper {
   position: relative;
-  width: 1080px;
-  margin: 20px auto;
+  width: 600px;
+  height: 600px;
+  margin-bottom: 20px;
 }
+
 canvas {
-  border: 2px solid #444;
-  background-color: #222;
+  background: #222;
+  border: 2px solid #0ff;
+  cursor: crosshair;
 }
-.controls {
-  margin-top: 10px;
-}
-#resize-handles .handle {
-  width: 10px;
-  height: 10px;
-  background: #00ffcc;
-  position: absolute;
-  z-index: 10;
-}
-#tl { top: 0; left: 0; cursor: nwse-resize; }
-#tm { top: 0; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
-#tr { top: 0; right: 0; cursor: nesw-resize; }
-#ml { top: 50%; left: 0; transform: translateY(-50%); cursor: ew-resize; }
-#mr { top: 50%; right: 0; transform: translateY(-50%); cursor: ew-resize; }
-#bl { bottom: 0; left: 0; cursor: nesw-resize; }
-#bm { bottom: 0; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
-#br { bottom: 0; right: 0; cursor: nwse-resize; }
