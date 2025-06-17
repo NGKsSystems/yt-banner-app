@@ -3,176 +3,140 @@ const ctx = canvas.getContext('2d');
 const imageLoader = document.getElementById('imageLoader');
 const zoomSlider = document.getElementById('zoom');
 const exportBtn = document.getElementById('export');
-const applyBtn = document.getElementById('applyBtn');
-const thumbnail = document.getElementById('thumbnail');
+const layerList = document.getElementById('layerList');
 
-let img = new Image();
-let dragging = false;
-let resizing = false;
-let dragOffsetX = 0, dragOffsetY = 0;
-let imgX = 150, imgY = 150, imgW = 300, imgH = 300;
 let scale = 1;
-let resizeHandleSize = 10;
-let activeHandle = null;
+let layers = [];
+
+class Layer {
+  constructor(image, id) {
+    this.image = image;
+    this.id = id;
+    this.x = 200;
+    this.y = 200;
+    this.width = image.width;
+    this.height = image.height;
+    this.scale = 1;
+    this.dragging = false;
+    this.offsetX = 0;
+    this.offsetY = 0;
+  }
+
+  draw(ctx) {
+    ctx.drawImage(this.image, this.x, this.y, this.width * this.scale, this.height * this.scale);
+  }
+
+  isInside(mx, my) {
+    return mx >= this.x && mx <= this.x + this.width * this.scale &&
+           my >= this.y && my <= this.y + this.height * this.scale;
+  }
+}
+
+let activeLayer = null;
+
+function redraw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  layers.forEach(layer => layer.draw(ctx));
+  ctx.beginPath();
+  ctx.arc(canvas.width / 2, canvas.height / 2, 400, 0, Math.PI * 2);
+  ctx.strokeStyle = "#0ff";
+  ctx.lineWidth = 4;
+  ctx.stroke();
+}
 
 imageLoader.addEventListener('change', (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = (evt) => {
-    thumbnail.src = evt.target.result;
-    thumbnail.style.display = 'inline-block';
-  };
-  reader.readAsDataURL(file);
-});
-
-applyBtn.addEventListener('click', () => {
-  if (!thumbnail.src) return;
-  const temp = new Image();
-  temp.onload = () => {
-    img = temp;
-    imgW = img.width * 0.5;
-    imgH = img.height * 0.5;
-    imgX = (canvas.width - imgW) / 2;
-    imgY = (canvas.height - imgH) / 2;
-    draw();
-  };
-  temp.src = thumbnail.src;
-});
-
-zoomSlider.addEventListener('input', () => {
-  scale = parseFloat(zoomSlider.value);
-  draw();
+  const files = e.target.files;
+  for (let file of files) {
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const img = new Image();
+      img.onload = () => {
+        const newLayer = new Layer(img, Date.now());
+        layers.push(newLayer);
+        updateLayerList();
+        redraw();
+      };
+      img.src = evt.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
 });
 
 canvas.addEventListener('mousedown', (e) => {
   const rect = canvas.getBoundingClientRect();
-  const mouseX = e.clientX - rect.left;
-  const mouseY = e.clientY - rect.top;
+  const mx = e.clientX - rect.left;
+  const my = e.clientY - rect.top;
 
-  activeHandle = getResizeHandle(mouseX, mouseY);
-  if (activeHandle) {
-    resizing = true;
-  } else if (
-    mouseX >= imgX && mouseX <= imgX + imgW * scale &&
-    mouseY >= imgY && mouseY <= imgY + imgH * scale
-  ) {
-    dragging = true;
-    dragOffsetX = mouseX - imgX;
-    dragOffsetY = mouseY - imgY;
-  }
-});
-
-canvas.addEventListener('mousemove', (e) => {
-  if (!img.src) return;
-  const rect = canvas.getBoundingClientRect();
-  const mouseX = e.clientX - rect.left;
-  const mouseY = e.clientY - rect.top;
-
-  if (dragging) {
-    imgX = mouseX - dragOffsetX;
-    imgY = mouseY - dragOffsetY;
-    draw();
-  } else if (resizing && activeHandle) {
-    if (activeHandle.includes('r')) {
-      imgW = Math.max(10, (mouseX - imgX) / scale);
+  for (let i = layers.length - 1; i >= 0; i--) {
+    if (layers[i].isInside(mx, my)) {
+      activeLayer = layers[i];
+      activeLayer.dragging = true;
+      activeLayer.offsetX = mx - activeLayer.x;
+      activeLayer.offsetY = my - activeLayer.y;
+      return;
     }
-    if (activeHandle.includes('b')) {
-      imgH = Math.max(10, (mouseY - imgY) / scale);
-    }
-    if (activeHandle.includes('l')) {
-      const newW = (imgX + imgW * scale - mouseX) / scale;
-      imgX = mouseX;
-      imgW = Math.max(10, newW);
-    }
-    if (activeHandle.includes('t')) {
-      const newH = (imgY + imgH * scale - mouseY) / scale;
-      imgY = mouseY;
-      imgH = Math.max(10, newH);
-    }
-    draw();
   }
 });
 
 canvas.addEventListener('mouseup', () => {
-  dragging = false;
-  resizing = false;
-  activeHandle = null;
+  if (activeLayer) activeLayer.dragging = false;
+  activeLayer = null;
 });
 
-canvas.addEventListener('mouseleave', () => {
-  dragging = false;
-  resizing = false;
-  activeHandle = null;
+canvas.addEventListener('mousemove', (e) => {
+  if (activeLayer && activeLayer.dragging) {
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    activeLayer.x = mx - activeLayer.offsetX;
+    activeLayer.y = my - activeLayer.offsetY;
+    redraw();
+  }
 });
 
-function getResizeHandle(x, y) {
-  const handles = {
-    'tl': [imgX, imgY],
-    'tr': [imgX + imgW * scale, imgY],
-    'bl': [imgX, imgY + imgH * scale],
-    'br': [imgX + imgW * scale, imgY + imgH * scale]
-  };
-
-  for (const key in handles) {
-    const [hx, hy] = handles[key];
-    if (Math.abs(x - hx) < resizeHandleSize && Math.abs(y - hy) < resizeHandleSize) {
-      return key;
-    }
+zoomSlider.addEventListener('input', () => {
+  scale = parseFloat(zoomSlider.value);
+  if (activeLayer) {
+    activeLayer.scale = scale;
+    redraw();
   }
-  return null;
-}
+});
 
-function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.drawImage(img, imgX, imgY, imgW * scale, imgH * scale);
-  ctx.beginPath();
-  ctx.arc(canvas.width / 2, canvas.height / 2, 200, 0, Math.PI * 2);
-  ctx.strokeStyle = "#0ff";
-  ctx.lineWidth = 4;
-  ctx.stroke();
-  drawHandles();
-}
-
-function drawHandles() {
-  ctx.fillStyle = "#0ff";
-  const points = [
-    [imgX, imgY],
-    [imgX + imgW * scale, imgY],
-    [imgX, imgY + imgH * scale],
-    [imgX + imgW * scale, imgY + imgH * scale]
-  ];
-  for (const [x, y] of points) {
-    ctx.fillRect(x - 5, y - 5, 10, 10);
-  }
+function updateLayerList() {
+  layerList.innerHTML = '';
+  layers.forEach((layer, index) => {
+    const li = document.createElement('li');
+    li.textContent = `Layer ${index + 1}`;
+    const btn = document.createElement('button');
+    btn.textContent = 'Remove';
+    btn.onclick = () => {
+      layers.splice(index, 1);
+      updateLayerList();
+      redraw();
+    };
+    li.appendChild(btn);
+    layerList.appendChild(li);
+  });
 }
 
 exportBtn.addEventListener('click', () => {
   const exportCanvas = document.createElement('canvas');
   const exportCtx = exportCanvas.getContext('2d');
-  exportCanvas.width = 400;
-  exportCanvas.height = 400;
+  exportCanvas.width = 800;
+  exportCanvas.height = 800;
 
-  // Crop directly from canvas pixels (not re-rendering img)
-  const srcX = (canvas.width / 2) - 200;
-  const srcY = (canvas.height / 2) - 200;
+  const sx = (canvas.width / 2) - 400;
+  const sy = (canvas.height / 2) - 400;
+  const imageData = ctx.getImageData(sx, sy, 800, 800);
+  exportCtx.putImageData(imageData, 0, 0);
 
-  const temp = ctx.getImageData(srcX, srcY, 400, 400);
-  exportCtx.putImageData(temp, 0, 0);
-
-  // Apply circle mask
   exportCtx.globalCompositeOperation = 'destination-in';
   exportCtx.beginPath();
-  exportCtx.arc(200, 200, 200, 0, Math.PI * 2);
-  exportCtx.closePath();
+  exportCtx.arc(400, 400, 400, 0, Math.PI * 2);
   exportCtx.fill();
 
-  // Export
   const link = document.createElement('a');
-  link.download = 'ngks_pfp.png';
+  link.download = 'ngks_multi_pfp.png';
   link.href = exportCanvas.toDataURL('image/png');
   link.click();
 });
-
-
