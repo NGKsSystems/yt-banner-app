@@ -159,9 +159,12 @@ exportBtn.addEventListener('click', () => {
   exportCtx.closePath();
   exportCtx.clip();
 
+  // Correct export math: destination is always 400x400
   exportCtx.drawImage(
-    img,
-    imgX, imgY, imgW * scale, imgH * scale,
+    canvas,
+    canvas.width / 2 - 200, // crop from center of main canvas
+    canvas.height / 2 - 200,
+    400, 400,
     0, 0, 400, 400
   );
 
