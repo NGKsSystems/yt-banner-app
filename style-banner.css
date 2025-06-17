@@ -1,170 +1,38 @@
 body {
   background: #111;
-  color: white;
-  text-align: center;
-  font-family: Arial, sans-serif;
-}
-
-#landing {
+  color: #fff;
   font-family: sans-serif;
-  background-image: url("NGKsExactFit-Landing.png");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  color: #f0f0f0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
+  text-align: center;
   margin: 0;
+  padding: 20px;
 }
 
-
-canvas {
-  width: 100%;
-  max-width: 2560px;
-  height: auto;
-  border: 2px solid yellow;
-  background: #000;
-  margin: 10px auto 0 auto;
-  display: block;
+h1 {
+  margin-bottom: 20px;
 }
 
-#canvasWrapper {
-  width: 100%;
-  max-width: 2560px;
-  margin: 0 auto;
+.editor-container {
+  position: relative;
+  display: inline-block;
 }
 
-#canvasTopBar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  max-width: 2560px;
-  margin: 0 auto;
-  padding: 10px 20px;
-  gap: 20px;
+#previewCanvas {
+  width: 800px;
+  height: 800px;
+  background: #222;
 }
 
-
-.hidden {
-  display: none;
+#circleCanvas {
+  position: absolute;
+  top: 150px;
+  left: 150px;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  pointer-events: none;
+  border: 2px dashed #ccc;
 }
 
-.step-label {
-  font-size: 2em;
-  font-weight: bold;
-  color: white;
-  text-shadow: 1px 1px 3px black;
-  margin: 10px 0;
-}
-
-#stepBar {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-}
-
-#stepBar p {
-  margin: 0 0 6px;
-}
-
-#stepBar input,
-#stepBar button {
-  margin: 0 5px;
-}
-
-/* === File Input Styling === */
-input[type="file"] {
-  padding: 0;
-  font-size: 16px;
-  color: white;
-  background-color: transparent;
-  border: none;
-  outline: none;
-  cursor: pointer;
-}
-
-input[type="file"]::-webkit-file-upload-button {
-  background: transparent;
-  border: none;
-  padding: 10px 16px;
-  color: white;
-  cursor: pointer;
-}
-
-input[type="file"] {
-  background: transparent !important;
-  border: none !important;
-  outline: none;
-  color: white;
-}
-
-
-.logo {
-  height: 150px;
-  object-fit: contain;
-}
-
-/* Uniform Button Base */
-button {
-  padding: 12px 20px;
-  font-size: 18px;
-  font-weight: bold;
-  border-radius: 5px;
-  border: none;
-  cursor: pointer;
-  min-width: 100px;
-  min-height: 40px;
-}
-
-/* Skip Button — Blue */
-#skipBg, .skipBtn {
-  background-color: #007bff;
-  color: white;
-}
-#skipBg:hover, .skipBtn:hover {
-  background-color: #0056b3;
-}
-
-/* Previous — Yellow with black text */
-.prevBtn {
-  background-color: #ffc107;
-  color: black;
-}
-.prevBtn:hover {
-  background-color: #e0a800;
-}
-
-/* Start Over — Red with white text */
-.startOverBtn {
-  background-color: #dc3545;
-  color: white;
-}
-.startOverBtn:hover {
-  background-color: #c82333;
-}
-
-/* Next / Continue — Green with white text */
-.stepBtn {
-  background-color: #28a745;
-  color: white;
-}
-.stepBtn:hover {
-  background-color: #218838;
-}
-
-/* File Input Styling */
-input[type="file"] {
-  padding: 10px;
-  font-size: 16px;
-  background-color: #444;
-  color: white;
-  border-radius: 5px;
-  border: none;
-  min-width: 180px;
-  min-height: 40px;
-  cursor: pointer;
+.controls {
+  margin-top: 20px;
 }
