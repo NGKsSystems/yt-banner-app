@@ -67,19 +67,19 @@ h1 { margin: 10px; }
 
 /* Match Browse Button to blue buttons */
 input[type="file"]::file-selector-button {
-  background: #1e88e5;
+  background: #444;
   color: white;
-  border: none;
-  padding: 6px 18px;
-  font-weight: bold;
+  padding: 10px 20px;
+  font-size: 16px;
+  border: 1px solid #666;
+  border-radius: 6px;
   cursor: pointer;
-  border-radius: 4px;
-  margin-right: 8px;
 }
 
 input[type="file"]::file-selector-button:hover {
-  background: #1565c0;
+  background-color: #666;
 }
+
 
 /* Bigger, wrapable bottom buttons */
 /* Unified button styling (less blue, more neutral) */
