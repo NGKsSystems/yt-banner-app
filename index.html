@@ -20,27 +20,26 @@
     }
 
     .container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0; /* remove extra side padding */
-  width: 100%;
-  min-height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
-  text-align: center;
-}
-
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0;
+      width: 100%;
+      min-height: 100vh;
+      background-color: rgba(0, 0, 0, 0.5);
+      text-align: center;
+    }
 
     .intro-block {
-  margin-top: 1in;
-  opacity: 0;
-  transform: scale(0.95) translateY(20px);
-  animation: fadeZoomUp 0.8s ease-out forwards;
-  animation-delay: 0.2s;
-  max-width: 1200px; /* wider area */
-  width: 100%;
-  padding: 0 2rem;
-}
+      margin-top: 1in;
+      opacity: 0;
+      transform: scale(0.95) translateY(20px);
+      animation: fadeZoomUp 0.8s ease-out forwards;
+      animation-delay: 0.2s;
+      width: 100%;
+      max-width: none;
+      padding: 0;
+    }
 
     @keyframes fadeZoomUp {
       to {
@@ -62,9 +61,11 @@
     .intro-block p {
       font-size: 3rem;
       color: #f0f0f0;
-      max-width: 900px;
-      margin: 0 auto 2rem;
       line-height: 1.6;
+      width: 100%;
+      max-width: none;
+      padding: 0 5vw;
+      margin: 0 auto 2rem;
     }
 
     .highlight {
@@ -89,7 +90,7 @@
     .button-link {
       padding: 0.75rem 1.5rem;
       font-size: 1rem;
-      background-color: #1e90ff;
+      background-color: #333; /* changed from blue */
       color: white;
       border-radius: 6px;
       text-decoration: none;
@@ -97,7 +98,7 @@
     }
 
     .button-link:hover {
-      background-color: #0b65c7;
+      background-color: #666;
     }
 
     @media (max-width: 600px) {
@@ -107,21 +108,13 @@
       }
 
       .intro-block h2 {
-  font-size: 4rem;
-  color: white;
-  margin-bottom: 1.5rem;
-}
+        font-size: 3rem;
+      }
 
-.intro-block p {
-  font-size: 1.6rem;
-  color: #f0f0f0;
-  line-height: 1.8;
-  max-width: 100%;
-  width: 100%;
-  padding: 0 4vw;
-  margin: 0 auto 2rem;
-}
-
+      .intro-block p {
+        font-size: 1.6rem;
+        padding: 0 4vw;
+      }
     }
   </style>
 </head>
