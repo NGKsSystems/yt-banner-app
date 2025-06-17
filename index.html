@@ -22,7 +22,6 @@
     .container {
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
       padding: 2rem;
       min-height: 100vh;
@@ -30,18 +29,49 @@
       text-align: center;
     }
 
+    .intro-block {
+      margin-top: 1in;
+      opacity: 0;
+      transform: scale(0.95) translateY(20px);
+      animation: fadeZoomUp 0.8s ease-out forwards;
+      animation-delay: 0.2s;
+    }
+
+    @keyframes fadeZoomUp {
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    .intro-block h2 {
+      font-size: 3rem;
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .intro-block h2 span {
+      color: #1e90ff;
+    }
+
+    .intro-block p {
+      font-size: 1.4rem;
+      color: #f0f0f0;
+      max-width: 900px;
+      margin: 0 auto 2rem;
+      line-height: 1.6;
+    }
+
+    .highlight {
+      color: #00ff66;
+      font-weight: bold;
+    }
+
     h1 {
       font-size: clamp(2rem, 5vw, 4rem);
       margin-bottom: 1rem;
       color: white;
       text-shadow: 1px 1px 4px black;
-    }
-
-    p {
-      font-size: clamp(1rem, 2.5vw, 1.2rem);
-      color: #f0f0f0;
-      max-width: 800px;
-      margin: 0 auto 2rem;
     }
 
     .button-group {
@@ -70,20 +100,27 @@
         width: 100%;
         text-align: center;
       }
+
+      .intro-block h2 {
+        font-size: 2rem;
+      }
+
+      .intro-block p {
+        font-size: 1.1rem;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2 style="text-align: center; color: white; font-size: 2.5rem; margin-bottom: 1rem;">
-      NGKsSystems Proudly Presents <span style="color: #1e90ff;">NGKsExactFit</span>
-    </h2>
-
-    <p>
-      <span style="color: #00ff66; font-weight: bold;">NGKsExactFit</span> is your all-in-one social media asset designer. 
-      Whether you're crafting banners, profile pictures, or channel headers, this app ensures your images fit perfectly 
-      across every platform. Say goodbye to guesswork and frustration! Create stunning visuals with precision and ease.
-    </p>
+    <div class="intro-block">
+      <h2>NGKsSystems Proudly Presents <span>NGKsExactFit</span></h2>
+      <p>
+        <span class="highlight">NGKsExactFit</span> is your all-in-one social media asset designer.
+        Whether you're crafting banners, profile pictures, or channel headers, this app ensures your images fit perfectly
+        across every platform. Say goodbye to guesswork and frustration! Create stunning visuals with precision and ease.
+      </p>
+    </div>
 
     <h1>Choose Your Editor</h1>
     <p>Welcome to NGKsExactFit</p>
