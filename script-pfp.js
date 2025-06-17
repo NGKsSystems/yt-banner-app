@@ -1,6 +1,8 @@
+/* NGKsExactFit - Fully Integrated PFP Editor Script
+   Features: 8-point image/text drag + resize, zoom, snap-to-center, template save/load, export */
+
 const canvas = document.getElementById('editor-canvas');
 const ctx = canvas.getContext('2d');
-
 const imageLoader = document.getElementById('imageLoader');
 const thumbnailBar = document.getElementById('thumbnail-bar');
 const zoomSlider = document.getElementById('zoom');
@@ -8,11 +10,16 @@ const exportBtn = document.getElementById('export');
 const deleteBtn = document.getElementById('delete');
 const bringForwardBtn = document.getElementById('bringForward');
 const sendBackwardBtn = document.getElementById('sendBackward');
+const snapCenterBtn = document.getElementById('snapCenter');
+const addTextBtn = document.getElementById('addText');
+const saveTemplateBtn = document.getElementById('saveTemplate');
+const loadTemplateInput = document.getElementById('loadTemplate');
+const triggerLoadBtn = document.getElementById('triggerLoadTemplate');
 
-let placedImages = [];
-let activeImage = null;
+let placedObjects = [];
+let activeObject = null;
 
-// --- Load and create thumbnails ---
+// Load image thumbnails
 imageLoader.addEventListener('change', (e) => {
   const files = e.target.files;
   [...files].forEach(file => {
@@ -34,9 +41,8 @@ imageLoader.addEventListener('change', (e) => {
   });
 });
 
-// --- Drag image onto canvas ---
+// Drop image to canvas
 canvas.addEventListener('dragover', (e) => e.preventDefault());
-
 canvas.addEventListener('drop', (e) => {
   e.preventDefault();
   const rect = canvas.getBoundingClientRect();
@@ -48,46 +54,163 @@ canvas.addEventListener('drop', (e) => {
   const img = new Image();
   img.src = src;
   img.onload = () => {
-    const newImage = {
+    const newObj = {
+      type: 'image',
       img,
-      x,
-      y,
+      x, y,
       width: img.width,
       height: img.height,
       zoom: 1
     };
-    placedImages.push(newImage);
-    activeImage = newImage;
+    placedObjects.push(newObj);
+    activeObject = newObj;
     drawAll();
   };
 });
 
-// --- Zoom ---
-zoomSlider.addEventListener('input', () => {
-  if (activeImage) {
-    activeImage.zoom = parseFloat(zoomSlider.value);
+// Add text object
+addTextBtn.addEventListener('click', () => {
+  const textObj = {
+    type: 'text',
+    text: 'Edit me',
+    x: 100, y: 100,
+    font: '24px Arial',
+    color: '#ffffff',
+    width: 150,
+    height: 40,
+    zoom: 1
+  };
+  placedObjects.push(textObj);
+  activeObject = textObj;
+  drawAll();
+});
+
+// Save/load template
+saveTemplateBtn.addEventListener('click', () => {
+  const json = JSON.stringify(placedObjects);
+  const blob = new Blob([json], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'pfp-template.json';
+  a.click();
+});
+
+triggerLoadBtn.addEventListener('click', () => loadTemplateInput.click());
+loadTemplateInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  const reader = new FileReader();
+  reader.onload = () => {
+    const data = JSON.parse(reader.result);
+    placedObjects = [];
+    let loadCount = 0;
+    data.forEach(obj => {
+      if (obj.type === 'image') {
+        const img = new Image();
+        img.src = obj.img.src;
+        img.onload = () => {
+          obj.img = img;
+          placedObjects.push(obj);
+          if (++loadCount === data.length) drawAll();
+        };
+      } else {
+        placedObjects.push(obj);
+        if (++loadCount === data.length) drawAll();
+      }
+    });
+  };
+  reader.readAsText(file);
+});
+
+// Snap-to-center
+snapCenterBtn.addEventListener('click', () => {
+  if (!activeObject) return;
+  activeObject.x = (canvas.width - activeObject.width * activeObject.zoom) / 2;
+  activeObject.y = (canvas.height - activeObject.height * activeObject.zoom) / 2;
+  drawAll();
+});
+
+// Layer control
+bringForwardBtn.addEventListener('click', () => {
+  const i = placedObjects.indexOf(activeObject);
+  if (i < placedObjects.length - 1) {
+    [placedObjects[i], placedObjects[i + 1]] = [placedObjects[i + 1], placedObjects[i]];
+    drawAll();
+  }
+});
+sendBackwardBtn.addEventListener('click', () => {
+  const i = placedObjects.indexOf(activeObject);
+  if (i > 0) {
+    [placedObjects[i], placedObjects[i - 1]] = [placedObjects[i - 1], placedObjects[i]];
     drawAll();
   }
 });
 
-// --- Export ---
+// Delete object
+deleteBtn.addEventListener('click', () => {
+  if (activeObject) {
+    placedObjects = placedObjects.filter(o => o !== activeObject);
+    activeObject = null;
+    drawAll();
+  }
+});
+canvas.addEventListener('contextmenu', (e) => {
+  e.preventDefault();
+  deleteBtn.click();
+});
+
+// Zoom control
+zoomSlider.addEventListener('input', () => {
+  if (activeObject) {
+    activeObject.zoom = parseFloat(zoomSlider.value);
+    drawAll();
+  }
+});
+
+function drawAll() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  placedObjects.forEach(obj => {
+    const w = obj.width * obj.zoom;
+    const h = obj.height * obj.zoom;
+    if (obj.type === 'image') {
+      ctx.drawImage(obj.img, obj.x, obj.y, w, h);
+    } else if (obj.type === 'text') {
+      ctx.font = obj.font;
+      ctx.fillStyle = obj.color;
+      ctx.fillText(obj.text, obj.x, obj.y + 30);
+    }
+    if (obj === activeObject) {
+      ctx.strokeStyle = '#0f0';
+      ctx.strokeRect(obj.x, obj.y, w, h);
+    }
+  });
+  ctx.beginPath();
+  ctx.arc(canvas.width / 2, canvas.height / 2, canvas.height / 2, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
+// Export
 exportBtn.addEventListener('click', () => {
   const exportCanvas = document.createElement('canvas');
   exportCanvas.width = 512;
   exportCanvas.height = 512;
   const exportCtx = exportCanvas.getContext('2d');
-
   const offsetX = (canvas.width / 2) - 256;
   const offsetY = (canvas.height / 2) - 256;
 
-  placedImages.forEach(img => {
-    exportCtx.drawImage(
-      img.img,
-      img.x - offsetX,
-      img.y - offsetY,
-      img.width * img.zoom,
-      img.height * img.zoom
-    );
+  placedObjects.forEach(obj => {
+    const w = obj.width * obj.zoom;
+    const h = obj.height * obj.zoom;
+    const x = obj.x - offsetX;
+    const y = obj.y - offsetY;
+    if (obj.type === 'image') {
+      exportCtx.drawImage(obj.img, x, y, w, h);
+    } else if (obj.type === 'text') {
+      exportCtx.font = obj.font;
+      exportCtx.fillStyle = obj.color;
+      exportCtx.fillText(obj.text, x, y + 30);
+    }
   });
 
   const mask = new Path2D();
@@ -101,74 +224,9 @@ exportBtn.addEventListener('click', () => {
   link.click();
 });
 
-// --- Delete ---
-deleteBtn.addEventListener('click', () => {
-  if (activeImage) {
-    placedImages = placedImages.filter(i => i !== activeImage);
-    activeImage = null;
-    drawAll();
-  }
-});
+// Dragging + resizing (simplified logic for brevity) — expandable if needed
 
-// --- Layer Controls ---
-bringForwardBtn.addEventListener('click', () => {
-  if (!activeImage) return;
-  const i = placedImages.indexOf(activeImage);
-  if (i < placedImages.length - 1) {
-    [placedImages[i], placedImages[i + 1]] = [placedImages[i + 1], placedImages[i]];
-    drawAll();
-  }
-});
 
-sendBackwardBtn.addEventListener('click', () => {
-  if (!activeImage) return;
-  const i = placedImages.indexOf(activeImage);
-  if (i > 0) {
-    [placedImages[i], placedImages[i - 1]] = [placedImages[i - 1], placedImages[i]];
-    drawAll();
-  }
-});
-
-// --- Draw everything ---
-function drawAll() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  placedImages.forEach(img => {
-    const w = img.width * img.zoom;
-    const h = img.height * img.zoom;
-    ctx.drawImage(img.img, img.x, img.y, w, h);
-
-    if (img === activeImage) {
-      ctx.strokeStyle = '#0f0';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(img.x, img.y, w, h);
-
-      const cx = img.x + w / 2;
-      const cy = img.y + h / 2;
-      const handles = [
-        [img.x, img.y],        // TL
-        [cx, img.y],           // TC
-        [img.x + w, img.y],    // TR
-        [img.x + w, cy],       // RC
-        [img.x + w, img.y + h],// BR
-        [cx, img.y + h],       // BC
-        [img.x, img.y + h],    // BL
-        [img.x, cy]            // LC
-      ];
-      ctx.fillStyle = '#0f0';
-      handles.forEach(([hx, hy]) => ctx.fillRect(hx - 4, hy - 4, 8, 8));
-    }
-  });
-
-  // --- Circular overlay ---
-  ctx.beginPath();
-  ctx.arc(canvas.width / 2, canvas.height / 2, canvas.height / 2, 0, Math.PI * 2);
-  ctx.strokeStyle = 'rgba(255,255,255,0.4)';
-  ctx.lineWidth = 2;
-  ctx.stroke();
-}
-
-// --- Drag + Resize ---
 let dragging = false;
 let resizingCorner = null;
 let dragOffset = { x: 0, y: 0 };
@@ -179,96 +237,90 @@ canvas.addEventListener('mousedown', (e) => {
   const y = e.clientY - rect.top;
   resizingCorner = null;
 
-  for (let i = placedImages.length - 1; i >= 0; i--) {
-    const img = placedImages[i];
-    const w = img.width * img.zoom;
-    const h = img.height * img.zoom;
+  for (let i = placedObjects.length - 1; i >= 0; i--) {
+    const obj = placedObjects[i];
+    const w = obj.width * obj.zoom;
+    const h = obj.height * obj.zoom;
+    const cx = obj.x + w / 2;
+    const cy = obj.y + h / 2;
 
-    const cx = img.x + w / 2;
-    const cy = img.y + h / 2;
     const corners = {
-      tl: [img.x, img.y],
-      tc: [cx, img.y],
-      tr: [img.x + w, img.y],
-      rc: [img.x + w, cy],
-      br: [img.x + w, img.y + h],
-      bc: [cx, img.y + h],
-      bl: [img.x, img.y + h],
-      lc: [img.x, cy]
+      tl: [obj.x, obj.y], tr: [obj.x + w, obj.y],
+      bl: [obj.x, obj.y + h], br: [obj.x + w, obj.y + h],
+      tc: [cx, obj.y], bc: [cx, obj.y + h],
+      lc: [obj.x, cy], rc: [obj.x + w, cy]
     };
 
-    for (const [corner, [cx, cy]] of Object.entries(corners)) {
-      if (Math.abs(x - cx) < 10 && Math.abs(y - cy) < 10) {
-        activeImage = img;
+    for (const [corner, [hx, hy]] of Object.entries(corners)) {
+      if (Math.abs(x - hx) < 10 && Math.abs(y - hy) < 10) {
+        activeObject = obj;
         resizingCorner = corner;
         canvas.style.cursor = 'nwse-resize';
         return;
       }
     }
 
-    if (x > img.x && x < img.x + w && y > img.y && y < img.y + h) {
-      activeImage = img;
+    if (x > obj.x && x < obj.x + w && y > obj.y && y < obj.y + h) {
+      activeObject = obj;
       dragging = true;
-      dragOffset.x = x - img.x;
-      dragOffset.y = y - img.y;
+      dragOffset = { x: x - obj.x, y: y - obj.y };
       canvas.style.cursor = 'grabbing';
       return;
     }
   }
 
-  activeImage = null;
+  activeObject = null;
   drawAll();
 });
 
 canvas.addEventListener('mousemove', (e) => {
-  if (!activeImage) return;
+  if (!activeObject) return;
   const rect = canvas.getBoundingClientRect();
   const x = e.clientX - rect.left;
   const y = e.clientY - rect.top;
-
-  const zoom = activeImage.zoom;
+  const zoom = activeObject.zoom;
 
   if (resizingCorner) {
     switch (resizingCorner) {
-      case 'br':
-        activeImage.width = (x - activeImage.x) / zoom;
-        activeImage.height = (y - activeImage.y) / zoom;
-        break;
-      case 'bl':
-        activeImage.width += (activeImage.x - x) / zoom;
-        activeImage.x = x;
-        activeImage.height = (y - activeImage.y) / zoom;
+      case 'tl':
+        activeObject.width += (activeObject.x - x) / zoom;
+        activeObject.height += (activeObject.y - y) / zoom;
+        activeObject.x = x;
+        activeObject.y = y;
         break;
       case 'tr':
-        activeImage.width = (x - activeImage.x) / zoom;
-        activeImage.height += (activeImage.y - y) / zoom;
-        activeImage.y = y;
+        activeObject.width = (x - activeObject.x) / zoom;
+        activeObject.height += (activeObject.y - y) / zoom;
+        activeObject.y = y;
         break;
-      case 'tl':
-        activeImage.width += (activeImage.x - x) / zoom;
-        activeImage.height += (activeImage.y - y) / zoom;
-        activeImage.x = x;
-        activeImage.y = y;
+      case 'bl':
+        activeObject.width += (activeObject.x - x) / zoom;
+        activeObject.x = x;
+        activeObject.height = (y - activeObject.y) / zoom;
+        break;
+      case 'br':
+        activeObject.width = (x - activeObject.x) / zoom;
+        activeObject.height = (y - activeObject.y) / zoom;
         break;
       case 'tc':
-        activeImage.height += (activeImage.y - y) / zoom;
-        activeImage.y = y;
+        activeObject.height += (activeObject.y - y) / zoom;
+        activeObject.y = y;
         break;
       case 'bc':
-        activeImage.height = (y - activeImage.y) / zoom;
+        activeObject.height = (y - activeObject.y) / zoom;
         break;
       case 'lc':
-        activeImage.width += (activeImage.x - x) / zoom;
-        activeImage.x = x;
+        activeObject.width += (activeObject.x - x) / zoom;
+        activeObject.x = x;
         break;
       case 'rc':
-        activeImage.width = (x - activeImage.x) / zoom;
+        activeObject.width = (x - activeObject.x) / zoom;
         break;
     }
     drawAll();
   } else if (dragging) {
-    activeImage.x = x - dragOffset.x;
-    activeImage.y = y - dragOffset.y;
+    activeObject.x = x - dragOffset.x;
+    activeObject.y = y - dragOffset.y;
     drawAll();
   }
 });
@@ -277,13 +329,4 @@ canvas.addEventListener('mouseup', () => {
   dragging = false;
   resizingCorner = null;
   canvas.style.cursor = 'grab';
-});
-
-canvas.addEventListener('contextmenu', (e) => {
-  e.preventDefault();
-  if (activeImage) {
-    placedImages = placedImages.filter(i => i !== activeImage);
-    activeImage = null;
-    drawAll();
-  }
 });
