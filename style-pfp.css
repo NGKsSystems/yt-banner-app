@@ -152,7 +152,12 @@ input[type="file"]::file-selector-button:hover {
 }
 
 #file-status {
-  font-size: 30px !important;; /* this controls "No files selected" */
-  color: #ccc;
+  .file-status {
+  font-size: 20px !important;
+  font-weight: 600;
+  color: #f2f2f2 !important;
+  margin-left: 10px;
+  display: inline-block;
+  vertical-align: middle;
 }
 
