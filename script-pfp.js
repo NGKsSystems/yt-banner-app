@@ -1,13 +1,16 @@
 const canvas = document.getElementById('editor-canvas');
 const ctx = canvas.getContext('2d');
+const canvas = document.getElementById('editor-canvas');
+const ctx = canvas.getContext('2d');
+
+// ✅ Resize early and properly
 function resizeCanvasToWindow() {
-  canvas.width = window.innerWidth * 0.95;
-  canvas.height = window.innerHeight * 0.85;
-  drawAll();
+  canvas.width = Math.floor(window.innerWidth * 0.95);
+  canvas.height = Math.floor(window.innerHeight * 0.75);
+  drawAll(); // Safe to call before anything drawn — no error
 }
 window.addEventListener('resize', resizeCanvasToWindow);
 resizeCanvasToWindow(); // Initial run
-
 const imageLoader = document.getElementById('imageLoader');
 const thumbnailBar = document.getElementById('thumbnail-bar');
 const zoomSlider = document.getElementById('zoom');
@@ -16,6 +19,8 @@ const deleteBtn = document.getElementById('delete');
 
 let placedImages = [];
 let activeImage = null;
+
+// etc...
 
 imageLoader.addEventListener('change', (e) => {
   [...e.target.files].forEach(file => {
