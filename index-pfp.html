@@ -1,22 +1,25 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>NGKsSystems PFP Editor</title>
-  <link rel="stylesheet" href="style-pfp.css" />
+  <link rel="stylesheet" href="pfp-style.css" />
 </head>
 <body>
   <h1>NGKs PFP Editor</h1>
-  <input type="file" id="uploadImage" accept="image/*" />
-  <div id="editorWrapper">
-    <canvas id="imageCanvas"></canvas>
-    <div id="circleOverlay">
-      <div class="resize-handle nw"></div>
-      <div class="resize-handle ne"></div>
-      <div class="resize-handle sw"></div>
-      <div class="resize-handle se"></div>
+  <div class="editor-wrapper">
+    <canvas id="previewCanvas"></canvas>
+    <div class="circle-zone">
+      <canvas id="circleCanvas" width="400" height="400"></canvas>
     </div>
   </div>
-  <script src="script-pfp.js"></script>
+  <div class="controls">
+    <input type="file" id="uploadPfpImage" accept="image/*" />
+    <input type="range" id="zoomSlider" min="0.5" max="2" step="0.01" value="1" />
+    <button id="exportPfp">Export Cropped PFP</button>
+  </div>
+  <script src="pfp-script.js"></script>
 </body>
 </html>
+
