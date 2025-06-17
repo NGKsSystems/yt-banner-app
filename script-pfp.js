@@ -154,28 +154,21 @@ exportBtn.addEventListener('click', () => {
   exportCanvas.width = 400;
   exportCanvas.height = 400;
 
+  // Crop directly from canvas pixels (not re-rendering img)
+  const srcX = (canvas.width / 2) - 200;
+  const srcY = (canvas.height / 2) - 200;
+
+  const temp = ctx.getImageData(srcX, srcY, 400, 400);
+  exportCtx.putImageData(temp, 0, 0);
+
+  // Apply circle mask
+  exportCtx.globalCompositeOperation = 'destination-in';
   exportCtx.beginPath();
   exportCtx.arc(200, 200, 200, 0, Math.PI * 2);
-  exportCtx.clip();
+  exportCtx.closePath();
+  exportCtx.fill();
 
-  // Calculate source coordinates relative to image
-  const sourceX = (canvas.width / 2 - 200 - imgX) / scale;
-  const sourceY = (canvas.height / 2 - 200 - imgY) / scale;
-  const sourceW = 400 / scale;
-  const sourceH = 400 / scale;
-
-  // Make sure crop area is inside image bounds
-  if (sourceX < 0 || sourceY < 0 || sourceX + sourceW > img.width || sourceY + sourceH > img.height) {
-    alert("Export area exceeds image bounds. Try adjusting zoom or position.");
-    return;
-  }
-
-  exportCtx.drawImage(
-    img,
-    sourceX, sourceY, sourceW, sourceH,
-    0, 0, 400, 400
-  );
-
+  // Export
   const link = document.createElement('a');
   link.download = 'ngks_pfp.png';
   link.href = exportCanvas.toDataURL('image/png');
