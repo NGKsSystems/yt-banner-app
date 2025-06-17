@@ -151,7 +151,7 @@ input[type="file"]::file-selector-button:hover {
 }
 
 #file-status {
-  font-size: 18px;
+  font-size: 26px;
   color: #ccc;
 }
 #file-bar {
@@ -166,13 +166,13 @@ input[type="file"]::file-selector-button:hover {
   background-color: #fff;
   color: #000;
   padding: 8px 14px;
-  font-size: 18px;
+  font-size: 26px;
   font-weight: bold;
   border-radius: 4px;
   cursor: pointer;
 }
 
 #file-status {
-  font-size: 18px;
+  font-size: 26px;
   color: #ccc;
 }
