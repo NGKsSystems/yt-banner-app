@@ -7,19 +7,16 @@
 </head>
 <body>
   <h1>NGKs PFP Editor</h1>
-
-  <!-- 🖼 Canvas with circular overlay -->
-  <div class="canvas-container">
-    <canvas id="pfpCanvas" width="800" height="800"></canvas>
-    <div id="overlayCircle"></div>
+  <input type="file" id="uploadImage" accept="image/*" />
+  <div id="editorWrapper">
+    <canvas id="imageCanvas"></canvas>
+    <div id="circleOverlay">
+      <div class="resize-handle nw"></div>
+      <div class="resize-handle ne"></div>
+      <div class="resize-handle sw"></div>
+      <div class="resize-handle se"></div>
+    </div>
   </div>
-
-  <!-- 📂 Controls -->
-  <div class="button-bar">
-    <button id="uploadPfpImage">Upload PFP Image</button>
-    <button id="exportPfp">Export PFP</button>
-  </div>
-
   <script src="script-pfp.js"></script>
 </body>
 </html>
