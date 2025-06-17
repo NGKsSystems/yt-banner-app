@@ -51,8 +51,8 @@ h1 { margin: 10px; }
 }
 
 .controls button {
-  background-color: #007BFF;  /* Bright Bootstrap blue */
-  color: #fff;
+  background-color: #007BFF !important;
+  color: #ffffff !important;
   padding: 14px 22px;
   font-size: 16px;
   border-radius: 6px;
@@ -60,13 +60,13 @@ h1 { margin: 10px; }
   font-weight: bold;
   cursor: pointer;
   min-width: 160px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
   transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
 .controls button:hover {
-  background-color: #0056d2; /* darker pop on hover */
-  transform: translateY(-2px); /* lift effect */
+  background-color: #0056d2 !important;
+  transform: translateY(-2px);
 }
 
 /* Match Browse Button to blue buttons */
