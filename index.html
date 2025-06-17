@@ -1,60 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-6" />
-  <title>NGKsExactFit </title>
+  <meta charset="UTF-8" />
+  <title>NGKsExactFit</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-body {
-  font-family: sans-serif;
-  background-image: url('NGKsExactFit-Landing.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  color: #f0f0f0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  margin: 0;
-}
+    body {
+      font-family: sans-serif;
+      background-image: url('NGKsExactFit-Landing.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      color: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 2vh;
+      text-align: center;
+    }
 
     h1 {
-      margin-bottom: 20px;
+      font-size: 5vw;
+      margin-bottom: 5vh;
+      color: white;
+      text-shadow: 1px 1px 4px #000;
     }
 
     .button-group {
       display: flex;
-      gap: 20px;
+      flex-wrap: wrap;
+      gap: 4vw;
+      justify-content: center;
     }
 
-    button {
-      padding: 12px 24px;
-      font-size: 16px;
+    .button-link {
+      padding: 2vh 4vw;
+      font-size: 4vw;
+      max-width: 80vw;
       border: none;
-      border-radius: 6px;
+      border-radius: 10px;
       background-color: #1e90ff;
       color: white;
+      text-decoration: none;
       cursor: pointer;
       transition: background-color 0.3s ease;
+      text-align: center;
     }
 
-    button:hover {
+    .button-link:hover {
       background-color: #0b65c7;
+    }
+
+    /* Desktop styles */
+    @media (min-width: 768px) {
+      h1 {
+        font-size: 2.5rem;
+      }
+
+      .button-link {
+        font-size: 1.2rem;
+        padding: 1rem 2rem;
+        max-width: none;
+      }
     }
   </style>
 </head>
 <body>
-  
-  <body>
   <div id="landing">
-    
+    <h1>Welcome to NGKsExactFit</h1>
     <div class="button-group">
-      <a href="index-banner.html"><button>Banner Editor</button></a>
-      <a href="index-pfp.html"><button>PFP Editor</button></a>
+      <a class="button-link" href="index-banner.html">Banner Editor</a>
+      <a class="button-link" href="index-pfp.html">PFP Editor</a>
     </div>
   </div>
 </body>
-
 </html>
-
