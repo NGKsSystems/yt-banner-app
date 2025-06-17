@@ -26,6 +26,9 @@ imageLoader.addEventListener('change', (e) => {
 
       thumb.addEventListener('dragstart', (e) => {
         e.dataTransfer.setData('imgsrc', img.src);
+        
+      document.getElementById('thumbnail-bar').style.display = 'flex';
+
       });
 
       thumbnailBar.style.display = 'flex';
