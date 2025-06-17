@@ -159,12 +159,13 @@ exportBtn.addEventListener('click', () => {
   exportCtx.closePath();
   exportCtx.clip();
 
-  // Correct export math: destination is always 400x400
+  // Calculate source cropping from image
+  const cropX = (canvas.width / 2 - 200 - imgX) / scale;
+  const cropY = (canvas.height / 2 - 200 - imgY) / scale;
+
   exportCtx.drawImage(
-    canvas,
-    canvas.width / 2 - 200, // crop from center of main canvas
-    canvas.height / 2 - 200,
-    400, 400,
+    img,
+    cropX, cropY, 400 / scale, 400 / scale,
     0, 0, 400, 400
   );
 
@@ -173,3 +174,4 @@ exportBtn.addEventListener('click', () => {
   link.href = exportCanvas.toDataURL();
   link.click();
 });
+
