@@ -2,7 +2,8 @@ body {
   background: url('Your-Site-Under-Construction.png') no-repeat center center fixed;
   background-size: cover;
   background-color: #000; /* fallback color */
-  }
+}
+
 
 body::before {
   content: '';
