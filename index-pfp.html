@@ -3,41 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <title>NGKsSystems PFP Editor</title>
-  <link rel="stylesheet" href="style-pfp.css">
-  <style>
-    body {
-      text-align: center;
-      font-family: sans-serif;
-      background-color: #f5f5f5;
-    }
-
-    canvas {
-      margin-top: 20px;
-      background: white;
-    }
-
-    button {
-      margin: 10px;
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-  </style>
+  <link rel="stylesheet" href="style-pfp.css" />
 </head>
 <body>
 
-  <!-- 🖼️ Canvas Area -->
   <h1>NGKs PFP Editor</h1>
-  <canvas id="pfpCanvas" width="800" height="800" style="border:1px solid #ccc;"></canvas>
 
-  <!-- 📂 Image Upload + Export Buttons -->
-  <div>
+  <!-- Circular Canvas Display -->
+  <canvas id="pfpCanvas" width="800" height="800"></canvas>
+
+  <!-- Upload + Export Buttons -->
+  <div class="button-bar">
     <button id="uploadPfpImage">Upload PFP Image</button>
     <button id="exportPfp">Export PFP</button>
   </div>
 
-  <!-- 📜 Core Logic -->
   <script src="script-pfp.js"></script>
-
 </body>
 </html>
