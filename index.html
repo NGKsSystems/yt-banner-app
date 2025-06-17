@@ -20,14 +20,16 @@
     }
 
     .container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 2rem;
-      min-height: 100vh;
-      background-color: rgba(0, 0, 0, 0.5); /* darken for readability */
-      text-align: center;
-    }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0; /* remove extra side padding */
+  width: 100%;
+  min-height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  text-align: center;
+}
+
 
     .intro-block {
   margin-top: 1in;
@@ -98,7 +100,7 @@
       background-color: #0b65c7;
     }
 
-    @media (max-width: 1200px) {
+    @media (max-width: 600px) {
       .button-link {
         width: 100%;
         text-align: center;
@@ -114,7 +116,7 @@
   font-size: 1.6rem;
   color: #f0f0f0;
   line-height: 1.8;
-  max-width: none;
+  max-width: 100%;
   width: 100%;
   padding: 0 4vw;
   margin: 0 auto 2rem;
