@@ -117,9 +117,13 @@ input[type="file"]::file-selector-button:hover {
   margin-bottom: 10px;
   gap: 10px;
   margin: 40px auto 20px auto; /* ⬅ Top margin added */
+  margin-bottom: 20px;
 }
 
 .zoom-bar label {
-  font-size: 18px;
+  margin-right: 10px;
+  line-height: 1;
+  transform: translateY(2px); /* ⬅ nudges label down to match slider */
+  font-size: 24px;
   color: #ccc;
 }
