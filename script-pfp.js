@@ -45,17 +45,15 @@ canvas.addEventListener('drop', (e) => {
   const src = e.dataTransfer.getData('imgsrc');
   if (!src) return;
 
-  const img = new Image();
-  img.src = src;
-  img.onload = () => {
-    const newImage = {
-      img,
-      x,
-      y,
-      width: img.width * 0.25,
-      height: img.height * 0.25,
-      zoom: 1
-    };
+ const newImage = {
+  img,
+  x,
+  y,
+  width: img.width,  // ✅ full size
+  height: img.height,
+  zoom: 1
+};
+
     placedImages.push(newImage);
     activeImage = newImage;
     drawAll();
@@ -135,24 +133,23 @@ function drawAll() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   placedImages.forEach(img => {
-    const w = img.width * img.zoom;
-    const h = img.height * img.zoom;
-    ctx.drawImage(img.img, img.x, img.y, w, h);
+  const w = img.width * img.zoom;
+  const h = img.height * img.zoom;
+  const cx = img.x + w / 2;
+  const cy = img.y + h / 2;
 
-    if (img === activeImage) {
-      ctx.strokeStyle = '#0f0';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(img.x, img.y, w, h);
-
-      // 4 corner handles
-      const handles = [
-        [img.x - 4, img.y - 4],
-        [img.x + w - 4, img.y - 4],
-        [img.x - 4, img.y + h - 4],
-        [img.x + w - 4, img.y + h - 4]
-      ];
-      ctx.fillStyle = '#0f0';
-      handles.forEach(([hx, hy]) => ctx.fillRect(hx, hy, 8, 8));
+  const handles = [
+  [img.x, img.y],               // TL
+  [cx, img.y],                  // TC
+  [img.x + w, img.y],           // TR
+  [img.x + w, cy],              // RC
+  [img.x + w, img.y + h],       // BR
+  [cx, img.y + h],              // BC
+  [img.x, img.y + h],           // BL
+  [img.x, cy]                   // LC
+];
+ctx.fillStyle = '#0f0';
+handles.forEach(([hx, hy]) => ctx.fillRect(hx - 4, hy - 4, 8, 8));
     }
   });
 
