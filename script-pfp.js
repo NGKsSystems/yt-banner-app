@@ -353,5 +353,7 @@ document.getElementById('homeBtn').addEventListener('click', () => {
 });
 
 document.getElementById('switchBanner').addEventListener('click', () => {
-  window.location.href = 'banner.html'; // Change if needed
+  window.location.href = 'index-banner.html';  // ✅ Your actual banner editor file
+});
+
 });
