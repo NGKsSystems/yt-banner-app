@@ -34,6 +34,7 @@ imageLoader.addEventListener('change', (e) => {
         e.dataTransfer.setData('imgsrc', img.src);
       });
       thumbnailBar.appendChild(thumb);
+      thumbnailBar.style.display = 'flex'; // ensure reflow
     };
   });
 });
