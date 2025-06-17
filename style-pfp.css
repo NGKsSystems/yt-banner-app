@@ -57,24 +57,6 @@ h1 { margin: 10px; }
   cursor: grab;
 }
 
-.nav-button {
-  background-color: #28a745;
-  color: white;
-  padding: 10px 16px;
-  font-size: 16px;
-  font-weight: bold;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  margin-bottom: 10px;
-  transition: background 0.2s ease-in-out;
-}
-
-.nav-button:hover {
-  background-color: #218838;
-}
-
-
 .controls {
   margin-top: 15px;
   display: flex;
