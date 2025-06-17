@@ -1,61 +1,90 @@
-const canvas = document.getElementById('pfpCanvas');
-const ctx = canvas.getContext('2d');
 
-let uploadedImage = null;
+const uploadInput = document.getElementById('uploadPfpImage');
+const zoomSlider = document.getElementById('zoomSlider');
+const exportBtn = document.getElementById('exportPfp');
 
-document.getElementById('uploadPfpImage').addEventListener('click', () => {
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = 'image/*';
+const previewCanvas = document.getElementById('previewCanvas');
+const previewCtx = previewCanvas.getContext('2d');
 
-  input.onchange = () => {
-    const file = input.files[0];
-    if (!file) return;
+const circleCanvas = document.getElementById('circleCanvas');
+const circleCtx = circleCanvas.getContext('2d');
 
-    const img = new Image();
+let img = new Image();
+let scale = 1;
+let offsetX = 0;
+let offsetY = 0;
+let dragging = false;
+let startX, startY;
+
+function drawPreview() {
+  previewCanvas.width = img.width;
+  previewCanvas.height = img.height;
+  previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+  previewCtx.drawImage(img, 0, 0);
+}
+
+function drawCircleCrop() {
+  circleCtx.clearRect(0, 0, circleCanvas.width, circleCanvas.height);
+  circleCtx.save();
+  circleCtx.beginPath();
+  circleCtx.arc(200, 200, 200, 0, Math.PI * 2);
+  circleCtx.clip();
+  circleCtx.drawImage(img, offsetX, offsetY, img.width * scale, img.height * scale);
+  circleCtx.restore();
+}
+
+uploadInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
     img.onload = () => {
-      uploadedImage = img;
-
-      // Fit image inside canvas
-      const scale = Math.min(
-        canvas.width / img.width,
-        canvas.height / img.height
-      );
-      const newWidth = img.width * scale;
-      const newHeight = img.height * scale;
-      const x = (canvas.width - newWidth) / 2;
-      const y = (canvas.height - newHeight) / 2;
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, x, y, newWidth, newHeight);
+      offsetX = 0;
+      offsetY = 0;
+      scale = 1;
+      drawPreview();
+      drawCircleCrop();
     };
-
-    img.src = URL.createObjectURL(file);
+    img.src = reader.result;
   };
-
-  input.click();
+  reader.readAsDataURL(file);
 });
 
-document.getElementById('exportPfp').addEventListener('click', () => {
-  if (!uploadedImage) return;
+zoomSlider.addEventListener('input', () => {
+  scale = parseFloat(zoomSlider.value);
+  drawCircleCrop();
+});
 
-  // Extract circular region from center of canvas
-  const cropCanvas = document.createElement('canvas');
-  cropCanvas.width = 800;
-  cropCanvas.height = 800;
-  const cropCtx = cropCanvas.getContext('2d');
+circleCanvas.addEventListener('mousedown', (e) => {
+  dragging = true;
+  startX = e.offsetX;
+  startY = e.offsetY;
+});
 
-  cropCtx.save();
-  cropCtx.beginPath();
-  cropCtx.arc(400, 400, 400, 0, Math.PI * 2);
-  cropCtx.closePath();
-  cropCtx.clip();
+circleCanvas.addEventListener('mousemove', (e) => {
+  if (!dragging) return;
+  offsetX += e.offsetX - startX;
+  offsetY += e.offsetY - startY;
+  startX = e.offsetX;
+  startY = e.offsetY;
+  drawCircleCrop();
+});
 
-  cropCtx.drawImage(canvas, 0, 0);
-  cropCtx.restore();
+circleCanvas.addEventListener('mouseup', () => dragging = false);
+circleCanvas.addEventListener('mouseleave', () => dragging = false);
 
+exportBtn.addEventListener('click', () => {
+  const tempCanvas = document.createElement('canvas');
+  const tempCtx = tempCanvas.getContext('2d');
+  tempCanvas.width = 400;
+  tempCanvas.height = 400;
+
+  tempCtx.beginPath();
+  tempCtx.arc(200, 200, 200, 0, Math.PI * 2);
+  tempCtx.clip();
+  tempCtx.drawImage(img, offsetX, offsetY, img.width * scale, img.height * scale);
   const link = document.createElement('a');
-  link.download = 'pfp.png';
-  link.href = cropCanvas.toDataURL('image/png');
+  link.download = 'cropped-pfp.png';
+  link.href = tempCanvas.toDataURL();
   link.click();
 });
