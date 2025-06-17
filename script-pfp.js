@@ -349,11 +349,11 @@ canvas.addEventListener('mouseup', () => {
 });
 
 document.getElementById('homeBtn').addEventListener('click', () => {
-  window.location.href = 'index.html'; // Adjust if your homepage file is named differently
+  window.location.href = 'index.html'; // Adjust if your home file is named differently
 });
 
 document.getElementById('switchBanner').addEventListener('click', () => {
-  window.location.href = 'index-banner.html';  // ✅ Your actual banner editor file
+  window.location.href = 'index-banner.html';
 });
 
 
