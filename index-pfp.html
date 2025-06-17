@@ -6,13 +6,15 @@
   <link rel="stylesheet" href="style-pfp.css" />
 </head>
 <body>
-
   <h1>NGKs PFP Editor</h1>
 
-  <!-- Circular Canvas Display -->
-  <canvas id="pfpCanvas" width="800" height="800"></canvas>
+  <!-- 🖼 Canvas with circular overlay -->
+  <div class="canvas-container">
+    <canvas id="pfpCanvas" width="800" height="800"></canvas>
+    <div id="overlayCircle"></div>
+  </div>
 
-  <!-- Upload + Export Buttons -->
+  <!-- 📂 Controls -->
   <div class="button-bar">
     <button id="uploadPfpImage">Upload PFP Image</button>
     <button id="exportPfp">Export PFP</button>
