@@ -1,49 +1,37 @@
 body {
-  font-family: sans-serif;
   background-color: #111;
-  color: white;
+  color: #fff;
+  font-family: sans-serif;
   text-align: center;
   margin: 0;
   padding: 20px;
-}
-
-h1 {
-  margin-bottom: 20px;
 }
 
 .editor-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 40px;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
+  margin: 20px 0;
+}
+
+.canvas-stack {
+  position: relative;
+  width: 500px;
+  height: 500px;
 }
 
 canvas {
-  background-color: #222;
+  position: absolute;
+  left: 0;
+  top: 0;
   border: 1px dashed #444;
 }
 
-.circle-wrapper {
-  border-radius: 50%;
-  overflow: hidden;
-  width: 300px;
-  height: 300px;
-  border: 2px dashed #888;
-}
-
 .controls {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
-  flex-wrap: wrap;
+  margin-top: 20px;
 }
 
 input[type="file"],
-button,
-input[type="range"] {
-  padding: 8px;
-  font-size: 14px;
+button {
+  margin: 0 10px;
 }
