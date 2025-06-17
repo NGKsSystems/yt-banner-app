@@ -36,7 +36,7 @@ h1 { margin: 10px; }
   margin-top: 20px;
   display: block;
   margin: 0 auto;
-  margin-bottom: 30px;  /* ⬅ Pushes zoom bar down */  
+  margin-bottom: 15px;  /* ⬅ Pushes zoom bar down */  
   cursor: grab;
 }
 .controls {
