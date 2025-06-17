@@ -4,6 +4,7 @@ const imageLoader = document.getElementById('imageLoader');
 const thumbnailBar = document.getElementById('thumbnail-bar');
 const zoomSlider = document.getElementById('zoom');
 const exportBtn = document.getElementById('export');
+const deleteBtn = document.getElementById('delete');
 
 let placedImages = [];
 let activeImage = null;
@@ -17,20 +18,19 @@ imageLoader.addEventListener('change', (e) => {
         const thumb = document.createElement('img');
         thumb.src = img.src;
         thumb.onclick = () => {
-          placedImages.push({
+          const newImg = {
             img: img,
-            x: 300,
-            y: 300,
-            width: 200,
-            height: 200,
+            x: 300, y: 300,
+            width: 200, height: 200,
             scale: 1,
             dragging: false,
             resizing: false,
             activeHandle: null,
             offsetX: 0,
             offsetY: 0
-          });
-          activeImage = placedImages[placedImages.length - 1];
+          };
+          placedImages.push(newImg);
+          activeImage = newImg;
           drawAll();
         };
         thumbnailBar.appendChild(thumb);
@@ -45,7 +45,7 @@ function drawAll() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   placedImages.forEach(item => {
     ctx.drawImage(item.img, item.x, item.y, item.width * item.scale, item.height * item.scale);
-    drawHandles(item);
+    if (item === activeImage) drawHandles(item);
   });
   ctx.beginPath();
   ctx.arc(canvas.width / 2, canvas.height / 2, 200, 0, Math.PI * 2);
@@ -82,33 +82,32 @@ canvas.addEventListener('mousedown', (e) => {
     const h = item.height * item.scale;
 
     const handles = {
-      'tl': [x, y],
-      'tm': [x + w / 2, y],
-      'tr': [x + w, y],
-      'ml': [x, y + h / 2],
-      'mr': [x + w, y + h / 2],
-      'bl': [x, y + h],
-      'bm': [x + w / 2, y + h],
-      'br': [x + w, y + h]
+      'tl': [x, y], 'tm': [x + w / 2, y], 'tr': [x + w, y],
+      'ml': [x, y + h / 2], 'mr': [x + w, y + h / 2],
+      'bl': [x, y + h], 'bm': [x + w / 2, y + h], 'br': [x + w, y + h]
     };
 
     for (const [handle, [hx, hy]] of Object.entries(handles)) {
       if (Math.abs(mx - hx) < 10 && Math.abs(my - hy) < 10) {
         activeImage = item;
-        activeImage.activeHandle = handle;
-        activeImage.resizing = true;
+        item.activeHandle = handle;
+        item.resizing = true;
+        drawAll();
         return;
       }
     }
 
     if (mx >= x && mx <= x + w && my >= y && my <= y + h) {
       activeImage = item;
-      activeImage.dragging = true;
-      activeImage.offsetX = mx - x;
-      activeImage.offsetY = my - y;
+      item.dragging = true;
+      item.offsetX = mx - x;
+      item.offsetY = my - y;
+      drawAll();
       return;
     }
   }
+
+  drawAll();
 });
 
 canvas.addEventListener('mousemove', (e) => {
@@ -167,6 +166,14 @@ zoomSlider.addEventListener('input', () => {
   const zoom = parseFloat(zoomSlider.value);
   if (activeImage) {
     activeImage.scale = zoom;
+    drawAll();
+  }
+});
+
+deleteBtn.addEventListener('click', () => {
+  if (activeImage) {
+    placedImages = placedImages.filter(img => img !== activeImage);
+    activeImage = null;
     drawAll();
   }
 });
