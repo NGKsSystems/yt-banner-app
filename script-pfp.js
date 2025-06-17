@@ -1,31 +1,37 @@
-
-const canvas = document.getElementById('preview-canvas');
+const canvas = document.getElementById('editor-canvas');
 const ctx = canvas.getContext('2d');
-const imgUpload = document.getElementById('imgUpload');
+const imageLoader = document.getElementById('imageLoader');
 const zoomSlider = document.getElementById('zoom');
-const exportBtn = document.getElementById('exportBtn');
+const exportBtn = document.getElementById('export');
 
 let img = new Image();
-let imgX = 100, imgY = 100, imgW = 400, imgH = 400;
-let isDragging = false;
+let dragging = false;
+let resizing = false;
 let dragOffsetX = 0, dragOffsetY = 0;
-let zoom = 1;
+let imgX = 150, imgY = 150, imgW = 300, imgH = 300;
+let scale = 1;
+let resizeHandleSize = 10;
+let activeHandle = null;
 
-imgUpload.addEventListener('change', (e) => {
+imageLoader.addEventListener('change', e => {
   const file = e.target.files[0];
-  if (file) {
-    const reader = new FileReader();
-    reader.onload = function (evt) {
-      img.src = evt.target.result;
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = evt => {
+    img.onload = () => {
+      imgW = img.width * 0.5;
+      imgH = img.height * 0.5;
+      imgX = (canvas.width - imgW) / 2;
+      imgY = (canvas.height - imgH) / 2;
+      draw();
     };
-    reader.readAsDataURL(file);
-  }
+    img.src = evt.target.result;
+  };
+  reader.readAsDataURL(file);
 });
 
-img.onload = () => draw();
-
 zoomSlider.addEventListener('input', () => {
-  zoom = parseFloat(zoomSlider.value);
+  scale = parseFloat(zoomSlider.value);
   draw();
 });
 
@@ -33,46 +39,123 @@ canvas.addEventListener('mousedown', (e) => {
   const rect = canvas.getBoundingClientRect();
   const mouseX = e.clientX - rect.left;
   const mouseY = e.clientY - rect.top;
-  if (mouseX >= imgX && mouseX <= imgX + imgW && mouseY >= imgY && mouseY <= imgY + imgH) {
-    isDragging = true;
+
+  activeHandle = getResizeHandle(mouseX, mouseY);
+  if (activeHandle) {
+    resizing = true;
+  } else if (
+    mouseX >= imgX && mouseX <= imgX + imgW * scale &&
+    mouseY >= imgY && mouseY <= imgY + imgH * scale
+  ) {
+    dragging = true;
     dragOffsetX = mouseX - imgX;
     dragOffsetY = mouseY - imgY;
   }
 });
 
-canvas.addEventListener('mouseup', () => isDragging = false);
-canvas.addEventListener('mouseout', () => isDragging = false);
 canvas.addEventListener('mousemove', (e) => {
-  if (isDragging) {
-    const rect = canvas.getBoundingClientRect();
-    imgX = e.clientX - rect.left - dragOffsetX;
-    imgY = e.clientY - rect.top - dragOffsetY;
+  if (!img.src) return;
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+
+  if (dragging) {
+    imgX = mouseX - dragOffsetX;
+    imgY = mouseY - dragOffsetY;
+    draw();
+  } else if (resizing && activeHandle) {
+    if (activeHandle.includes('r')) {
+      imgW = Math.max(10, (mouseX - imgX) / scale);
+    }
+    if (activeHandle.includes('b')) {
+      imgH = Math.max(10, (mouseY - imgY) / scale);
+    }
+    if (activeHandle.includes('l')) {
+      const newW = (imgX + imgW * scale - mouseX) / scale;
+      imgX = mouseX;
+      imgW = Math.max(10, newW);
+    }
+    if (activeHandle.includes('t')) {
+      const newH = (imgY + imgH * scale - mouseY) / scale;
+      imgY = mouseY;
+      imgH = Math.max(10, newH);
+    }
     draw();
   }
 });
+
+canvas.addEventListener('mouseup', () => {
+  dragging = false;
+  resizing = false;
+  activeHandle = null;
+});
+
+canvas.addEventListener('mouseleave', () => {
+  dragging = false;
+  resizing = false;
+  activeHandle = null;
+});
+
+function getResizeHandle(x, y) {
+  const handles = {
+    'tl': [imgX, imgY],
+    'tr': [imgX + imgW * scale, imgY],
+    'bl': [imgX, imgY + imgH * scale],
+    'br': [imgX + imgW * scale, imgY + imgH * scale]
+  };
+
+  for (const key in handles) {
+    const [hx, hy] = handles[key];
+    if (Math.abs(x - hx) < resizeHandleSize && Math.abs(y - hy) < resizeHandleSize) {
+      return key;
+    }
+  }
+  return null;
+}
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(img, imgX, imgY, imgW * scale, imgH * scale);
+  ctx.beginPath();
+  ctx.arc(canvas.width / 2, canvas.height / 2, 200, 0, Math.PI * 2);
+  ctx.strokeStyle = "#0ff";
+  ctx.lineWidth = 4;
+  ctx.stroke();
+
+  drawHandles();
+}
+
+function drawHandles() {
+  ctx.fillStyle = "#0ff";
+  const points = [
+    [imgX, imgY],
+    [imgX + imgW * scale, imgY],
+    [imgX, imgY + imgH * scale],
+    [imgX + imgW * scale, imgY + imgH * scale]
+  ];
+  for (const [x, y] of points) {
+    ctx.fillRect(x - 5, y - 5, 10, 10);
+  }
+}
 
 exportBtn.addEventListener('click', () => {
   const exportCanvas = document.createElement('canvas');
   const exportCtx = exportCanvas.getContext('2d');
   exportCanvas.width = 400;
   exportCanvas.height = 400;
+
   exportCtx.beginPath();
   exportCtx.arc(200, 200, 200, 0, Math.PI * 2);
   exportCtx.closePath();
   exportCtx.clip();
-  exportCtx.drawImage(canvas, imgX, imgY, imgW * zoom, imgH * zoom, 0, 0, 400, 400);
+  exportCtx.drawImage(
+    img,
+    imgX, imgY, imgW * scale, imgH * scale,
+    0, 0, 400, 400
+  );
+
   const link = document.createElement('a');
   link.download = 'ngks_pfp.png';
   link.href = exportCanvas.toDataURL();
   link.click();
 });
-
-function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.drawImage(img, imgX, imgY, imgW * zoom, imgH * zoom);
-  ctx.beginPath();
-  ctx.arc(canvas.width / 2, canvas.height / 2, 400, 0, Math.PI * 2);
-  ctx.strokeStyle = "#0ff";
-  ctx.lineWidth = 5;
-  ctx.stroke();
-}
