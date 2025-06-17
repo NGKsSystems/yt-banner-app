@@ -1,25 +1,49 @@
 body {
   font-family: sans-serif;
+  background-color: #111;
+  color: white;
   text-align: center;
-  background-color: #f0f0f0;
+  margin: 0;
+  padding: 20px;
 }
-.editor-wrapper {
+
+h1 {
+  margin-bottom: 20px;
+}
+
+.editor-container {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 40px;
-  margin: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
 }
+
 canvas {
-  border: 1px solid #ccc;
-  background: white;
-  max-width: 100%;
+  background-color: #222;
+  border: 1px dashed #444;
 }
-.circle-zone {
-  position: relative;
-  width: 400px;
-  height: 400px;
+
+.circle-wrapper {
+  border-radius: 50%;
+  overflow: hidden;
+  width: 300px;
+  height: 300px;
+  border: 2px dashed #888;
 }
+
 .controls {
-  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+input[type="file"],
+button,
+input[type="range"] {
+  padding: 8px;
+  font-size: 14px;
 }
