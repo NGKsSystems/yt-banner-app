@@ -1,16 +1,6 @@
 const canvas = document.getElementById('editor-canvas');
 const ctx = canvas.getContext('2d');
-const canvas = document.getElementById('editor-canvas');
-const ctx = canvas.getContext('2d');
 
-// ✅ Resize early and properly
-function resizeCanvasToWindow() {
-  canvas.width = Math.floor(window.innerWidth * 0.95);
-  canvas.height = Math.floor(window.innerHeight * 0.75);
-  drawAll(); // Safe to call before anything drawn — no error
-}
-window.addEventListener('resize', resizeCanvasToWindow);
-resizeCanvasToWindow(); // Initial run
 const imageLoader = document.getElementById('imageLoader');
 const thumbnailBar = document.getElementById('thumbnail-bar');
 const zoomSlider = document.getElementById('zoom');
@@ -19,171 +9,186 @@ const deleteBtn = document.getElementById('delete');
 
 let placedImages = [];
 let activeImage = null;
+let isDragging = false;
+let dragOffset = { x: 0, y: 0 };
+let isResizing = false;
+let resizeDirection = null;
 
-// etc...
+function resizeCanvasToFit() {
+  const topBar = document.getElementById('top-bar')?.offsetHeight || 100;
+  const thumbBar = document.getElementById('thumbnail-bar')?.offsetHeight || 100;
+  canvas.width = Math.floor(window.innerWidth * 0.95);
+  canvas.height = Math.floor(window.innerHeight - topBar - thumbBar - 40);
+  drawAll();
+}
+window.addEventListener('resize', resizeCanvasToFit);
+resizeCanvasToFit();
 
-imageLoader.addEventListener('change', (e) => {
-  [...e.target.files].forEach(file => {
+imageLoader.addEventListener('change', function (e) {
+  const files = e.target.files;
+  for (let i = 0; i < files.length; i++) {
     const reader = new FileReader();
-    reader.onload = (evt) => {
+    reader.onload = function (event) {
       const img = new Image();
-      img.onload = () => {
+      img.onload = function () {
         const thumb = document.createElement('img');
         thumb.src = img.src;
-        thumb.onclick = () => {
-          const newImg = {
+        thumb.className = 'thumbnail';
+        thumb.style.width = '80px';
+        thumb.style.cursor = 'pointer';
+        thumb.onclick = function () {
+          placedImages.push({
             img: img,
-            x: 300, y: 300,
-            width: 200, height: 200,
+            x: 100,
+            y: 100,
+            width: img.width * 0.4,
+            height: img.height * 0.4,
             scale: 1,
-            dragging: false,
-            resizing: false,
-            activeHandle: null,
-            offsetX: 0,
-            offsetY: 0
-          };
-          placedImages.push(newImg);
-          activeImage = newImg;
+          });
           drawAll();
         };
         thumbnailBar.appendChild(thumb);
       };
-      img.src = evt.target.result;
+      img.src = event.target.result;
     };
-    reader.readAsDataURL(file);
-  });
+    reader.readAsDataURL(files[i]);
+  }
 });
 
 function drawAll() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  placedImages.forEach(item => {
-    ctx.drawImage(item.img, item.x, item.y, item.width * item.scale, item.height * item.scale);
-    if (item === activeImage) drawHandles(item);
+  placedImages.forEach(obj => {
+    ctx.drawImage(obj.img, obj.x, obj.y, obj.width, obj.height);
+    if (obj === activeImage) drawHandles(obj);
   });
+
+  // Draw circular overlay
+  const r = 200, cx = canvas.width / 2, cy = canvas.height / 2;
+  ctx.save();
   ctx.beginPath();
-  ctx.arc(canvas.width / 2, canvas.height / 2, 200, 0, Math.PI * 2);
-  ctx.strokeStyle = "#0ff";
-  ctx.lineWidth = 4;
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.strokeStyle = 'cyan';
+  ctx.lineWidth = 3;
   ctx.stroke();
+  ctx.restore();
 }
 
-function drawHandles(item) {
-  const x = item.x;
-  const y = item.y;
-  const w = item.width * item.scale;
-  const h = item.height * item.scale;
+function drawHandles(obj) {
+  const size = 8;
   const points = [
-    [x, y], [x + w / 2, y], [x + w, y],
-    [x, y + h / 2], [x + w, y + h / 2],
-    [x, y + h], [x + w / 2, y + h], [x + w, y + h]
+    [obj.x, obj.y], // TL
+    [obj.x + obj.width / 2, obj.y], // TC
+    [obj.x + obj.width, obj.y], // TR
+    [obj.x + obj.width, obj.y + obj.height / 2], // RC
+    [obj.x + obj.width, obj.y + obj.height], // BR
+    [obj.x + obj.width / 2, obj.y + obj.height], // BC
+    [obj.x, obj.y + obj.height], // BL
+    [obj.x, obj.y + obj.height / 2], // LC
   ];
-  ctx.fillStyle = "#0ff";
-  points.forEach(([px, py]) => ctx.fillRect(px - 5, py - 5, 10, 10));
+  ctx.fillStyle = 'white';
+  points.forEach(([x, y]) => ctx.fillRect(x - size / 2, y - size / 2, size, size));
 }
 
-canvas.addEventListener('mousedown', (e) => {
+function getHandleDirection(x, y, obj) {
+  const size = 8;
+  const directions = ['tl', 'tc', 'tr', 'rc', 'br', 'bc', 'bl', 'lc'];
+  const points = [
+    [obj.x, obj.y],
+    [obj.x + obj.width / 2, obj.y],
+    [obj.x + obj.width, obj.y],
+    [obj.x + obj.width, obj.y + obj.height / 2],
+    [obj.x + obj.width, obj.y + obj.height],
+    [obj.x + obj.width / 2, obj.y + obj.height],
+    [obj.x, obj.y + obj.height],
+    [obj.x, obj.y + obj.height / 2],
+  ];
+
+  for (let i = 0; i < points.length; i++) {
+    const [px, py] = points[i];
+    if (x >= px - size && x <= px + size && y >= py - size && y <= py + size) {
+      return directions[i];
+    }
+  }
+  return null;
+}
+
+canvas.addEventListener('mousedown', function (e) {
   const rect = canvas.getBoundingClientRect();
-  const mx = e.clientX - rect.left;
-  const my = e.clientY - rect.top;
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
 
   activeImage = null;
   for (let i = placedImages.length - 1; i >= 0; i--) {
-    const item = placedImages[i];
-    const x = item.x;
-    const y = item.y;
-    const w = item.width * item.scale;
-    const h = item.height * item.scale;
-
-    const handles = {
-      'tl': [x, y], 'tm': [x + w / 2, y], 'tr': [x + w, y],
-      'ml': [x, y + h / 2], 'mr': [x + w, y + h / 2],
-      'bl': [x, y + h], 'bm': [x + w / 2, y + h], 'br': [x + w, y + h]
-    };
-
-    for (const [handle, [hx, hy]] of Object.entries(handles)) {
-      if (Math.abs(mx - hx) < 10 && Math.abs(my - hy) < 10) {
-        activeImage = item;
-        item.activeHandle = handle;
-        item.resizing = true;
-        drawAll();
-        return;
-      }
-    }
-
-    if (mx >= x && mx <= x + w && my >= y && my <= y + h) {
-      activeImage = item;
-      item.dragging = true;
-      item.offsetX = mx - x;
-      item.offsetY = my - y;
-      drawAll();
+    const img = placedImages[i];
+    const dir = getHandleDirection(x, y, img);
+    if (dir) {
+      activeImage = img;
+      isResizing = true;
+      resizeDirection = dir;
+      return;
+    } else if (x >= img.x && x <= img.x + img.width && y >= img.y && y <= img.y + img.height) {
+      activeImage = img;
+      isDragging = true;
+      dragOffset.x = x - img.x;
+      dragOffset.y = y - img.y;
       return;
     }
   }
-
-  drawAll();
 });
 
-canvas.addEventListener('mousemove', (e) => {
+canvas.addEventListener('mousemove', function (e) {
   if (!activeImage) return;
   const rect = canvas.getBoundingClientRect();
-  const mx = e.clientX - rect.left;
-  const my = e.clientY - rect.top;
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
 
-  if (activeImage.dragging) {
-    activeImage.x = mx - activeImage.offsetX;
-    activeImage.y = my - activeImage.offsetY;
+  if (isDragging) {
+    activeImage.x = x - dragOffset.x;
+    activeImage.y = y - dragOffset.y;
     drawAll();
-  }
-
-  if (activeImage.resizing && activeImage.activeHandle) {
-    const img = activeImage;
-    const ax = img.x;
-    const ay = img.y;
-    const w = img.width * img.scale;
-    const h = img.height * img.scale;
-    const handle = img.activeHandle;
-
-    const resize = (dx, dy, moveX = false, moveY = false) => {
-      const newW = Math.max(10, w + dx * (moveX ? -1 : 1));
-      const newH = Math.max(10, h + dy * (moveY ? -1 : 1));
-      if (moveX) img.x = mx;
-      if (moveY) img.y = my;
-      img.width = newW / img.scale;
-      img.height = newH / img.scale;
-    };
-
-    switch (handle) {
-      case 'tl': resize(mx - ax, my - ay, true, true); break;
-      case 'tr': resize(mx - (ax + w), my - ay, false, true); break;
-      case 'bl': resize(mx - ax, my - (ay + h), true, false); break;
-      case 'br': resize(mx - (ax + w), my - (ay + h), false, false); break;
-      case 'tm': resize(0, my - ay, false, true); break;
-      case 'bm': resize(0, my - (ay + h), false, false); break;
-      case 'ml': resize(mx - ax, 0, true, false); break;
-      case 'mr': resize(mx - (ax + w), 0, false, false); break;
+  } else if (isResizing) {
+    switch (resizeDirection) {
+      case 'br':
+        activeImage.width = x - activeImage.x;
+        activeImage.height = y - activeImage.y;
+        break;
+      case 'tr':
+        activeImage.height += activeImage.y - y;
+        activeImage.y = y;
+        activeImage.width = x - activeImage.x;
+        break;
+      case 'tl':
+        activeImage.width += activeImage.x - x;
+        activeImage.height += activeImage.y - y;
+        activeImage.x = x;
+        activeImage.y = y;
+        break;
+      case 'bl':
+        activeImage.width += activeImage.x - x;
+        activeImage.x = x;
+        activeImage.height = y - activeImage.y;
+        break;
+      // You can expand for side-only handles too
     }
-
     drawAll();
   }
 });
 
 canvas.addEventListener('mouseup', () => {
-  if (activeImage) {
-    activeImage.dragging = false;
-    activeImage.resizing = false;
-    activeImage.activeHandle = null;
-  }
+  isDragging = false;
+  isResizing = false;
 });
 
-zoomSlider.addEventListener('input', () => {
-  const zoom = parseFloat(zoomSlider.value);
+zoomSlider.addEventListener('input', function () {
   if (activeImage) {
-    activeImage.scale = zoom;
+    const factor = parseFloat(this.value);
+    activeImage.width = activeImage.img.width * factor * 0.4;
+    activeImage.height = activeImage.img.height * factor * 0.4;
     drawAll();
   }
 });
 
-deleteBtn.addEventListener('click', () => {
+deleteBtn.addEventListener('click', function () {
   if (activeImage) {
     placedImages = placedImages.filter(img => img !== activeImage);
     activeImage = null;
@@ -191,27 +196,23 @@ deleteBtn.addEventListener('click', () => {
   }
 });
 
-exportBtn.addEventListener('click', () => {
-  const exportCanvas = document.createElement('canvas');
-  const exportCtx = exportCanvas.getContext('2d');
-  exportCanvas.width = 400;
-  exportCanvas.height = 400;
+exportBtn.addEventListener('click', function () {
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = 400;
+  tempCanvas.height = 400;
+  const tempCtx = tempCanvas.getContext('2d');
 
-  const cx = canvas.width / 2;
-  const cy = canvas.height / 2;
-  const sx = cx - 200;
-  const sy = cy - 200;
+  const centerX = canvas.width / 2 - 200;
+  const centerY = canvas.height / 2 - 200;
 
-  const imageData = ctx.getImageData(sx, sy, 400, 400);
-  exportCtx.putImageData(imageData, 0, 0);
+  tempCtx.beginPath();
+  tempCtx.arc(200, 200, 200, 0, Math.PI * 2);
+  tempCtx.clip();
 
-  exportCtx.globalCompositeOperation = 'destination-in';
-  exportCtx.beginPath();
-  exportCtx.arc(200, 200, 200, 0, Math.PI * 2);
-  exportCtx.fill();
+  tempCtx.drawImage(canvas, centerX, centerY, 400, 400, 0, 0, 400, 400);
 
   const link = document.createElement('a');
-  link.download = 'ngks_pfp.png';
-  link.href = exportCanvas.toDataURL('image/png');
+  link.download = 'profile-pic.png';
+  link.href = tempCanvas.toDataURL();
   link.click();
 });
