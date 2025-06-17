@@ -356,4 +356,4 @@ document.getElementById('switchBanner').addEventListener('click', () => {
   window.location.href = 'index-banner.html';  // ✅ Your actual banner editor file
 });
 
-});
+
