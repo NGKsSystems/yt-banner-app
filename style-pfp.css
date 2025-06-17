@@ -64,3 +64,46 @@ h1 { margin: 10px; }
 .controls button:hover {
  background-color: #1565c0;
 }
+
+/* Match Browse Button to blue buttons */
+input[type="file"]::file-selector-button {
+  background: #1e88e5;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 4px;
+  margin-right: 8px;
+}
+
+input[type="file"]::file-selector-button:hover {
+  background: #1565c0;
+}
+
+/* Bigger, wrapable bottom buttons */
+.controls {
+  margin-top: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.controls button {
+  font-size: 14px;
+  padding: 10px 16px;
+  border-radius: 6px;
+  background-color: #1e88e5;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.controls button:hover {
+  background-color: #1565c0;
+}
