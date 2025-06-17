@@ -1,5 +1,13 @@
 const canvas = document.getElementById('editor-canvas');
 const ctx = canvas.getContext('2d');
+function resizeCanvasToWindow() {
+  canvas.width = window.innerWidth * 0.95;
+  canvas.height = window.innerHeight * 0.85;
+  drawAll();
+}
+window.addEventListener('resize', resizeCanvasToWindow);
+resizeCanvasToWindow(); // Initial run
+
 const imageLoader = document.getElementById('imageLoader');
 const thumbnailBar = document.getElementById('thumbnail-bar');
 const zoomSlider = document.getElementById('zoom');
