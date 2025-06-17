@@ -1,1 +1,51 @@
+/* === General Layout === */
+body {
+  font-family: sans-serif;
+  background-color: #111;
+  color: #eee;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin: 0;
+  padding: 20px;
+}
+
+/* === Canvas Sizing & Style === */
+canvas {
+  width: 300px;
+  height: 300px;
+  max-width: 80vw;
+  max-height: 80vw;
+  border-radius: 50%; /* simulate circular profile preview */
+  border: 2px dashed #888;
+  background-color: #222;
+}
+
+/* === Buttons === */
+button {
+  margin: 10px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  color: white;
+  background-color: #1976d2;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+button:hover {
+  background-color: #125ca1;
+}
+
+/* === Container (optional) === */
+.button-bar {
+  display: flex;
+  gap: 20px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
 
