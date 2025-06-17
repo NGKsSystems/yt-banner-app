@@ -72,7 +72,7 @@ h1 { margin: 10px; }
 /* Match Browse Button to blue buttons */
 input[type="file"]::file-selector-button {
   background: #444;
-  color: white;
+  color: green;
   padding: 10px 20px;
   font-size: 22px;
   border: 1px solid #666;
