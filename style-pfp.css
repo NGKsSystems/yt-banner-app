@@ -145,14 +145,14 @@ input[type="file"]::file-selector-button:hover {
   background-color: #007bff;
   color: white;
   padding: 12px 24px;
-  font-size: 22px; /* this controls Browse... size */
+  font-size: 22px !important;; /* this controls Browse... size */
   font-weight: bold;
   border-radius: 6px;
   cursor: pointer;
 }
 
 #file-status {
-  font-size: 20px; /* this controls "No files selected" */
+  font-size: 20px !important;; /* this controls "No files selected" */
   color: #ccc;
 }
 
