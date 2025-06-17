@@ -4,11 +4,15 @@
 const canvas = document.getElementById('editor-canvas');
 const ctx = canvas.getContext('2d');
 const imageLoader = document.getElementById('imageLoader');
+const imageLoader = document.getElementById('imageLoader');
 imageLoader.addEventListener('change', () => {
   const fileCount = imageLoader.files.length;
   const label = document.getElementById('file-status');
-  label.textContent = fileCount === 0 ? 'No files selected' : `${fileCount} file(s) selected`;
+  label.textContent = fileCount === 0 
+    ? 'No files selected' 
+    : `${fileCount} file(s) selected`;
 });
+
 const thumbnailBar = document.getElementById('thumbnail-bar');
 const zoomSlider = document.getElementById('zoom');
 const exportBtn = document.getElementById('export');
