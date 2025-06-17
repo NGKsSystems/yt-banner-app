@@ -1,194 +1,90 @@
 const canvas = document.getElementById('editor-canvas');
 const ctx = canvas.getContext('2d');
 
+function resizeCanvasToWindow() {
+  canvas.width = Math.floor(window.innerWidth * 0.95);
+  canvas.height = Math.floor(window.innerHeight * 0.75);
+  drawAll();
+}
+window.addEventListener('resize', resizeCanvasToWindow);
+resizeCanvasToWindow();
+
 const imageLoader = document.getElementById('imageLoader');
 const thumbnailBar = document.getElementById('thumbnail-bar');
 const zoomSlider = document.getElementById('zoom');
 const exportBtn = document.getElementById('export');
 const deleteBtn = document.getElementById('delete');
+// const bringForwardBtn = document.getElementById('bringForward');
+// const sendBackwardBtn = document.getElementById('sendBackward');
 
 let placedImages = [];
 let activeImage = null;
-let isDragging = false;
-let dragOffset = { x: 0, y: 0 };
-let isResizing = false;
-let resizeDirection = null;
 
-function resizeCanvasToFit() {
-  const topBar = document.getElementById('top-bar')?.offsetHeight || 100;
-  const thumbBar = document.getElementById('thumbnail-bar')?.offsetHeight || 100;
-  canvas.width = Math.floor(window.innerWidth * 0.95);
-  canvas.height = Math.floor(window.innerHeight - topBar - thumbBar - 40);
-  drawAll();
-}
-window.addEventListener('resize', resizeCanvasToFit);
-resizeCanvasToFit();
-
-imageLoader.addEventListener('change', function (e) {
+imageLoader.addEventListener('change', (e) => {
   const files = e.target.files;
-  for (let i = 0; i < files.length; i++) {
-    const reader = new FileReader();
-    reader.onload = function (event) {
-      const img = new Image();
-      img.onload = function () {
-        const thumb = document.createElement('img');
-        thumb.src = img.src;
-        thumb.className = 'thumbnail';
-        thumb.style.width = '80px';
-        thumb.style.cursor = 'pointer';
-        thumb.onclick = function () {
-          placedImages.push({
-            img: img,
-            x: 100,
-            y: 100,
-            width: img.width * 0.4,
-            height: img.height * 0.4,
-            scale: 1,
-          });
-          drawAll();
-        };
-        thumbnailBar.appendChild(thumb);
+  [...files].forEach(file => {
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+    img.onload = () => {
+      const newImage = {
+        img: img,
+        x: 50,
+        y: 50,
+        width: img.width * 0.25,
+        height: img.height * 0.25,
+        zoom: 1
       };
-      img.src = event.target.result;
+      placedImages.push(newImage);
+      drawAll();
+
+      // Add thumbnail
+      const thumb = document.createElement('img');
+      thumb.src = img.src;
+      thumb.className = 'thumbnail';
+      thumb.addEventListener('click', () => {
+        activeImage = newImage;
+        drawAll();
+      });
+      thumbnailBar.appendChild(thumb);
     };
-    reader.readAsDataURL(files[i]);
+  });
+});
+
+zoomSlider.addEventListener('input', () => {
+  if (activeImage) {
+    activeImage.zoom = parseFloat(zoomSlider.value);
+    drawAll();
   }
 });
 
-function drawAll() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  placedImages.forEach(obj => {
-    ctx.drawImage(obj.img, obj.x, obj.y, obj.width, obj.height);
-    if (obj === activeImage) drawHandles(obj);
+exportBtn.addEventListener('click', () => {
+  const exportCanvas = document.createElement('canvas');
+  exportCanvas.width = 512;
+  exportCanvas.height = 512;
+  const exportCtx = exportCanvas.getContext('2d');
+
+  placedImages.forEach(img => {
+    exportCtx.drawImage(
+      img.img,
+      img.x,
+      img.y,
+      img.width * img.zoom,
+      img.height * img.zoom
+    );
   });
 
-  // Draw circular overlay
-  const r = 200, cx = canvas.width / 2, cy = canvas.height / 2;
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(cx, cy, r, 0, Math.PI * 2);
-  ctx.strokeStyle = 'cyan';
-  ctx.lineWidth = 3;
-  ctx.stroke();
-  ctx.restore();
-}
+  const circleMask = new Path2D();
+  circleMask.arc(256, 256, 256, 0, Math.PI * 2);
+  exportCtx.globalCompositeOperation = 'destination-in';
+  exportCtx.fill(circleMask);
 
-function drawHandles(obj) {
-  const size = 8;
-  const points = [
-    [obj.x, obj.y], // TL
-    [obj.x + obj.width / 2, obj.y], // TC
-    [obj.x + obj.width, obj.y], // TR
-    [obj.x + obj.width, obj.y + obj.height / 2], // RC
-    [obj.x + obj.width, obj.y + obj.height], // BR
-    [obj.x + obj.width / 2, obj.y + obj.height], // BC
-    [obj.x, obj.y + obj.height], // BL
-    [obj.x, obj.y + obj.height / 2], // LC
-  ];
-  ctx.fillStyle = 'white';
-  points.forEach(([x, y]) => ctx.fillRect(x - size / 2, y - size / 2, size, size));
-}
-
-function getHandleDirection(x, y, obj) {
-  const size = 8;
-  const directions = ['tl', 'tc', 'tr', 'rc', 'br', 'bc', 'bl', 'lc'];
-  const points = [
-    [obj.x, obj.y],
-    [obj.x + obj.width / 2, obj.y],
-    [obj.x + obj.width, obj.y],
-    [obj.x + obj.width, obj.y + obj.height / 2],
-    [obj.x + obj.width, obj.y + obj.height],
-    [obj.x + obj.width / 2, obj.y + obj.height],
-    [obj.x, obj.y + obj.height],
-    [obj.x, obj.y + obj.height / 2],
-  ];
-
-  for (let i = 0; i < points.length; i++) {
-    const [px, py] = points[i];
-    if (x >= px - size && x <= px + size && y >= py - size && y <= py + size) {
-      return directions[i];
-    }
-  }
-  return null;
-}
-
-canvas.addEventListener('mousedown', function (e) {
-  const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
-
-  activeImage = null;
-  for (let i = placedImages.length - 1; i >= 0; i--) {
-    const img = placedImages[i];
-    const dir = getHandleDirection(x, y, img);
-    if (dir) {
-      activeImage = img;
-      isResizing = true;
-      resizeDirection = dir;
-      return;
-    } else if (x >= img.x && x <= img.x + img.width && y >= img.y && y <= img.y + img.height) {
-      activeImage = img;
-      isDragging = true;
-      dragOffset.x = x - img.x;
-      dragOffset.y = y - img.y;
-      return;
-    }
-  }
+  const link = document.createElement('a');
+  link.download = 'pfp.png';
+  link.href = exportCanvas.toDataURL();
+  link.click();
 });
 
-canvas.addEventListener('mousemove', function (e) {
-  if (!activeImage) return;
-  const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
-
-  if (isDragging) {
-    activeImage.x = x - dragOffset.x;
-    activeImage.y = y - dragOffset.y;
-    drawAll();
-  } else if (isResizing) {
-    switch (resizeDirection) {
-      case 'br':
-        activeImage.width = x - activeImage.x;
-        activeImage.height = y - activeImage.y;
-        break;
-      case 'tr':
-        activeImage.height += activeImage.y - y;
-        activeImage.y = y;
-        activeImage.width = x - activeImage.x;
-        break;
-      case 'tl':
-        activeImage.width += activeImage.x - x;
-        activeImage.height += activeImage.y - y;
-        activeImage.x = x;
-        activeImage.y = y;
-        break;
-      case 'bl':
-        activeImage.width += activeImage.x - x;
-        activeImage.x = x;
-        activeImage.height = y - activeImage.y;
-        break;
-      // You can expand for side-only handles too
-    }
-    drawAll();
-  }
-});
-
-canvas.addEventListener('mouseup', () => {
-  isDragging = false;
-  isResizing = false;
-});
-
-zoomSlider.addEventListener('input', function () {
-  if (activeImage) {
-    const factor = parseFloat(this.value);
-    activeImage.width = activeImage.img.width * factor * 0.4;
-    activeImage.height = activeImage.img.height * factor * 0.4;
-    drawAll();
-  }
-});
-
-deleteBtn.addEventListener('click', function () {
+deleteBtn.addEventListener('click', () => {
   if (activeImage) {
     placedImages = placedImages.filter(img => img !== activeImage);
     activeImage = null;
@@ -196,23 +92,124 @@ deleteBtn.addEventListener('click', function () {
   }
 });
 
-exportBtn.addEventListener('click', function () {
-  const tempCanvas = document.createElement('canvas');
-  tempCanvas.width = 400;
-  tempCanvas.height = 400;
-  const tempCtx = tempCanvas.getContext('2d');
+// bringForwardBtn.addEventListener('click', () => {
+//   if (!activeImage) return;
+//   const index = placedImages.indexOf(activeImage);
+//   if (index < placedImages.length - 1) {
+//     [placedImages[index], placedImages[index + 1]] = [placedImages[index + 1], placedImages[index]];
+//     drawAll();
+//   }
+// });
 
-  const centerX = canvas.width / 2 - 200;
-  const centerY = canvas.height / 2 - 200;
+// sendBackwardBtn.addEventListener('click', () => {
+//   if (!activeImage) return;
+//   const index = placedImages.indexOf(activeImage);
+//   if (index > 0) {
+//     [placedImages[index], placedImages[index - 1]] = [placedImages[index - 1], placedImages[index]];
+//     drawAll();
+//   }
+// });
 
-  tempCtx.beginPath();
-  tempCtx.arc(200, 200, 200, 0, Math.PI * 2);
-  tempCtx.clip();
+function drawAll() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  tempCtx.drawImage(canvas, centerX, centerY, 400, 400, 0, 0, 400, 400);
+  placedImages.forEach(img => {
+    ctx.drawImage(
+      img.img,
+      img.x,
+      img.y,
+      img.width * img.zoom,
+      img.height * img.zoom
+    );
 
-  const link = document.createElement('a');
-  link.download = 'profile-pic.png';
-  link.href = tempCanvas.toDataURL();
-  link.click();
+    // Show resize box
+    if (img === activeImage) {
+      ctx.strokeStyle = '#0f0';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(
+        img.x,
+        img.y,
+        img.width * img.zoom,
+        img.height * img.zoom
+      );
+
+      // Resize handle
+      ctx.fillStyle = '#0f0';
+      ctx.fillRect(
+        img.x + img.width * img.zoom - 8,
+        img.y + img.height * img.zoom - 8,
+        8,
+        8
+      );
+    }
+  });
+
+  // Circular overlay
+  ctx.beginPath();
+  ctx.arc(canvas.width / 2, canvas.height / 2, canvas.height / 2, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
+// 🖱 Drag + Resize Handling
+let isDragging = false;
+let dragOffsetX = 0;
+let dragOffsetY = 0;
+let resizing = false;
+
+canvas.addEventListener('mousedown', (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+
+  for (let i = placedImages.length - 1; i >= 0; i--) {
+    const img = placedImages[i];
+    const iw = img.width * img.zoom;
+    const ih = img.height * img.zoom;
+
+    if (x >= img.x + iw - 10 && x <= img.x + iw &&
+        y >= img.y + ih - 10 && y <= img.y + ih) {
+      activeImage = img;
+      resizing = true;
+      canvas.style.cursor = 'nwse-resize';
+      return;
+    }
+
+    if (x >= img.x && x <= img.x + iw &&
+        y >= img.y && y <= img.y + ih) {
+      activeImage = img;
+      isDragging = true;
+      dragOffsetX = x - img.x;
+      dragOffsetY = y - img.y;
+      canvas.style.cursor = 'grabbing';
+      return;
+    }
+  }
+
+  activeImage = null;
+  drawAll();
+});
+
+canvas.addEventListener('mousemove', (e) => {
+  if (!activeImage) return;
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+
+  if (resizing) {
+    activeImage.width = (x - activeImage.x) / activeImage.zoom;
+    activeImage.height = (y - activeImage.y) / activeImage.zoom;
+    drawAll();
+  } else if (isDragging) {
+    activeImage.x = x - dragOffsetX;
+    activeImage.y = y - dragOffsetY;
+    drawAll();
+  }
+});
+
+canvas.addEventListener('mouseup', () => {
+  isDragging = false;
+  resizing = false;
+  canvas.style.cursor = 'grab';
 });
