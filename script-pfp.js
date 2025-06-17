@@ -76,16 +76,19 @@ exportBtn.addEventListener('click', () => {
   exportCanvas.width = 512;
   exportCanvas.height = 512;
   const exportCtx = exportCanvas.getContext('2d');
+  const offsetX = (canvas.width / 2) - 256;
+  const offsetY = (canvas.height / 2) - 256;
 
   placedImages.forEach(img => {
-    exportCtx.drawImage(
-      img.img,
-      img.x,
-      img.y,
-      img.width * img.zoom,
-      img.height * img.zoom
-    );
-  });
+  exportCtx.drawImage(
+    img.img,
+    img.x - offsetX,
+    img.y - offsetY,
+    img.width * img.zoom,
+    img.height * img.zoom
+  );
+});
+
 
   const mask = new Path2D();
   mask.arc(256, 256, 256, 0, Math.PI * 2);
