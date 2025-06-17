@@ -12,45 +12,35 @@
     html, body {
       margin: 0;
       padding: 0;
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden;
+      width: 100%;
+      min-height: 100vh;
       font-family: sans-serif;
-    }
-
-    body {
       background: url('NGKsExactFit-Landing.png') no-repeat center center fixed;
       background-size: cover;
+    }
+
+    .container {
       display: flex;
       flex-direction: column;
-      align-items: center;
       justify-content: center;
-      color: white;
-    }
-
-    .header-logo {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      height: 60px;
-    }
-
-    .overlay {
-      background-color: rgba(0, 0, 0, 0.6);
-      padding: 2rem 3rem;
-      border-radius: 12px;
+      align-items: center;
+      padding: 2rem;
+      min-height: 100vh;
+      background-color: rgba(0, 0, 0, 0.5); /* darken for readability */
       text-align: center;
-      max-width: 90vw;
     }
 
     h1 {
-      font-size: 4vw;
-      margin: 0 0 1rem;
+      font-size: clamp(2rem, 5vw, 4rem);
+      margin-bottom: 1rem;
+      color: white;
+      text-shadow: 1px 1px 4px black;
     }
 
     p {
-      font-size: 2vw;
+      font-size: clamp(1rem, 2.5vw, 1.5rem);
       margin-bottom: 2rem;
+      color: white;
     }
 
     .button-group {
@@ -62,12 +52,12 @@
 
     .button-link {
       padding: 0.75rem 1.5rem;
-      font-size: 1.2rem;
+      font-size: 1rem;
       background-color: #1e90ff;
       color: white;
       border-radius: 6px;
       text-decoration: none;
-      transition: background-color 0.3s;
+      transition: background-color 0.3s ease;
     }
 
     .button-link:hover {
@@ -75,17 +65,15 @@
     }
 
     @media (max-width: 600px) {
-      h1 { font-size: 7vw; }
-      p { font-size: 4vw; }
-      .button-link { font-size: 1rem; }
+      .button-link {
+        width: 100%;
+        text-align: center;
+      }
     }
   </style>
 </head>
 <body>
-  <!-- Optional logo top-left -->
-  <img src="NGKsLogo.png" alt="Logo" class="header-logo" />
-
-  <div class="overlay">
+  <div class="container">
     <h1>Choose Your Editor</h1>
     <p>Welcome to NGKsExactFit</p>
     <div class="button-group">
