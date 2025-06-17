@@ -3,6 +3,8 @@ const ctx = canvas.getContext('2d');
 const imageLoader = document.getElementById('imageLoader');
 const zoomSlider = document.getElementById('zoom');
 const exportBtn = document.getElementById('export');
+const applyBtn = document.getElementById('applyBtn');
+const thumbnail = document.getElementById('thumbnail');
 
 let img = new Image();
 let dragging = false;
@@ -13,21 +15,30 @@ let scale = 1;
 let resizeHandleSize = 10;
 let activeHandle = null;
 
-imageLoader.addEventListener('change', e => {
+imageLoader.addEventListener('change', (e) => {
   const file = e.target.files[0];
   if (!file) return;
+
   const reader = new FileReader();
-  reader.onload = evt => {
-    img.onload = () => {
-      imgW = img.width * 0.5;
-      imgH = img.height * 0.5;
-      imgX = (canvas.width - imgW) / 2;
-      imgY = (canvas.height - imgH) / 2;
-      draw();
-    };
-    img.src = evt.target.result;
+  reader.onload = (evt) => {
+    thumbnail.src = evt.target.result;
+    thumbnail.style.display = 'inline-block';
   };
   reader.readAsDataURL(file);
+});
+
+applyBtn.addEventListener('click', () => {
+  if (!thumbnail.src) return;
+  const temp = new Image();
+  temp.onload = () => {
+    img = temp;
+    imgW = img.width * 0.5;
+    imgH = img.height * 0.5;
+    imgX = (canvas.width - imgW) / 2;
+    imgY = (canvas.height - imgH) / 2;
+    draw();
+  };
+  temp.src = thumbnail.src;
 });
 
 zoomSlider.addEventListener('input', () => {
@@ -121,7 +132,6 @@ function draw() {
   ctx.strokeStyle = "#0ff";
   ctx.lineWidth = 4;
   ctx.stroke();
-
   drawHandles();
 }
 
@@ -148,6 +158,7 @@ exportBtn.addEventListener('click', () => {
   exportCtx.arc(200, 200, 200, 0, Math.PI * 2);
   exportCtx.closePath();
   exportCtx.clip();
+
   exportCtx.drawImage(
     img,
     imgX, imgY, imgW * scale, imgH * scale,
