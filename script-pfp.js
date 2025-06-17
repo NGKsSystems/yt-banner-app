@@ -24,7 +24,14 @@ document.getElementById('uploadPfpImage').addEventListener('click', () => {
       const x = (canvas.width - img.width * scale) / 2;
       const y = (canvas.height - img.height * scale) / 2;
 
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, 0, Math.PI * 2);
+      ctx.clip();
+
       ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+      ctx.restore();
+
       pfpImage = img;
     };
 
