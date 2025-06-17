@@ -1,65 +1,72 @@
-const previewCanvas = document.getElementById("previewCanvas");
-const previewCtx = previewCanvas.getContext("2d");
-const zoomSlider = document.getElementById("zoomSlider");
-const exportBtn = document.getElementById("exportPfp");
+const previewCanvas = document.getElementById('previewCanvas');
+const previewCtx = previewCanvas.getContext('2d');
 
-let img = null;
+const circleCanvas = document.getElementById('circleOverlay');
+const circleCtx = circleCanvas.getContext('2d');
+
+const uploadInput = document.getElementById('uploadPfpImage');
+const zoomSlider = document.getElementById('zoomSlider');
+const exportBtn = document.getElementById('exportPfp');
+
+let image = null;
 let zoom = 1;
 
-document.getElementById("uploadPfpImage").addEventListener("change", (e) => {
+function drawImage() {
+  if (!image) return;
+  const w = image.width * zoom;
+  const h = image.height * zoom;
+  const x = (previewCanvas.width - w) / 2;
+  const y = (previewCanvas.height - h) / 2;
+
+  previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+  previewCtx.drawImage(image, x, y, w, h);
+}
+
+function drawOverlay() {
+  circleCtx.clearRect(0, 0, circleCanvas.width, circleCanvas.height);
+  circleCtx.beginPath();
+  circleCtx.arc(circleCanvas.width / 2, circleCanvas.height / 2, 150, 0, Math.PI * 2);
+  circleCtx.strokeStyle = '#aaa';
+  circleCtx.lineWidth = 2;
+  circleCtx.stroke();
+}
+
+uploadInput.addEventListener('change', (e) => {
   const file = e.target.files[0];
   if (!file) return;
 
-  const reader = new FileReader();
-  reader.onload = function (event) {
-    img = new Image();
-    img.onload = () => {
-      drawPreview();
-    };
-    img.src = event.target.result;
+  const img = new Image();
+  img.onload = () => {
+    image = img;
+    drawImage();
+    drawOverlay();
   };
-  reader.readAsDataURL(file);
+  img.src = URL.createObjectURL(file);
 });
 
-zoomSlider.addEventListener("input", () => {
-  zoom = parseFloat(zoomSlider.value);
-  drawPreview();
+zoomSlider.addEventListener('input', (e) => {
+  zoom = parseFloat(e.target.value);
+  drawImage();
+  drawOverlay();
 });
 
-function drawPreview() {
-  if (!img) return;
+exportBtn.addEventListener('click', () => {
+  const r = 150;
+  const x = (previewCanvas.width / 2) - r;
+  const y = (previewCanvas.height / 2) - r;
 
-  previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+  const cropCanvas = document.createElement('canvas');
+  cropCanvas.width = r * 2;
+  cropCanvas.height = r * 2;
 
-  const scaledWidth = img.width * zoom;
-  const scaledHeight = img.height * zoom;
+  const cropCtx = cropCanvas.getContext('2d');
+  cropCtx.beginPath();
+  cropCtx.arc(r, r, r, 0, Math.PI * 2);
+  cropCtx.clip();
+  cropCtx.drawImage(previewCanvas, x, y, r * 2, r * 2, 0, 0, r * 2, r * 2);
 
-  const x = (previewCanvas.width - scaledWidth) / 2;
-  const y = (previewCanvas.height - scaledHeight) / 2;
-
-  previewCtx.drawImage(img, x, y, scaledWidth, scaledHeight);
-}
-
-// 🟢 Export logic: Crop circle area from previewCanvas
-exportBtn.addEventListener("click", () => {
-  const size = 500; // size of circle
-  const offsetX = (previewCanvas.width - size) / 2;
-  const offsetY = (previewCanvas.height - size) / 2;
-
-  const output = document.createElement("canvas");
-  output.width = size;
-  output.height = size;
-  const ctx = output.getContext("2d");
-
-  ctx.beginPath();
-  ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
-  ctx.closePath();
-  ctx.clip();
-
-  ctx.drawImage(previewCanvas, offsetX, offsetY, size, size, 0, 0, size, size);
-
-  const link = document.createElement("a");
-  link.download = "pfp.png";
-  link.href = output.toDataURL("image/png");
+  const link = document.createElement('a');
+  link.href = cropCanvas.toDataURL('image/png');
+  link.download = 'pfp.png';
   link.click();
 });
