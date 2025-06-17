@@ -2,75 +2,85 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>NGKsExactFit</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NGKsExactFit</title>
   <style>
-    body {
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
       font-family: sans-serif;
-      background-image: url('NGKsExactFit-Landing.png');
+      background-image: url('15211da6-29f7-4906-ac2e-45104e05b11a.png');
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
       color: #f0f0f0;
+    }
+
+    .container {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
-      margin: 0;
-      padding: 2vh;
       text-align: center;
+      height: 100%;
+      padding: 5vw;
+      background-color: rgba(0, 0, 0, 0.5); /* dark overlay for readability */
     }
 
     h1 {
       font-size: 5vw;
-      margin-bottom: 5vh;
+      margin-bottom: 2vh;
       color: white;
-      text-shadow: 1px 1px 4px #000;
+      text-shadow: 2px 2px 5px black;
+    }
+
+    p {
+      font-size: 2.5vw;
+      margin-bottom: 4vh;
     }
 
     .button-group {
       display: flex;
       flex-wrap: wrap;
-      gap: 4vw;
+      gap: 20px;
       justify-content: center;
     }
 
     .button-link {
-      padding: 2vh 4vw;
-      font-size: 4vw;
-      max-width: 80vw;
-      border: none;
-      border-radius: 10px;
+      padding: 1rem 2rem;
+      font-size: 1.2rem;
       background-color: #1e90ff;
       color: white;
       text-decoration: none;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      text-align: center;
+      border-radius: 6px;
+      transition: background-color 0.3s;
     }
 
     .button-link:hover {
       background-color: #0b65c7;
     }
 
-    /* Desktop styles */
-    @media (min-width: 768px) {
+    @media (max-width: 768px) {
       h1 {
-        font-size: 2.5rem;
+        font-size: 8vw;
+      }
+
+      p {
+        font-size: 4vw;
       }
 
       .button-link {
-        font-size: 1.2rem;
+        font-size: 4vw;
         padding: 1rem 2rem;
-        max-width: none;
       }
     }
   </style>
 </head>
 <body>
-  <div id="landing">
-    <h1>Welcome to NGKsExactFit</h1>
+  <div class="container">
+    <h1>Choose Your Editor</h1>
+    <p>Welcome to NGKsExactFit</p>
     <div class="button-group">
       <a class="button-link" href="index-banner.html">Banner Editor</a>
       <a class="button-link" href="index-pfp.html">PFP Editor</a>
