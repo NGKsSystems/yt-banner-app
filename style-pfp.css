@@ -1,43 +1,44 @@
 body {
   background: #111;
-  color: #fff;
+  color: #eee;
   font-family: sans-serif;
-  text-align: center;
   margin: 0;
-  padding: 20px;
+  padding: 10px;
+  overflow: hidden;
+}
+
+#top-bar {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
 }
 
 canvas {
-  width: 95vw;
-  height: 85vh;
   display: block;
-  margin: 0 auto 20px;
+  margin: 0 auto;
   background: #222;
-  border: 2px solid #0ff;
-}
-
-
-.controls {
-  margin-bottom: 20px;
+  border: 2px solid #444;
+  cursor: grab;
 }
 
 #thumbnail-bar {
   display: flex;
+  gap: 10px;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 10px;
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
-#thumbnail-bar img {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
+.thumbnail {
   border: 2px solid #444;
-  cursor: pointer;
-  transition: border 0.2s;
+  padding: 2px;
+  background: #333;
+  transition: transform 0.2s;
 }
 
-#thumbnail-bar img:hover {
-  border-color: #0ff;
+.thumbnail:hover {
+  transform: scale(1.1);
 }
