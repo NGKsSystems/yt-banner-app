@@ -255,22 +255,27 @@
     document.getElementById('selector-modal').classList.remove('hidden');
   }
 
- function goTo(type) {
+function goTo(type) {
   const map = {
     youtube: {
       banner: 'index-banner.html',
       pfp: 'index-pfp.html'
+    },
+    x: {
+      banner: 'x-banner.html',
+      pfp: 'x-pfp.html'
     }
-    // add more exceptions here if needed
   };
 
-  if (map[currentPlatform]) {
-    window.location.href = map[currentPlatform][type];
+  const platform = currentPlatform; // assuming this is set by showOptions()
+  const target = map[platform]?.[type];
+
+  if (target) {
+    window.location.href = target;
   } else {
-    window.location.href = `${currentPlatform}-${type}.html`;
+    alert("Invalid platform or type selected.");
   }
 }
-
 
   function closeModal() {
     document.getElementById('selector-modal').classList.add('hidden');
