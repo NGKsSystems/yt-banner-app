@@ -7,31 +7,14 @@ const ctx = canvas.getContext("2d");
 // === State ===
 let overlays = [];
 let currentStep = 1;
-
 let dragTarget = null;
 let dragType = null;
 let dragHandle = null;
 let startX, startY;
 
-// === Step Logic ===
-function showStep(stepNumber) {
-  document.querySelectorAll(".step").forEach((el, i) => {
-    el.classList.toggle("hidden", i + 1 !== stepNumber);
-  });
-  currentStep = stepNumber;
-}
-
-function advanceStep(delta) {
-  const newStep = currentStep + delta;
-  if (newStep >= 1 && newStep <= 4) {
-    showStep(newStep);
-  }
-}
-window.advanceStep = advanceStep;
-
 // === Image Upload & Drawing ===
 function drawHandles(obj) {
-  const x = obj.x, y = obj.y, w = obj.width, h = obj.height;
+  const { x, y, width: w, height: h } = obj;
   const points = [
     [x, y], [x + w / 2, y], [x + w, y],
     [x + w, y + h / 2], [x + w, y + h],
@@ -39,14 +22,12 @@ function drawHandles(obj) {
     [x, y + h / 2]
   ];
   ctx.fillStyle = "white";
-  points.forEach(([px, py]) => {
-    ctx.fillRect(px - 5, py - 5, 10, 10);
-  });
+  points.forEach(([px, py]) => ctx.fillRect(px - 5, py - 5, 10, 10));
 }
 
 function drawCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  for (const overlay of overlays) {
+  overlays.forEach(overlay => {
     ctx.drawImage(overlay.img, overlay.x, overlay.y, overlay.width, overlay.height);
     if (overlay.selected) {
       ctx.strokeStyle = "lime";
@@ -54,232 +35,146 @@ function drawCanvas() {
       ctx.strokeRect(overlay.x, overlay.y, overlay.width, overlay.height);
       drawHandles(overlay);
     }
-  }
+  });
 }
 
 function loadImageToCanvas(file, stepNum) {
   const img = new Image();
   overlays = overlays.filter(ov => ov.step !== stepNum);
 
- img.onload = () => {
-  let overlay;
-  
+  img.onload = () => {
+    let overlay;
     if (stepNum === 1) {
       overlay = {
-        img,
-        x: 0,
-        y: 0,
+        img, x: 0, y: 0,
         width: canvas.width,
         height: canvas.height,
-        selected: true,
-        step: stepNum
+        selected: true, step: stepNum
       };
     } else if (stepNum === 2) {
-      // Centered 1546x423 safe zone
-      const safeWidth = 1546;
-      const safeHeight = 423;
       overlay = {
         img,
-        x: (canvas.width - safeWidth) / 2,
-        y: (canvas.height - safeHeight) / 2,
-        width: safeWidth,
-        height: safeHeight,
-        selected: true,
-        step: stepNum
+        width: 1546, height: 423,
+        x: (canvas.width - 1546) / 2,
+        y: (canvas.height - 423) / 2,
+        selected: true, step: stepNum
       };
     } else {
-      // Freely placed (additional images)
       overlay = {
-        img,
-        x: 100,
-        y: 100,
+        img, x: 100, y: 100,
         width: img.width / 2,
         height: img.height / 2,
-        selected: true,
-        step: stepNum
+        selected: true, step: stepNum
       };
     }
-   
-   if (stepNum === 1) {
-  requestAnimationFrame(() => {
+    overlays.push(overlay);
     drawCanvas();
-    advanceStep(1); // ✅ Only step forward after drawing
-  });
+    if (stepNum === 1) advanceStep(1);
+  };
+  img.src = URL.createObjectURL(file);
 }
 
-overlays.push(overlay);
-drawCanvas(); // fallback for non-step 1
-
-}; // ✅ <-- this was missing! closes img.onload
-
-img.src = URL.createObjectURL(file);
-
-}
-
-function exportBanner() {
-  // Deselect all overlays temporarily
+// === Export Button ===
+document.getElementById("exportBtn").addEventListener("click", () => {
   overlays.forEach(o => o.selected = false);
-
-  // Redraw without selection boxes
   drawCanvas();
 
-  // Export clean image
   const link = document.createElement("a");
   link.download = "banner.png";
   link.href = canvas.toDataURL("image/png");
   link.click();
 
-  // Restore selection boxes after export
   overlays.forEach(o => o.selected = true);
   drawCanvas();
-}
-
-// === Input Hooks ===
-document.getElementById("bgInput").addEventListener("change", (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    loadImageToCanvas(file, 1);
-    drawCanvas();              
-    }
 });
 
-document.getElementById("mobileInput").addEventListener("change", (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    loadImageToCanvas(file, 2);
-    advanceStep(1);
-  }
-});
-
-document.getElementById("extraInput").addEventListener("change", (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    loadImageToCanvas(file, 3);
-    advanceStep(1);
-  }
-});
-
-document.getElementById('deleteBtn').addEventListener('click', () => {
-  if (!activeObject) {
-    console.warn('No image selected to delete.');
-    return;
-  }
-
-  // Remove from objects array
-  const index = objects.indexOf(activeObject);
-  if (index > -1) {
-    objects.splice(index, 1);
-    activeObject = null;
-    drawAll();
-    console.log('Selected image deleted.');
+// === Delete Selected ===
+document.getElementById("deleteBtn").addEventListener("click", () => {
+  const index = overlays.findIndex(o => o.selected);
+  if (index !== -1) {
+    overlays.splice(index, 1);
+    drawCanvas();
   } else {
-    console.warn('Selected object not found in list.');
+    console.warn("No overlay selected.");
   }
 });
 
-
-// === Step Buttons ===
-document.getElementById("nextBtn")?.addEventListener("click", () => {
-  advanceStep(1);
-});
-
-let currentStep = 1;
-
-document.getElementById('prevBtn').addEventListener('click', () => {
-  if (currentStep > 1) {
-    document.getElementById(`step${currentStep}`).classList.add('hidden');
-    currentStep--;
-    document.getElementById(`step${currentStep}`).classList.remove('hidden');
-  }
-});
-
-document.getElementById("skipBg")?.addEventListener("click", () => {
-  advanceStep(1);
-});
-
-document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById('exportBtn').addEventListener('click', () => {
-  const canvas = document.getElementById('bannerCanvas');
-  const link = document.createElement('a');
-  link.download = 'exported-banner.png';
-  link.href = canvas.toDataURL('image/png');
-  link.click();
-});
-
-document.getElementById('startOverBtn').addEventListener('click', () => {
-  objects.length = 0;
-  activeObject = null;
-  drawAll();
-  currentStep = 1;
-
-  // Reset all step visibility
-  for (let i = 1; i <= 4; i++) {
-    document.getElementById(`step${i}`).classList.add('hidden');
-  }
-  document.getElementById(`step1`).classList.remove('hidden');
-
-  // Optionally reset inputs
+// === Start Over ===
+document.getElementById("startoverBtn").addEventListener("click", () => {
+  overlays.length = 0;
   ['bgInput', 'mobileInput', 'extraInput'].forEach(id => {
     const input = document.getElementById(id);
     if (input) input.value = '';
   });
+  currentStep = 1;
+  drawCanvas();
 });
 
-document.getElementById('deleteBtn').addEventListener('click', () => {
-  if (!activeObject) {
-    console.warn('No image selected to delete.');
-    return;
-  }
-
-  const index = objects.indexOf(activeObject);
-  if (index > -1) {
-    objects.splice(index, 1);
-    activeObject = null;
-    drawAll();
-    console.log('Selected image deleted.');
-  } else {
-    console.warn('Selected object not found.');
+// === Step Navigation ===
+document.getElementById("prevBtn").addEventListener("click", () => {
+  if (currentStep > 1) {
+    currentStep--;
+    drawCanvas();
   }
 });
 
+function advanceStep(delta) {
+  const newStep = currentStep + delta;
+  if (newStep >= 1 && newStep <= 4) {
+    currentStep = newStep;
+    drawCanvas();
+  }
+}
+window.advanceStep = advanceStep;
 
-// === Drag & Resize ===
-canvas.addEventListener("mousedown", (e) => {
-  const mouseX = e.offsetX;
-  const mouseY = e.offsetY;
+// === Upload Hooks ===
+document.getElementById("bgInput").addEventListener("change", e => {
+  const file = e.target.files[0];
+  if (file) loadImageToCanvas(file, 1);
+});
+
+document.getElementById("mobileInput").addEventListener("change", e => {
+  const file = e.target.files[0];
+  if (file) loadImageToCanvas(file, 2);
+});
+
+document.getElementById("extraInput").addEventListener("change", e => {
+  const file = e.target.files[0];
+  if (file) loadImageToCanvas(file, 3);
+});
+
+// === Canvas Drag/Resize ===
+canvas.addEventListener("mousedown", e => {
+  const { offsetX: mx, offsetY: my } = e;
 
   for (let i = overlays.length - 1; i >= 0; i--) {
-    const obj = overlays[i];
-    const x = obj.x, y = obj.y, w = obj.width, h = obj.height;
+    const o = overlays[i];
+    const { x, y, width: w, height: h } = o;
     const handles = [
       [x, y], [x + w / 2, y], [x + w, y],
       [x + w, y + h / 2], [x + w, y + h],
       [x + w / 2, y + h], [x, y + h],
       [x, y + h / 2]
     ];
-
     for (let j = 0; j < handles.length; j++) {
       const [hx, hy] = handles[j];
-      if (Math.abs(mouseX - hx) < 8 && Math.abs(mouseY - hy) < 8) {
-        dragTarget = obj;
+      if (Math.abs(mx - hx) < 8 && Math.abs(my - hy) < 8) {
+        dragTarget = o;
         dragType = "resize";
         dragHandle = j;
-        startX = mouseX;
-        startY = mouseY;
+        startX = mx;
+        startY = my;
         overlays.forEach(o => o.selected = false);
         dragTarget.selected = true;
         return;
       }
     }
 
-    if (
-      mouseX >= x && mouseX <= x + w &&
-      mouseY >= y && mouseY <= y + h
-    ) {
-      dragTarget = obj;
+    if (mx >= x && mx <= x + w && my >= y && my <= y + h) {
+      dragTarget = o;
       dragType = "move";
-      startX = mouseX;
-      startY = mouseY;
+      startX = mx;
+      startY = my;
       overlays.forEach(o => o.selected = false);
       dragTarget.selected = true;
       return;
@@ -287,14 +182,11 @@ canvas.addEventListener("mousedown", (e) => {
   }
 });
 
-canvas.addEventListener("mousemove", (e) => {
+canvas.addEventListener("mousemove", e => {
   if (!dragTarget) return;
-
-  const mouseX = e.offsetX;
-  const mouseY = e.offsetY;
-
-  const dx = mouseX - startX;
-  const dy = mouseY - startY;
+  const { offsetX: mx, offsetY: my } = e;
+  const dx = mx - startX;
+  const dy = my - startY;
 
   if (dragType === "move") {
     dragTarget.x += dx;
@@ -312,8 +204,8 @@ canvas.addEventListener("mousemove", (e) => {
     }
   }
 
-  startX = mouseX;
-  startY = mouseY;
+  startX = mx;
+  startY = my;
   drawCanvas();
 });
 
@@ -321,16 +213,8 @@ canvas.addEventListener("mouseup", () => {
   dragTarget = null;
 });
 
-window.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll(".prevBtn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      console.log("Previous clicked");
-      advanceStep(-1);
-    });
-  });
-});
-
-document.addEventListener("keydown", (e) => {
+// === Keyboard Arrow Movement ===
+document.addEventListener("keydown", e => {
   const selected = overlays.find(o => o.selected);
   if (!selected) return;
 
@@ -344,14 +228,6 @@ document.addEventListener("keydown", (e) => {
   drawCanvas();
 });
 
-document.querySelectorAll(".startOverBtn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    overlays.length = 0;
-    currentStep = 1;
-    showStep(currentStep);
-    drawCanvas();
-  });
-});
 
 
 showStep(1);
