@@ -5,7 +5,6 @@ const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 let overlays = [];
 let selectedObjectIndex = -1;
-let canvas = document.getElementById("bannerCanvas");
 let ctx = canvas.getContext("2d");
 let currentImage = null;
 let objects = [];
