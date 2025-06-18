@@ -12,37 +12,26 @@
   <div id="canvasTopBar">
     <img src="https://raw.githubusercontent.com/NGKsSystems/yt-banner-app/main/NGKsExactFit.png" class="logo left" alt="NGKS ExactFit" />
 
-    <!-- Step Panels (only one visible at a time) -->
-    <div id="stepPanelContainer">
-      <div id="step1" class="step">
-        <p class="step-label">Step 1: Choose your background</p>
-        <input type="file" id="bgInput" accept="image/*" />
-        <button id="skipBg">Skip</button>
-        <button class="prevBtn">Previous</button>
-      </div>
+    <div class="top-controls">
+  <button class="nav-button" onclick="location.href='index.html'">🏠 Home</button>
 
-      <div id="step2" class="step hidden">
-        <p class="step-label">Step 2: Choose your mobile-safe image</p>
-        <input type="file" id="mobileInput" accept="image/*" />
-        <button class="prevBtn">Previous</button>
-        <button class="startOverBtn" id="startOverBtn2">Start Over</button>
-      </div>
+  <label class="file-label">
+    Upload Background
+    <input type="file" id="bgInput" class="file-input" />
+  </label>
 
-      <div id="step3" class="step hidden">
-        <p class="step-label">Step 3: Add additional images</p>
-        <input type="file" id="extraInput" accept="image/*" />
-        <button class="prevBtn">Previous</button>
-        <button class="exportBtn">Export Banner</button>
-        <button class="startOverBtn" id="startOverBtn3">Start Over</button>
-      </div>
+  <label class="file-label">
+    Upload Mobile Safe
+    <input type="file" id="mobileInput" class="file-input" />
+  </label>
 
-      <div id="step4" class="step hidden">
-        <p class="step-label">Step 4: Export your banner</p>
-        <button class="prevBtn">Previous</button>
-        <button class="exportBtn">Export Banner</button>
-        <button class="startOverBtn" id="startOverBtn4">Start Over</button>
-      </div>
-    </div>
+  <label class="file-label">
+    Upload Extra Layer
+    <input type="file" id="extraInput" class="file-input" />
+  </label>
+
+  <button id="switchPFP" class="nav-button" onclick="location.href='index-pfp.html'">🔁 Switch to PFP</button>
+</div>
 
     <a href="https://ngkssystems.com" target="_blank">
       <img src="https://raw.githubusercontent.com/NGKsSystems/yt-banner-app/main/NGKsSystems4.png" class="logo right" alt="NGKS Systems" />
