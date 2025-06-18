@@ -27,7 +27,7 @@ h1 {
   display: flex;
   gap: 6px;
   position: absolute;
-  top: -20px; /* Adjust this based on layout */
+  top: -35px; /* Adjust this based on layout */
   left: 50%;
   transform: translateX(-50%);
   background: transparent;
