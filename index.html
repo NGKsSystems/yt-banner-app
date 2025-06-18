@@ -238,8 +238,12 @@
   }
 
   function goTo(type) {
+  if (currentPlatform === 'youtube') {
+    window.location.href = `index-${type}.html`; // YouTube hardcoded
+  } else {
     window.location.href = `${currentPlatform}-${type}.html`;
   }
+}
 
   function closeModal() {
     document.getElementById('selector-modal').classList.add('hidden');
