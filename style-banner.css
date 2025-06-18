@@ -5,6 +5,16 @@ body {
   background-position: center center;
 }
 
+/* General Page Styles */
+body {
+  background: #111;
+  color: #fff;
+  font-family: sans-serif;
+  text-align: center;
+  margin: 0;
+  padding: 20px;
+}
+
 h1 {
   margin-bottom: 20px;
 }
