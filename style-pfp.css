@@ -1,13 +1,17 @@
 /* General Page Styles */
 body {
-  background: #111 url('Your-Site-Under-Construction.png') no-repeat center center;
-  background-size: cover;
+  background-image: url('Your-Site-Under-Construction.png');
+  background-repeat: no-repeat;
+  background-size: 1000px auto; /* Controls width, maintains aspect ratio */
+  background-position: top center;
+  background-color: #000; /* Fallback color */
   color: #fff;
   font-family: sans-serif;
   text-align: center;
   margin: 0;
   padding: 20px;
 }
+
 
 h1 {
   margin-bottom: 20px;
