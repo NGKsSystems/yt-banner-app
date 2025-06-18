@@ -15,7 +15,7 @@ function initCanvas() {
   drawCanvas();
 }
 
-Function handleFileUpload(event) {
+function handleFileUpload(event) {
   const files = event.target.files;
   for (let i = 0; i < files.length; i++) {
     const reader = new FileReader();
