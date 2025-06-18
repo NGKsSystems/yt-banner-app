@@ -1,6 +1,10 @@
 // Project: X Banner Editor (Full Feature Port)
 // Based on YT full logic — adapted for single input, multi-load, and thumbnail tray
-
+document.addEventListener("DOMContentLoaded", () => {
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+let overlays = [];
+let selectedObjectIndex = -1;
 let canvas = document.getElementById("bannerCanvas");
 let ctx = canvas.getContext("2d");
 let currentImage = null;
@@ -14,18 +18,7 @@ function initCanvas() {
   drawCanvas();
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  const canvas = document.getElementById("canvas");
-  const ctx = canvas.getContext("2d");
-
-  let overlays = [];
-  let selectedObjectIndex = -1;
-
-  // ... rest of your script goes here ...
-});
-
-
-function handleFileUpload(event) {
+Function handleFileUpload(event) {
   const files = event.target.files;
   for (let i = 0; i < files.length; i++) {
     const reader = new FileReader();
