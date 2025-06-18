@@ -74,7 +74,6 @@ function drawHandles(obj) {
   }
 }
 
-
 function getHandlePositions(obj) {
   const { x, y, width: w, height: h } = obj;
   return [
@@ -106,50 +105,120 @@ function deleteSelectedImage() {
   }
 }
 
-canvas.addEventListener("mousedown", function (e) {
+// === Globals for Drag & Resize Support ===
+let dragStart = null;
+let dragOffset = { x: 0, y: 0 };
+let isDragging = false;
+let isResizing = false;
+let dragHandleIndex = -1;
+let startX = 0;
+let startY = 0;
+
+// === Utility: Get Resize Handle Positions ===
+function getHandlePositions(obj) {
+  const { x, y, width: w, height: h } = obj;
+  return [
+    { x: x, y: y },                     // Top-left
+    { x: x + w / 2, y: y },             // Top-center
+    { x: x + w, y: y },                 // Top-right
+    { x: x, y: y + h / 2 },             // Middle-left
+    { x: x + w, y: y + h / 2 },         // Middle-right
+    { x: x, y: y + h },                 // Bottom-left
+    { x: x + w / 2, y: y + h },         // Bottom-center
+    { x: x + w, y: y + h }              // Bottom-right
+  ];
+}
+
+// === Mousedown ===
+canvas.addEventListener("mousedown", (e) => {
   const rect = canvas.getBoundingClientRect();
   const mouseX = e.clientX - rect.left;
   const mouseY = e.clientY - rect.top;
+  dragHandleIndex = -1;
+  isResizing = false;
+  isDragging = false;
   selectedObjectIndex = -1;
+
   for (let i = objects.length - 1; i >= 0; i--) {
-    let obj = objects[i];
+    const obj = objects[i];
+    const handles = getHandlePositions(obj);
+    for (let j = 0; j < handles.length; j++) {
+      const h = handles[j];
+      if (Math.abs(mouseX - h.x) < 8 && Math.abs(mouseY - h.y) < 8) {
+        dragHandleIndex = j;
+        selectedObjectIndex = i;
+        isResizing = true;
+        startX = mouseX;
+        startY = mouseY;
+        return;
+      }
+    }
     if (
-      mouseX >= obj.x &&
-      mouseX <= obj.x + obj.width &&
-      mouseY >= obj.y &&
-      mouseY <= obj.y + obj.height
+      mouseX >= obj.x && mouseX <= obj.x + obj.width &&
+      mouseY >= obj.y && mouseY <= obj.y + obj.height
     ) {
       selectedObjectIndex = i;
-      break;
+      dragOffset = {
+        x: mouseX - obj.x,
+        y: mouseY - obj.y
+      };
+      isDragging = true;
+      return;
     }
   }
+});
+
+// === Mousemove ===
+canvas.addEventListener("mousemove", (e) => {
+  if (selectedObjectIndex === -1) return;
+  const obj = objects[selectedObjectIndex];
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+
+  if (isResizing) {
+    const dx = mouseX - startX;
+    const dy = mouseY - startY;
+    switch (dragHandleIndex) {
+      case 0: obj.x += dx; obj.y += dy; obj.width -= dx; obj.height -= dy; break;
+      case 1: obj.y += dy; obj.height -= dy; break;
+      case 2: obj.y += dy; obj.width += dx; obj.height -= dy; break;
+      case 3: obj.x += dx; obj.width -= dx; break;
+      case 4: obj.width += dx; break;
+      case 5: obj.x += dx; obj.width -= dx; obj.height += dy; break;
+      case 6: obj.height += dy; break;
+      case 7: obj.width += dx; obj.height += dy; break;
+    }
+    startX = mouseX;
+    startY = mouseY;
+  } else if (isDragging) {
+    obj.x = mouseX - dragOffset.x;
+    obj.y = mouseY - dragOffset.y;
+  }
+
   drawCanvas();
 });
 
-window.onload = initCanvas;
+// === Mouseup ===
+canvas.addEventListener("mouseup", () => {
+  isDragging = false;
+  isResizing = false;
+  dragHandleIndex = -1;
+});
 
+// === Keyboard Arrow Key Movement ===
 document.addEventListener("keydown", function (e) {
   if (selectedObjectIndex === -1) return;
   let obj = objects[selectedObjectIndex];
   const step = 5;
 
   switch (e.key) {
-    case "ArrowUp":
-      obj.y -= step;
-      break;
-    case "ArrowDown":
-      obj.y += step;
-      break;
-    case "ArrowLeft":
-      obj.x -= step;
-      break;
-    case "ArrowRight":
-      obj.x += step;
-      break;
-    default:
-      return;
+    case "ArrowUp":    obj.y -= step; break;
+    case "ArrowDown":  obj.y += step; break;
+    case "ArrowLeft":  obj.x -= step; break;
+    case "ArrowRight": obj.x += step; break;
+    default: return;
   }
 
   drawCanvas();
 });
-
