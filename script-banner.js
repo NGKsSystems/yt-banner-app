@@ -1,5 +1,6 @@
 // === Canvas Setup ===
 const canvas = document.getElementById("bannerCanvas");
+canvas.classList.add('empty');
 canvas.width = 2560;
 canvas.height = 1440;
 const ctx = canvas.getContext("2d");
@@ -73,6 +74,8 @@ function loadImageToCanvas(file, stepNum) {
   };
   img.src = URL.createObjectURL(file);
 }
+canvas.classList.remove('empty');
+}
 
 // === Export Button ===
 document.getElementById("exportBtn").addEventListener("click", () => {
@@ -97,6 +100,9 @@ document.getElementById("deleteBtn").addEventListener("click", () => {
   } else {
     console.warn("No overlay selected.");
   }
+if (objects.length === 0) {
+  canvas.classList.add('empty');
+}
 });
 
 // === Start Over ===
