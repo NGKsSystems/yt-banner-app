@@ -17,13 +17,20 @@ h1 {
   margin-bottom: 20px;
 }
 
-.thumbnail {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  margin: 5px;
+#canvas-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+#thumbnail-bar {
+  position: absolute;
+  top: -90px; /* move above canvas */
+  left: 0;
+  display: flex;
+  gap: 10px;
+  padding: 5px;
+  background: rgba(0, 0, 0, 0.6);
   border-radius: 5px;
-  cursor: pointer;
 }
 
 /* Editor Container */
