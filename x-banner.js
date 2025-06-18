@@ -1,233 +1,155 @@
-// === Canvas Setup ===
-const canvas = document.getElementById("bannerCanvas");
-canvas.classList.add('empty');
-canvas.width = 2560;
-canvas.height = 1440;
-const ctx = canvas.getContext("2d");
+// Project: X Banner Editor (Full Feature Port)
+// Based on YT full logic — adapted for single input, multi-load, and thumbnail tray
 
-// === State ===
-let overlays = [];
-let currentStep = 1;
-let dragTarget = null;
-let dragType = null;
-let dragHandle = null;
-let startX, startY;
+let canvas = document.getElementById("bannerCanvas");
+let ctx = canvas.getContext("2d");
+let currentImage = null;
+let objects = [];
+let selectedObjectIndex = -1;
+let thumbnails = [];
 
-// === Image Upload & Drawing ===
-function drawHandles(obj) {
-  const { x, y, width: w, height: h } = obj;
-  const points = [
-    [x, y], [x + w / 2, y], [x + w, y],
-    [x + w, y + h / 2], [x + w, y + h],
-    [x + w / 2, y + h], [x, y + h],
-    [x, y + h / 2]
-  ];
-  ctx.fillStyle = "white";
-  points.forEach(([px, py]) => ctx.fillRect(px - 5, py - 5, 10, 10));
+function initCanvas() {
+  canvas.width = 1600;
+  canvas.height = 900;
+  drawCanvas();
+}
+
+function handleFileUpload(event) {
+  const files = event.target.files;
+  for (let i = 0; i < files.length; i++) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      let img = new Image();
+      img.onload = function () {
+        let obj = {
+          img: img,
+          x: 100 + i * 10,
+          y: 100 + i * 10,
+          width: 200,
+          height: 150,
+        };
+        objects.push(obj);
+        thumbnails.push(e.target.result);
+        updateThumbnailTray();
+        drawCanvas();
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(files[i]);
+  }
+}
+
+function updateThumbnailTray() {
+  const tray = document.getElementById("thumbnail-tray");
+  tray.innerHTML = "";
+  thumbnails.forEach((src, index) => {
+    const thumb = document.createElement("img");
+    thumb.src = src;
+    thumb.className = "thumbnail";
+    thumb.onclick = () => {
+      selectedObjectIndex = index;
+      drawCanvas();
+    };
+    tray.appendChild(thumb);
+  });
 }
 
 function drawCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  overlays.forEach(overlay => {
-    ctx.drawImage(overlay.img, overlay.x, overlay.y, overlay.width, overlay.height);
-    if (overlay.selected) {
-      ctx.strokeStyle = "lime";
-      ctx.lineWidth = 2;
-      ctx.strokeRect(overlay.x, overlay.y, overlay.width, overlay.height);
-      drawHandles(overlay);
-    }
+  objects.forEach((obj, index) => {
+    ctx.drawImage(obj.img, obj.x, obj.y, obj.width, obj.height);
+   if (selectedObjectIndex !== -1) {
+  drawHandles(objects[selectedObjectIndex]);
+}
+
   });
 }
 
-function loadImageToCanvas(file, stepNum) {
-  const img = new Image();
-  overlays = overlays.filter(ov => ov.step !== stepNum);
-
-  img.onload = () => {
-    let overlay;
-    if (stepNum === 1) {
-      overlay = {
-        img, x: 0, y: 0,
-        width: canvas.width,
-        height: canvas.height,
-        selected: true, step: stepNum
-      };
-    } else if (stepNum === 2) {
-      overlay = {
-        img,
-        width: 1546, height: 423,
-        x: (canvas.width - 1546) / 2,
-        y: (canvas.height - 423) / 2,
-        selected: true, step: stepNum
-      };
-    } else {
-      overlay = {
-        img, x: 100, y: 100,
-        width: img.width / 2,
-        height: img.height / 2,
-        selected: true, step: stepNum
-      };
-    }
-    overlays.push(overlay);
-    drawCanvas();
-    if (stepNum === 1) advanceStep(1);
-  };
-  img.src = URL.createObjectURL(file);
-}
-canvas.classList.remove('empty');
+function drawHandles(obj) {
+  const size = 10;
+  const handles = getHandlePositions(obj);
+  ctx.fillStyle = 'cyan';
+  for (let h of handles) {
+    ctx.fillRect(h.x - size / 2, h.y - size / 2, size, size);
+  }
 }
 
-// === Export Button ===
-document.getElementById("exportBtn").addEventListener("click", () => {
-  overlays.forEach(o => o.selected = false);
-  drawCanvas();
 
-  const link = document.createElement("a");
-  link.download = "banner.png";
-  link.href = canvas.toDataURL("image/png");
+function getHandlePositions(obj) {
+  const { x, y, width: w, height: h } = obj;
+  return [
+    { x: x, y: y },
+    { x: x + w / 2, y: y },
+    { x: x + w, y: y },
+    { x: x, y: y + h / 2 },
+    { x: x + w, y: y + h / 2 },
+    { x: x, y: y + h },
+    { x: x + w / 2, y: y + h },
+    { x: x + w, y: y + h },
+  ];
+}
+
+function exportBanner() {
+  let link = document.createElement("a");
+  link.download = "X-banner.png";
+  link.href = canvas.toDataURL();
   link.click();
-
-  overlays.forEach(o => o.selected = true);
-  drawCanvas();
-});
-
-// === Delete Selected ===
-document.getElementById("deleteBtn").addEventListener("click", () => {
-  const index = overlays.findIndex(o => o.selected);
-  if (index !== -1) {
-    overlays.splice(index, 1);
-    drawCanvas();
-  } else {
-    console.warn("No overlay selected.");
-  }
-if (objects.length === 0) {
-  canvas.classList.add('empty');
 }
-});
 
-// === Start Over ===
-document.getElementById("startoverBtn").addEventListener("click", () => {
-  overlays.length = 0;
-  ['bgInput', 'mobileInput', 'extraInput'].forEach(id => {
-    const input = document.getElementById(id);
-    if (input) input.value = '';
-  });
-  currentStep = 1;
-  drawCanvas();
-});
-
-function advanceStep(delta) {
-  const newStep = currentStep + delta;
-  if (newStep >= 1 && newStep <= 4) {
-    currentStep = newStep;
+function deleteSelectedImage() {
+  if (selectedObjectIndex > -1) {
+    objects.splice(selectedObjectIndex, 1);
+    thumbnails.splice(selectedObjectIndex, 1);
+    selectedObjectIndex = -1;
+    updateThumbnailTray();
     drawCanvas();
   }
 }
-window.advanceStep = advanceStep;
 
-// === Upload Hooks ===
-document.getElementById("bgInput").addEventListener("change", e => {
-  const file = e.target.files[0];
-  if (file) loadImageToCanvas(file, 1);
-});
-
-document.getElementById("mobileInput").addEventListener("change", e => {
-  const file = e.target.files[0];
-  if (file) loadImageToCanvas(file, 2);
-});
-
-document.getElementById("extraInput").addEventListener("change", e => {
-  const file = e.target.files[0];
-  if (file) loadImageToCanvas(file, 3);
-});
-
-// === Canvas Drag/Resize ===
-canvas.addEventListener("mousedown", e => {
-  const { offsetX: mx, offsetY: my } = e;
-
-  for (let i = overlays.length - 1; i >= 0; i--) {
-    const o = overlays[i];
-    const { x, y, width: w, height: h } = o;
-    const handles = [
-      [x, y], [x + w / 2, y], [x + w, y],
-      [x + w, y + h / 2], [x + w, y + h],
-      [x + w / 2, y + h], [x, y + h],
-      [x, y + h / 2]
-    ];
-    for (let j = 0; j < handles.length; j++) {
-      const [hx, hy] = handles[j];
-      if (Math.abs(mx - hx) < 8 && Math.abs(my - hy) < 8) {
-        dragTarget = o;
-        dragType = "resize";
-        dragHandle = j;
-        startX = mx;
-        startY = my;
-        overlays.forEach(o => o.selected = false);
-        dragTarget.selected = true;
-        return;
-      }
-    }
-
-    if (mx >= x && mx <= x + w && my >= y && my <= y + h) {
-      dragTarget = o;
-      dragType = "move";
-      startX = mx;
-      startY = my;
-      overlays.forEach(o => o.selected = false);
-      dragTarget.selected = true;
-      return;
+canvas.addEventListener("mousedown", function (e) {
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+  selectedObjectIndex = -1;
+  for (let i = objects.length - 1; i >= 0; i--) {
+    let obj = objects[i];
+    if (
+      mouseX >= obj.x &&
+      mouseX <= obj.x + obj.width &&
+      mouseY >= obj.y &&
+      mouseY <= obj.y + obj.height
+    ) {
+      selectedObjectIndex = i;
+      break;
     }
   }
-});
-
-canvas.addEventListener("mousemove", e => {
-  if (!dragTarget) return;
-  const { offsetX: mx, offsetY: my } = e;
-  const dx = mx - startX;
-  const dy = my - startY;
-
-  if (dragType === "move") {
-    dragTarget.x += dx;
-    dragTarget.y += dy;
-  } else if (dragType === "resize") {
-    switch (dragHandle) {
-      case 0: dragTarget.x += dx; dragTarget.y += dy; dragTarget.width -= dx; dragTarget.height -= dy; break;
-      case 1: dragTarget.y += dy; dragTarget.height -= dy; break;
-      case 2: dragTarget.width += dx; dragTarget.y += dy; dragTarget.height -= dy; break;
-      case 3: dragTarget.width += dx; break;
-      case 4: dragTarget.width += dx; dragTarget.height += dy; break;
-      case 5: dragTarget.height += dy; break;
-      case 6: dragTarget.x += dx; dragTarget.width -= dx; dragTarget.height += dy; break;
-      case 7: dragTarget.x += dx; dragTarget.width -= dx; break;
-    }
-  }
-
-  startX = mx;
-  startY = my;
   drawCanvas();
 });
 
-canvas.addEventListener("mouseup", () => {
-  dragTarget = null;
-});
+window.onload = initCanvas;
 
-// === Keyboard Arrow Movement ===
-document.addEventListener("keydown", e => {
-  const selected = overlays.find(o => o.selected);
-  if (!selected) return;
+document.addEventListener("keydown", function (e) {
+  if (selectedObjectIndex === -1) return;
+  let obj = objects[selectedObjectIndex];
+  const step = 5;
 
   switch (e.key) {
-    case "ArrowUp": selected.y -= 1; break;
-    case "ArrowDown": selected.y += 1; break;
-    case "ArrowLeft": selected.x -= 1; break;
-    case "ArrowRight": selected.x += 1; break;
-    default: return;
+    case "ArrowUp":
+      obj.y -= step;
+      break;
+    case "ArrowDown":
+      obj.y += step;
+      break;
+    case "ArrowLeft":
+      obj.x -= step;
+      break;
+    case "ArrowRight":
+      obj.x += step;
+      break;
+    default:
+      return;
   }
+
   drawCanvas();
 });
 
-
-
-showStep(1);
-window.exportBanner = exportBanner;
-window.advanceStep = advanceStep;
