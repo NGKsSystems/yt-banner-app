@@ -1,1 +1,91 @@
+body {
+  background: #111 url('Your-Site-Under-Construction.png') no-repeat center center;
+  background-size: cover;
+  color: #fff;
+  font-family: sans-serif;
+  text-align: center;
+  margin: 0;
+  padding: 20px;
+}
 
+h1 {
+  margin-bottom: 20px;
+}
+
+.editor-container {
+  position: relative;
+  display: inline-block;
+}
+
+canvas {
+  display: block;
+  background: #222;
+  border: 2px solid #0ff;
+  margin: 0 auto 20px;
+}
+
+canvas.empty {
+  background-color: rgba(34, 34, 34, 0.5); /* 50% opacity dark background */
+  transition: background-color 0.3s ease;
+}
+
+.top-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin: 20px auto;
+  max-width: 95%;
+}
+
+.nav-button, .file-label {
+  background-color: #1e1e1e;
+  color: #fff;
+  border: 1px solid #00ffff;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nav-button:hover,
+.file-label:hover {
+  background-color: #00ffff;
+  color: #000;
+}
+
+.file-label input {
+  display: none;
+}
+
+
+.controls {
+  margin-top: 20px;
+}
+.canvas-wrapper {
+  position: relative;
+  display: inline-block;
+  margin: 0 auto;
+  border: 1px solid cyan; /* optional, for debugging */
+}
+
+.logo-left,
+.logo-right {
+  position: absolute;
+  top: -80px; /* adjust to align with control row */
+  height: 60px;
+  z-index: 10;
+}
+
+.logo-left {
+  left: 10px;
+}
+
+.logo-right {
+  right: 10px;
+}
