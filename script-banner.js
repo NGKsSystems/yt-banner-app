@@ -110,14 +110,6 @@ document.getElementById("startoverBtn").addEventListener("click", () => {
   drawCanvas();
 });
 
-// === Step Navigation ===
-document.getElementById("prevBtn").addEventListener("click", () => {
-  if (currentStep > 1) {
-    currentStep--;
-    drawCanvas();
-  }
-});
-
 function advanceStep(delta) {
   const newStep = currentStep + delta;
   if (newStep >= 1 && newStep <= 4) {
