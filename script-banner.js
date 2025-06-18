@@ -183,8 +183,14 @@ document.getElementById("nextBtn")?.addEventListener("click", () => {
   advanceStep(1);
 });
 
-document.getElementById("prevBtn")?.addEventListener("click", () => {
-  advanceStep(-1);
+let currentStep = 1;
+
+document.getElementById('prevBtn').addEventListener('click', () => {
+  if (currentStep > 1) {
+    document.getElementById(`step${currentStep}`).classList.add('hidden');
+    currentStep--;
+    document.getElementById(`step${currentStep}`).classList.remove('hidden');
+  }
 });
 
 document.getElementById("skipBg")?.addEventListener("click", () => {
@@ -192,9 +198,48 @@ document.getElementById("skipBg")?.addEventListener("click", () => {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll(".exportBtn").forEach(btn => {
-    btn.addEventListener("click", exportBanner);
+  document.getElementById('exportBtn').addEventListener('click', () => {
+  const canvas = document.getElementById('bannerCanvas');
+  const link = document.createElement('a');
+  link.download = 'exported-banner.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+});
+
+document.getElementById('startOverBtn').addEventListener('click', () => {
+  objects.length = 0;
+  activeObject = null;
+  drawAll();
+  currentStep = 1;
+
+  // Reset all step visibility
+  for (let i = 1; i <= 4; i++) {
+    document.getElementById(`step${i}`).classList.add('hidden');
+  }
+  document.getElementById(`step1`).classList.remove('hidden');
+
+  // Optionally reset inputs
+  ['bgInput', 'mobileInput', 'extraInput'].forEach(id => {
+    const input = document.getElementById(id);
+    if (input) input.value = '';
   });
+});
+
+document.getElementById('deleteBtn').addEventListener('click', () => {
+  if (!activeObject) {
+    console.warn('No image selected to delete.');
+    return;
+  }
+
+  const index = objects.indexOf(activeObject);
+  if (index > -1) {
+    objects.splice(index, 1);
+    activeObject = null;
+    drawAll();
+    console.log('Selected image deleted.');
+  } else {
+    console.warn('Selected object not found.');
+  }
 });
 
 
