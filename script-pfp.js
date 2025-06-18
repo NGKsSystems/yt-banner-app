@@ -43,7 +43,7 @@ imageLoader.addEventListener('change', (e) => {
         e.dataTransfer.setData('imgsrc', img.src);
       });
 
-      thumbnailBar.style.display = 'flex';
+     
       thumbnailBar.appendChild(thumb);
     };
   });
