@@ -49,13 +49,13 @@ canvas {
   position: canvas;
   top: 10px;
   height: 80px;
-  z-index: 100;
+  z-index: 10;
 }
 
 .logo-left {
-  left: 10px;
+  left: 100px;
 }
 
 .logo-right {
-  right: 10px;
+  right: 100px;
 }
