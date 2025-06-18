@@ -37,20 +37,17 @@ canvas {
 .controls {
   margin-top: 20px;
 }
-.logo-bar {
+.logo-wrapper {
   display: flex;
   justify-content: space-between;
-  align-items: center; /* ⬅️ THIS ENSURES VERTICAL ALIGNMENT */
-  width: 100%;
-  max-width: 2560px;
-  margin: 0 auto;
-  padding: 10px 40px 0 40px; /* top padding to lift controls */
-  box-sizing: border-box;
+  align-items: center;
+  padding: 10px 40px 0 40px;
 }
 
-.logo-left,
-.logo-right {
-  height: 90px;           /* unified height */
-  object-fit: contain;
-  display: block;
+.logo-left-wrap,
+.logo-right-wrap {
+  display: flex;
+  align-items: center;
+  height: 90px;
 }
+
