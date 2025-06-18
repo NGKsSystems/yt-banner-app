@@ -1,0 +1,95 @@
+/* General Page Styles */
+body {
+  background-image: url('Your-Site-Under-Construction.png');
+  background-size: cover;              /* Scales to fill screen */
+  background-repeat: no-repeat;
+  background-position: center center;  /* Keeps image centered */
+  background-attachment: fixed;        /* Optional: stops scrolling with page */
+  background-color: #000;              /* Fallback color */
+  color: #fff;
+  font-family: sans-serif;
+  text-align: center;
+  margin: 0;
+  padding: 20px;
+}
+
+h1 {
+  margin-bottom: 20px;
+}
+
+/* Editor Container */
+.editor-container {
+  position: relative;
+  display: inline-block;
+}
+
+/* Main Canvas Styling */
+canvas {
+  display: block;
+  background: #222;
+  border: 2px solid #0ff;
+  margin: 0 auto 20px;
+}
+
+/* Mobile Safe Circle Overlay */
+#circleCanvas {
+  position: absolute;
+  top: 150px;
+  left: 150px;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  pointer-events: none;
+  border: 2px dashed #ccc;
+}
+
+/* Controls Block */
+.controls {
+  margin-top: 20px;
+}
+
+/* 🎯 Integrated Custom Styles */
+
+/* Flex container for top row controls */
+.top-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  margin: 20px auto;
+}
+
+/* Custom file input styling */
+.file-label {
+  background: #333;
+  padding: 10px 15px;
+  border: 1px solid #0ff;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #fff;
+  position: relative;
+}
+
+/* Hide native input but keep functionality */
+.file-label input {
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+/* Navigation button styling */
+.nav-button {
+  padding: 10px 15px;
+  font-size: 14px;
+  background: #0ff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  color: #000;
+}
