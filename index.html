@@ -91,12 +91,12 @@
       text-align: center;
    }
 
-    ..platform-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+ .platform-grid {
+  display: grid;
+  grid-template-columns: repeat(5, auto);
   gap: 1rem;
-  margin-top: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
 }
 
     
@@ -223,21 +223,23 @@
 </div>
 
     <!-- YouTube Button -->
-      <!-- ✅ Single smart YouTube button -->
-      <button class="platform yt" onclick="showOptions('YouTube')">YouTube</button>
-      <button class="platform fb">Facebook</button>
-      <button class="platform ig">Instagram</button>
-      <button class="platform tw">X (Twitter)</button>
-      <button class="platform tt">TikTok</button>
-      <button class="platform li">LinkedIn</button>
-      <button class="platform twch">Twitch</button>
-      <button class="platform pt">Pinterest</button>
-      <button class="platform rd">Reddit</button>
-      <button class="platform dc">Discord</button>
-      <button class="platform kick">Kick</button>
-      <button class="platform th">Threads</button>
-      <button class="platform bs">Bluesky</button>
-    </div>
+    <h1>Select a Platform</h1>
+<div class="platform-grid">
+  <button class="platform yt" onclick="showOptions('YouTube')">YouTube</button>
+  <button class="platform fb">Facebook</button>
+  <button class="platform ig">Instagram</button>
+  <button class="platform tw">X (Twitter)</button>
+  <button class="platform tt">TikTok</button>
+  <button class="platform li">LinkedIn</button>
+  <button class="platform twch">Twitch</button>
+  <button class="platform pt">Pinterest</button>
+  <button class="platform rd">Reddit</button>
+  <button class="platform dc">Discord</button>
+  <button class="platform kick">Kick</button>
+  <button class="platform th">Threads</button>
+  <button class="platform bs">Bluesky</button>
+</div>
+
   </div>
   <script>
   let currentPlatform = '';
