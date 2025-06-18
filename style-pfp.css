@@ -41,7 +41,6 @@ h1 {
   pointer-events: auto;
 }
 
-
 #thumbnail-bar img {
   width: 80px;
   height: 80px;
@@ -54,6 +53,10 @@ h1 {
 .editor-container {
   position: relative;
   display: inline-block;
+}
+
+.canvas-wrapper {
+  margin-top: 80px; /* or whatever looks best */
 }
 
 /* Main Canvas Styling */
