@@ -58,8 +58,8 @@ function drawCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   objects.forEach((obj, index) => {
     ctx.drawImage(obj.img, obj.x, obj.y, obj.width, obj.height);
-   if (selectedObjectIndex !== -1) {
-  drawHandles(objects[selectedObjectIndex]);
+  if (index === selectedObjectIndex) {
+  drawResizeHandles(obj);
 }
 
   });
@@ -127,6 +127,16 @@ function getHandlePositions(obj) {
     { x: x + w / 2, y: y + h },         // Bottom-center
     { x: x + w, y: y + h }              // Bottom-right
   ];
+}
+
+function drawResizeHandles(obj) {
+  const handles = getHandlePositions(obj);
+  ctx.fillStyle = "white";
+  ctx.strokeStyle = "black";
+  handles.forEach(h => {
+    ctx.fillRect(h.x - 4, h.y - 4, 8, 8);     // White square
+    ctx.strokeRect(h.x - 4, h.y - 4, 8, 8);   // Black border
+  });
 }
 
 // === Mousedown ===
