@@ -24,6 +24,11 @@ canvas {
   margin: 0 auto 20px;
 }
 
+canvas.empty {
+  background-color: rgba(34, 34, 34, 0.5); /* 50% opacity dark background */
+  transition: background-color 0.3s ease;
+}
+
 .top-controls {
   display: flex;
   flex-wrap: wrap;
