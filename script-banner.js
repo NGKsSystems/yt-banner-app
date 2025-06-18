@@ -73,7 +73,7 @@ function loadImageToCanvas(file, stepNum) {
     if (stepNum === 1) advanceStep(1);
   };
   img.src = URL.createObjectURL(file);
-  anvas.classList.remove('empty');
+  canvas.classList.remove('empty');
 }); // <== THIS closes the imageLoader.addEventListener block
   
 }
