@@ -86,10 +86,18 @@
       flex-wrap: wrap;
       justify-content: center;
     }
-    .platform-section {
-      margin-top: 4rem; /* or 5rem, tweak as needed */
+    .platform-wrapper {
+      margin-top: 4rem; /* Adjust spacing as needed */
       text-align: center;
-    }
+   }
+
+    .platform-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1rem;
+   }
     
     .button-link {
       padding: 0.75rem 1.5rem;
@@ -195,13 +203,12 @@
       </p>
     </div>
         
-   <div class="platform-section">
+   <div class="platform-wrapper">
   <h1>Select a Platform</h1>
   <div class="platform-grid">
-    <!-- all your platform buttons -->
+    <!-- all buttons here -->
   </div>
 </div>
-
 
 <!-- Modal for Banner/PFP Choice -->
 <div id="selector-modal" class="modal hidden">
