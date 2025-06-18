@@ -12,53 +12,35 @@
   <div id="canvasTopBar">
     
 <!-- Logo Bar Left -->
-<div class="logo-wrapper">
-  <div class="logo-left-wrap">
-    <img src="NGKsExactFit.png" class="logo-left" />
-  </div>
-    
-    <div class="top-controls">
-  <button class="nav-button" onclick="location.href='index.html'">🏠 Home</button>
-
-  <label class="file-label">
-    Upload Background
-    <input type="file" id="bgInput" class="file-input" />
-  </label>
-
-  <label class="file-label">
-    Upload Mobile Safe
-    <input type="file" id="mobileInput" class="file-input" />
-  </label>
-
-  <label class="file-label">
-    Upload Extra Layer
-    <input type="file" id="extraInput" class="file-input" />
-  </label>
-
-  <button id="switchPFP" class="nav-button" onclick="location.href='index-pfp.html'">🔁 Switch to PFP</button>
-</div>
-
-    <a href="https://ngkssystems.com" target="_blank">
-
-  <!-- Logo Bar Right -->
-  <div class="logo-right-wrap">
-    <img src="NGKsSystems4.png" class="logo-right" />
-  </div>
-</div>
-
-
-  
- <div class="editor-container">
+<div class="editor-container">
+  <!-- Canvas-level logos -->
   <img src="NGKsExactFit.png" class="logo-left" />
-  
-  <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
-  
   <img src="NGKsSystems4.png" class="logo-right" />
-</div>
 
- 
-</div>
+  <!-- Controls -->
+  <div class="top-controls">
+    <button class="nav-button" onclick="location.href='index.html'">🏠 Home</button>
 
+    <label class="file-label">
+      Upload Background
+      <input type="file" id="bgInput" class="file-input" />
+    </label>
+
+    <label class="file-label">
+      Upload Mobile Safe
+      <input type="file" id="mobileInput" class="file-input" />
+    </label>
+
+    <label class="file-label">
+      Upload Extra Layer
+      <input type="file" id="extraInput" class="file-input" />
+    </label>
+
+    <button id="switchPFP" class="nav-button" onclick="location.href='index-pfp.html'">🔁 Switch to PFP</button>
+  </div>
+
+  <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
+</div>
 
   <!-- Script -->
   <script src="script-banner.js"></script>
