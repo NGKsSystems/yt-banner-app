@@ -13,7 +13,7 @@ function initCanvas() {
   canvas.width = 1600;
   canvas.height = 900;
   drawCanvas();
-}
+});
 
 function handleFileUpload(event) {
   const files = event.target.files;
