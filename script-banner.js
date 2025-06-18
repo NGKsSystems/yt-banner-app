@@ -159,6 +159,24 @@ document.getElementById("extraInput").addEventListener("change", (e) => {
   }
 });
 
+document.getElementById('deleteBtn').addEventListener('click', () => {
+  if (!activeObject) {
+    console.warn('No image selected to delete.');
+    return;
+  }
+
+  // Remove from objects array
+  const index = objects.indexOf(activeObject);
+  if (index > -1) {
+    objects.splice(index, 1);
+    activeObject = null;
+    drawAll();
+    console.log('Selected image deleted.');
+  } else {
+    console.warn('Selected object not found in list.');
+  }
+});
+
 
 // === Step Buttons ===
 document.getElementById("nextBtn")?.addEventListener("click", () => {
