@@ -74,12 +74,8 @@ function loadImageToCanvas(file, stepNum) {
   }
   img.src = URL.createObjectURL(file);
   canvas.classList.remove('empty');
-}); /* <== THIS closes the imageLoader.addEventListener block
+}); 
   
-}
-canvas.classList.remove('empty');
-}
-
 // === Export Button ===
 document.getElementById("exportBtn").addEventListener("click", () => {
   overlays.forEach(o => o.selected = false);
