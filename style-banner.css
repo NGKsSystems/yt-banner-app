@@ -40,15 +40,17 @@ canvas {
 .logo-bar {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: center; /* ⬅️ THIS ENSURES VERTICAL ALIGNMENT */
   width: 100%;
   max-width: 2560px;
-  margin: 0 auto 10px auto;
-  padding: 0 40px;
+  margin: 0 auto;
+  padding: 10px 40px 0 40px; /* top padding to lift controls */
+  box-sizing: border-box;
 }
 
 .logo-left,
 .logo-right {
-  height: 100px;
+  height: 90px;           /* unified height */
   object-fit: contain;
+  display: block;
 }
