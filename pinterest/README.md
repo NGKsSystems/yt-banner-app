@@ -1,0 +1,1 @@
+# Pinterest app folder
