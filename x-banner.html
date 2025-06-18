@@ -1,19 +1,41 @@
-<!-- x.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>X Banner Editor</title>
-  <link rel="stylesheet" href="x.css" />
+  <link rel="stylesheet" href="x-banner.css" />
 </head>
 <body>
-  <div id="editor-container">
-    <h1>X Banner Editor</h1>
-    <input type="file" id="imageLoader" accept="image/*" />
-    <canvas id="xCanvas" width="1500" height="500"></canvas>
-    <button id="downloadBtn">Download Banner</button>
+
+  <!-- Logo + Top Bar -->
+  <div id="canvasTopBar">
+    <div class="logo-left"><img src="NGKsExactFit.png" /></div>
+    <div class="logo-right"><img src="NGKsSystems4.png" /></div>
   </div>
-  <script src="x.js"></script>
+
+  <!-- Top Buttons -->
+  <div class="top-controls">
+    <button class="nav-button" onclick="location.href='index.html'">🏠 Home</button>
+    <label class="file-label">Upload Image
+      <input type="file" id="imageLoader" accept="image/*" />
+    </label>
+    <button id="exportBtn" class="nav-button">📤 Export Banner</button>
+  </div>
+
+  <!-- Canvas + Thumbnail Bar -->
+  <div id="canvas-wrapper" style="position: relative;">
+    <div id="thumbnail-bar"></div>
+    <canvas id="canvas" width="1500" height="500"></canvas>
+  </div>
+
+  <!-- Bottom Buttons -->
+  <div class="bottom-controls">
+    <button id="startoverBtn" class="nav-button">🔄 Start Over</button>
+    <button id="deleteBtn" class="nav-button">🗑️ Delete Selected</button>
+  </div>
+
+  <!-- Scripts -->
+  <script src="x-banner.js"></script>
 </body>
 </html>
