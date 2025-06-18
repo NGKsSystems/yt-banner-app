@@ -44,37 +44,45 @@ function loadImageToCanvas(file, stepNum) {
   overlays = overlays.filter(ov => ov.step !== stepNum);
 
   img.onload = () => {
-    let overlay;
-    if (stepNum === 1) {
-      overlay = {
-        img, x: 0, y: 0,
-        width: canvas.width,
-        height: canvas.height,
-        selected: true, step: stepNum
-      };
-    } else if (stepNum === 2) {
-      overlay = {
-        img,
-        width: 1546, height: 423,
-        x: (canvas.width - 1546) / 2,
-        y: (canvas.height - 423) / 2,
-        selected: true, step: stepNum
-      };
-    } else {
-      overlay = {
-        img, x: 100, y: 100,
-        width: img.width / 2,
-        height: img.height / 2,
-        selected: true, step: stepNum
-      };
+    const overlay = {
+      img,
+      selected: true,
+      step: stepNum
+    };
+
+    switch (stepNum) {
+      case 1:
+        overlay.x = 0;
+        overlay.y = 0;
+        overlay.width = canvas.width;
+        overlay.height = canvas.height;
+        break;
+
+      case 2:
+        overlay.width = 1546;
+        overlay.height = 423;
+        overlay.x = (canvas.width - overlay.width) / 2;
+        overlay.y = (canvas.height - overlay.height) / 2;
+        break;
+
+      default:
+        overlay.x = 100;
+        overlay.y = 100;
+        overlay.width = img.width / 2;
+        overlay.height = img.height / 2;
+        break;
     }
+
     overlays.push(overlay);
     drawCanvas();
+
     if (stepNum === 1) advanceStep(1);
-  }
+    canvas.classList.remove('empty');
+  };
+
   img.src = URL.createObjectURL(file);
-  canvas.classList.remove('empty');
-}); 
+}
+
   
 // === Export Button ===
 document.getElementById("exportBtn").addEventListener("click", () => {
