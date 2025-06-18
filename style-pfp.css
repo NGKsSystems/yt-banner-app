@@ -24,13 +24,19 @@ h1 {
 
 #thumbnail-bar {
   position: absolute;
-  top: -90px; /* move above canvas */
+  top: -90px; /* positions thumbnails just above canvas */
   left: 0;
   display: flex;
-  gap: 10px;
+  gap: 5px;
   padding: 5px;
-  background: rgba(0, 0, 0, 0.6);
+}
+
+#thumbnail-bar img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
   border-radius: 5px;
+  cursor: pointer;
 }
 
 /* Editor Container */
