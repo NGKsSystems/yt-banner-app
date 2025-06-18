@@ -139,6 +139,45 @@
     .platform.kick  { background-color: #53FC18; }
     .platform.th    { background-color: #000000; }
     .platform.bs    { background-color: #1183D6; }
+
+    .modal.hidden {
+  display: none;
+}
+
+.modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modal-content {
+  background: #222;
+  padding: 2rem;
+  border-radius: 10px;
+  text-align: center;
+  color: white;
+  box-shadow: 0 0 10px #000;
+}
+
+.modal-content button {
+  background-color: #1e90ff;
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  margin: 0.5rem;
+  font-size: 1.1rem;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.modal-content button:hover {
+  background-color: #0b65c7;
+}
+
   </style>
 </head>
 <body>
