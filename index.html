@@ -206,7 +206,13 @@
 <!-- Modal for Banner/PFP Choice -->
 <div id="selector-modal" class="modal hidden">
   <div class="modal-content">
-    <h2 id="modal-title">Create for YouTube</h2>
+    <h2 id="modal-title">Create for ...</h2>
+    <button onclick="goTo('banner')">Banner</button>
+    <button onclick="goTo('pfp')">PFP</button>
+    <button onclick="closeModal()">Cancel</button>
+  </div>
+</div>
+
     <!-- YouTube Button -->
       <button class="platform yt" onclick="location.href='index-banner.html'">YouTube Banner</button>
       <button class="platform yt" onclick="location.href='index-pfp.html'">YouTube PFP</button>
