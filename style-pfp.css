@@ -24,18 +24,23 @@ h1 {
 }
 
 #thumbnail-bar {
-  position: absolute;
-  top: -85px; /* adjust as needed */
-  left: 0;
   display: flex;
   gap: 6px;
-  padding: 0;
-  margin: 0;
-  background: none;
+  position: absolute;
+  top: -85px; /* Adjust this based on layout */
+  left: 50%;
+  transform: translateX(-50%);
+  background: transparent;
   border: none;
   box-shadow: none;
+  padding: 0;
+  margin: 0;
+  width: auto;
+  height: auto;
   outline: none;
+  pointer-events: auto;
 }
+
 
 #thumbnail-bar img {
   width: 80px;
