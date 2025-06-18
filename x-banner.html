@@ -1,59 +1,19 @@
+<!-- x.html -->
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>YT Banner App</title>
-  <link rel="stylesheet" href="x-banner.css" />
+  <title>X Banner Editor</title>
+  <link rel="stylesheet" href="x.css" />
 </head>
 <body>
-
-<link rel="stylesheet" href="x-banner.css">
-  
-  <!-- Top Bar with Logos and Step Content -->
-  <div id="canvasTopBar">
-    
-<!-- Logo Bar Left -->
-<div class="editor-container">
-  <!-- Canvas-level logos -->
-  <img src="NGKsExactFit.png" class="logo-left" />
-  <img src="NGKsSystems4.png" class="logo-right" />
-
-  <!-- Controls --><!-- Top Row -->
-<div class="top-controls">
-  <button class="nav-button" onclick="location.href='index.html'">🏠 Home</button>
-
-  <label class="file-label">
-    Upload Background
-    <input type="file" id="bgInput" />
-  </label>
-
-  <label class="file-label">
-    Upload Mobile Safe
-    <input type="file" id="mobileInput" />
-  </label>
-
-  <label class="file-label">
-    Upload Extra Layer
-    <input type="file" id="extraInput" />
-  </label>
-
-  <button class="nav-button" onclick="location.href='index-pfp.html'">🔁 Switch to PFP</button>
-
-  <button id="exportBtn" class="nav-button">💾 Export Banner</button>
-</div>
-
-<!-- Bottom Row -->
-<div class="top-controls">
-  <button id="startoverBtn" class="nav-button">🔄 Start Over</button>
-  <button id="deleteBtn" class="nav-button">🗑️ Delete Selected</button>
-</div>
-
-  <canvas id="bannerCanvas" width="2560" height="1440"></canvas>
-</div>
-
-  <!-- Script -->
-  <script src="script-banner.js"></script>
+  <div id="editor-container">
+    <h1>X Banner Editor</h1>
+    <input type="file" id="imageLoader" accept="image/*" />
+    <canvas id="xCanvas" width="1500" height="500"></canvas>
+    <button id="downloadBtn">Download Banner</button>
+  </div>
+  <script src="x.js"></script>
 </body>
 </html>
