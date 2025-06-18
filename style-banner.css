@@ -37,3 +37,18 @@ canvas {
 .controls {
   margin-top: 20px;
 }
+.logo-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 2560px;
+  margin: 0 auto 10px auto;
+  padding: 0 40px;
+}
+
+.logo-left,
+.logo-right {
+  height: 100px;
+  object-fit: contain;
+}
