@@ -237,13 +237,22 @@
     document.getElementById('selector-modal').classList.remove('hidden');
   }
 
-  function goTo(type) {
-  if (currentPlatform === 'youtube') {
-    window.location.href = `index-${type}.html`; // YouTube hardcoded
+ function goTo(type) {
+  const map = {
+    youtube: {
+      banner: 'index-banner.html',
+      pfp: 'index-pfp.html'
+    }
+    // add more exceptions here if needed
+  };
+
+  if (map[currentPlatform]) {
+    window.location.href = map[currentPlatform][type];
   } else {
     window.location.href = `${currentPlatform}-${type}.html`;
   }
 }
+
 
   function closeModal() {
     document.getElementById('selector-modal').classList.add('hidden');
