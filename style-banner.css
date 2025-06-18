@@ -47,7 +47,7 @@ canvas {
 .logo-left,
 .logo-right {
   position: absolute;
-  top: 10px;
+  top: -80px; /* adjust to align with control row */
   height: 60px;
   z-index: 10;
 }
@@ -59,3 +59,4 @@ canvas {
 .logo-right {
   right: 10px;
 }
+
