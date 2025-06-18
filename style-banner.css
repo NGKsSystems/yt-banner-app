@@ -1,10 +1,8 @@
 body {
-  background: #111;
-  color: #fff;
-  font-family: sans-serif;
-  text-align: center;
-  margin: 0;
-  padding: 20px;
+  background-image: url('yt-banner-app/Your-Site-Under-Construction.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
 }
 
 h1 {
