@@ -161,7 +161,20 @@
 
     <h1>Select a Platform</h1>
     <div class="platform-grid">
-      <button class="platform yt">YouTube</button>
+      <!-- YouTube Platform Button -->
+<button class="platform yt" onclick="showOptions('YouTube')">YouTube</button>
+
+<!-- Modal for Banner/PFP Choice -->
+<div id="selector-modal" class="modal hidden">
+  <div class="modal-content">
+    <h2 id="modal-title">Create for YouTube</h2>
+    <button onclick="goTo('banner')">Banner</button>
+    <button onclick="goTo('pfp')">PFP</button>
+    <br /><br />
+    <button onclick="closeModal()">Cancel</button>
+  </div>
+</div>
+
       <button class="platform fb">Facebook</button>
       <button class="platform ig">Instagram</button>
       <button class="platform tw">X (Twitter)</button>
@@ -176,5 +189,23 @@
       <button class="platform bs">Bluesky</button>
     </div>
   </div>
+  <script>
+  let currentPlatform = '';
+
+  function showOptions(platform) {
+    currentPlatform = platform.toLowerCase();
+    document.getElementById('modal-title').textContent = `Create for ${platform}`;
+    document.getElementById('selector-modal').classList.remove('hidden');
+  }
+
+  function goTo(type) {
+    window.location.href = `${currentPlatform}-${type}.html`;
+  }
+
+  function closeModal() {
+    document.getElementById('selector-modal').classList.add('hidden');
+  }
+</script>
+
 </body>
 </html>
