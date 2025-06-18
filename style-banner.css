@@ -46,9 +46,9 @@ canvas {
 
 .logo-left,
 .logo-right {
-  position: canvas;
+  position: absolute;
   top: 10px;
-  height: 80px;
+  height: 60px;
   z-index: 10;
 }
 
