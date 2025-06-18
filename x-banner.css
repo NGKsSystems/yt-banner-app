@@ -1,91 +1,137 @@
-body {
-  background: #111 url('X background.png') no-repeat center center;
-  background-size: cover;
-  color: #fff;
-  font-family: sans-serif;
-  text-align: center;
-  margin: 0;
-  padding: 20px;
-}
-
-h1 {
-  margin-bottom: 20px;
-}
-
-.editor-container {
+/* === Canvas Display Container ===
+   Main wrapper around the canvas to keep it centered and styled */
+#canvasContainer {
   position: relative;
-  display: inline-block;
+  margin: auto;                /* Centered horizontally */
+  width: fit-content;          /* Only as wide as content */
+  max-width: 100%;
+  background: #111;            /* Canvas background frame */
+  border: 2px dashed #444;     /* Visual debug border */
+  overflow: hidden;
 }
 
+/* === Main Canvas ===
+   Editable drawing area for banner design */
 canvas {
   display: block;
-  background: #222;
-  border: 2px solid #0ff;
-  margin: 0 auto 20px;
+  background-color: #1e1e1e;   /* Editable area background */
+  margin: 0 auto;
+  border: 1px solid #333;
+  touch-action: none;          /* Prevent scrolling while drawing */
 }
 
-canvas.empty {
-  background-color: rgba(34, 34, 34, 0.5); /* 50% opacity dark background */
-  transition: background-color 0.3s ease;
+/* === Resize Handle Styling ===
+   These appear at corners/sides of selected objects */
+.handle {
+  width: 10px;                 /* CHANGE: Handle size */
+  height: 10px;
+  background-color: #fff;      /* CHANGE: Handle color */
+  border: 1px solid #000;
+  position: absolute;
+  z-index: 10;
+  cursor: pointer;
 }
 
-.top-controls {
+/* === Resize Cursor Overrides ===
+   Different resize cursors based on handle position */
+.handle.nw { cursor: nwse-resize; }
+.handle.ne { cursor: nesw-resize; }
+.handle.sw { cursor: nesw-resize; }
+.handle.se { cursor: nwse-resize; }
+.handle.n  { cursor: ns-resize; }
+.handle.s  { cursor: ns-resize; }
+.handle.e  { cursor: ew-resize; }
+.handle.w  { cursor: ew-resize; }
+
+/* === Bottom Button Control Panel ===
+   Buttons like Load, Delete, Export, etc. */
+.controls {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 12px;
-  margin: 20px auto;
-  max-width: 95%;
+  gap: 8px;                    /* CHANGE: spacing between buttons */
+  margin: 12px auto;           /* CHANGE: spacing above/below controls */
 }
 
-.nav-button, .file-label {
-  background-color: #1e1e1e;
-  color: #fff;
-  border: 1px solid #00ffff;
-  padding: 10px 20px;
-  font-size: 16px;
-  font-weight: 600;
-  border-radius: 6px;
+/* === Individual Control Button Styling === */
+.controls button {
+  background-color: #222;
+  color: #eee;
+  border: 1px solid #555;
+  padding: 8px 14px;           /* CHANGE: button padding */
   cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
+  font-size: 14px;             /* CHANGE: font size of control buttons */
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+/* === Hover Behavior for Buttons === */
+.controls button:hover {
+  background-color: #333;
+}
+
+/* === Thumbnail Strip ===
+   Preview of uploaded images for quick stacking or reuse */
+#thumbnailStrip {
   display: flex;
-  align-items: center;
-  gap: 6px;
+  overflow-x: auto;
+  gap: 10px;                   /* CHANGE: space between thumbs */
+  padding: 8px;                /* CHANGE: inner padding */
+  background-color: #181818;
+  margin-top: 10px;
+  border-top: 1px solid #333;
 }
 
-.nav-button:hover,
-.file-label:hover {
-  background-color: #00ffff;
-  color: #000;
+/* === Individual Thumbnail Styling === */
+#thumbnailStrip img {
+  height: 60px;                /* CHANGE: thumbnail size */
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border 0.2s ease;
 }
 
-.file-label input {
-  display: none;
+#thumbnailStrip img:hover {
+  border-color: #888;
 }
 
-
-.controls {
-  margin-top: 20px;
-}
-.canvas-wrapper {
-  position: relative;
-  display: inline-block;
-  margin: 0 auto;
-  border: 1px solid cyan; /* optional, for debugging */
-}
-
-.logo-left,
-.logo-right {
-  position: absolute;
-  top: -80px; /* adjust to align with control row */
-  height: 60px;
-  z-index: 10;
+/* === Top Bar for Home/Mode Switching === */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;               /* CHANGE: padding inside top bar */
+  background: #000;
+  color: #fff;
+  font-size: 16px;             /* CHANGE: top bar font size */
 }
 
-.logo-left {
-  left: 10px;
+/* === Buttons inside Top Bar (Home, Switch Modes) === */
+.topbar button {
+  background-color: #1a1a1a;
+  color: white;
+  border: 1px solid #444;
+  padding: 6px 10px;           /* CHANGE: top bar button size */
+  font-size: 14px;             /* CHANGE: top bar button font */
+  border-radius: 4px;
+  cursor: pointer;
 }
 
-.logo-right {
-  right: 10px;
+.topbar button:hover {
+  background-color: #333;
+}
+
+/* === Mobile-Specific Tweaks === */
+@media (max-width: 768px) {
+  canvas {
+    width: 100%;               /* Responsive canvas width */
+    height: auto;
+  }
+
+  #thumbnailStrip img {
+    height: 40px;              /* Smaller thumbs on phones */
+  }
+
+  .controls button {
+    font-size: 12px;           /* Smaller font for buttons */
+    padding: 6px 10px;
+  }
 }
