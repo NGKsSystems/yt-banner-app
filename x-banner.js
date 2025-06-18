@@ -7,7 +7,6 @@ let overlays = [];
 let selectedObjectIndex = -1;
 let currentImage = null;
 let objects = [];
-let selectedObjectIndex = -1;
 let thumbnails = [];
 
 function initCanvas() {
