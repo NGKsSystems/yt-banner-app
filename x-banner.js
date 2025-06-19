@@ -305,12 +305,19 @@ function setupInteractionHandlers() {
     drawCanvas();
   });
 
-  canvas.addEventListener("mouseup", () => {
-    isDragging = false;
-    isResizing = false;
-    isRotating = false;
-  });
-}
+  // canvas.addEventListener("mouseup", ...)
+window.addEventListener("mouseup", () => {
+  isDragging = false;
+  isResizing = false;
+  isRotating = false;
+});
+
+canvas.addEventListener("mouseleave", () => {
+  isDragging = false;
+  isResizing = false;
+  isRotating = false;
+});
+
 
 // === Toolbar Buttons: Export, Layering, Delete ===
 function setupToolbarButtons() {
