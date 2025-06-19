@@ -100,7 +100,7 @@ canvas {
   opacity: 0.25; /* Faint transparency */
 }
 
-/* === Toggle Button for Canvas Mode (Banner <-> PFP) === */
+/* === Toggle Button for Canvas Mode (Banner <-> pfp) === */
 #toggleCanvasBtn {
   padding: 8px 12px;             /* Padding inside the button */
   margin: 5px;                   /* Space around the button */
