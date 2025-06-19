@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
           width: data.width,
           height: data.height,
           rotation: 0
-        });
+        
         drawCanvas();
       };
       img.src = data.src;
