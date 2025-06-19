@@ -38,8 +38,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = JSON.parse(e.dataTransfer.getData("text/plain"));
       const img = new Image();
       img.onload = () => {
-        overlays.push({
-          img,
+       overlays.push({
+       img: img,
           x: mouseX - data.width / 2,
           y: mouseY - data.height / 2,
           width: data.width,
