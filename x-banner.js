@@ -1,7 +1,7 @@
 // X Banner Editor (Full Version - DOM Safe)
 
 document.addEventListener("DOMContentLoaded", () => {
-  const canvas = document.getElementById("bannerCanvas");
+  const canvas = document.getElementById("xCanvas");
   if (!canvas) {
     console.error("Canvas not found.");
     return;
@@ -200,6 +200,7 @@ function initEditor(canvas, ctx) {
       overlays.splice(selectedObjectIndex, 1);
       selectedObjectIndex = -1;
       drawCanvas();
+      
     }
   });
 
