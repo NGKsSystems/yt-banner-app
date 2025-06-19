@@ -79,8 +79,8 @@ canvas {
 
 /* === Resize Handles (Corners of Selected Image) === */
 .handle-dot {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   background: red; /* Red square */
   position: absolute;
   z-index: 10;
@@ -119,7 +119,7 @@ canvas {
 /* === Footer + Disclaimer === */
 footer {
   text-align: center;
-  font-size: 11px;
+  font-size: 16px;
   color: #999;
   opacity: 0.7;
   margin-top: 20px;
