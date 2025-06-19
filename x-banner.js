@@ -175,22 +175,23 @@ function drawCanvas() {
   });
 
   // === Draw circular safe zone for PFP mode (Twitter/X) ===
-  if (!isBannerMode) { // Only show this if in PFP mode
-    const radius = Math.min(canvas.width, canvas.height) / 2 - 10; // Radius: full height or width minus padding
-    const centerX = canvas.width / 2;      // Center X of canvas
-    const centerY = canvas.height / 2;     // Center Y of canvas
+ // === Draw circular safe zone for PFP mode (Twitter/X) ===
+if (!isBannerMode) {
+  const circleDiameter = 400;                                // 🔧 Fixed size
+  const centerX = canvas.width / 2;                          // Center on canvas
+  const centerY = canvas.height / 2;
+  const radius = circleDiameter / 2;                         // Half of 400 = 200
 
-    ctx.beginPath();                       // Start outer ring
-    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI); // Draw circle
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.4)"; // Light white border
-    ctx.lineWidth = 4;
-    ctx.stroke();                          // Apply stroke
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);          // Draw fixed 400px circle
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+  ctx.lineWidth = 4;
+  ctx.stroke();
 
-    ctx.beginPath();                       // Start fill
-    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI); // Draw same circle
-    ctx.fillStyle = "rgba(255, 255, 255, 0.07)"; // Very light translucent fill
-    ctx.fill();                            // Apply fill
-  }
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);          // Fill fixed 400px circle
+  ctx.fillStyle = "rgba(255, 255, 255, 0.07)";
+  ctx.fill();
 }
 
 
