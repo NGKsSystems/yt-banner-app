@@ -102,20 +102,19 @@ function setupUploadHandler() {
       reader.onload = function (event) {
         const img = new Image();
         img.onload = function () {
-          const width = 200;
-          const height = 150;
-          const obj = {
-            img,
-            x: 0,
-            y: 0,
-            width,
-            height,
-            rotation: 0
-          };
-          overlays.push(obj);
-          addThumbnail(obj);
-          drawCanvas();
-        };
+  const width = 200;
+  const height = 150;
+  const obj = {
+    img,
+    x: 0,
+    y: 0,
+    width,
+    height,
+    rotation: 0
+  };
+  addThumbnail(obj); // Only add to thumbnail bar, not canvas
+};
+
         img.src = event.target.result;
       };
       reader.readAsDataURL(files[i]);
