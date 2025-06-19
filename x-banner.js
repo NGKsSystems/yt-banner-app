@@ -1,26 +1,32 @@
 // === Project: X Banner Editor (Full Feature Port) ===
 // Based on YT full logic – adapted for single input, multi-load, and thumbnail tray
 
+let canvas, ctx;
+let overlays = [];
+let selectedObjectIndex = -1;
+let currentImage = null;
+let objects = [];
+let thumbnails = [];
+
+let dragStart = null;
+let dragOffset = { x: 0, y: 0 };
+let isDragging = false;
+let isResizing = false;
+let dragHandleIndex = -1;
+let startX = 0;
+let startY = 0;
+
 document.addEventListener("DOMContentLoaded", () => {
-  const canvas = document.getElementById("bannerCanvas");
-  const ctx = canvas.getContext("2d");
+  canvas = document.getElementById("bannerCanvas");
+  ctx = canvas.getContext("2d");
 
-  let overlays = [];
-  let selectedObjectIndex = -1;
-  let currentImage = null;
-  let objects = [];
-  let thumbnails = [];
+  canvas.width = 1600;
+  canvas.height = 900;
 
-  function initCanvas() {
-    canvas.width = 1600;
-    canvas.height = 900;
-    drawCanvas();
-  }
-
-  // Call init on load
-  initCanvas();
+  drawCanvas();
 });
 
+// === Handle Upload ===
 function handleFileUpload(event) {
   const files = event.target.files;
   for (let i = 0; i < files.length; i++) {
@@ -65,20 +71,20 @@ function drawCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   objects.forEach((obj, index) => {
     ctx.drawImage(obj.img, obj.x, obj.y, obj.width, obj.height);
-  if (index === selectedObjectIndex) {
-  drawResizeHandles(obj);
-}
-
+    if (index === selectedObjectIndex) {
+      drawResizeHandles(obj);
+    }
   });
 }
 
-function drawHandles(obj) {
-  const size = 10;
+function drawResizeHandles(obj) {
   const handles = getHandlePositions(obj);
-  ctx.fillStyle = 'cyan';
-  for (let h of handles) {
-    ctx.fillRect(h.x - size / 2, h.y - size / 2, size, size);
-  }
+  ctx.fillStyle = "white";
+  ctx.strokeStyle = "black";
+  handles.forEach(h => {
+    ctx.fillRect(h.x - 4, h.y - 4, 8, 8);
+    ctx.strokeRect(h.x - 4, h.y - 4, 8, 8);
+  });
 }
 
 function getHandlePositions(obj) {
@@ -93,57 +99,6 @@ function getHandlePositions(obj) {
     { x: x + w / 2, y: y + h },
     { x: x + w, y: y + h },
   ];
-}
-
-function exportBanner() {
-  let link = document.createElement("a");
-  link.download = "X-banner.png";
-  link.href = canvas.toDataURL();
-  link.click();
-}
-
-function deleteSelectedImage() {
-  if (selectedObjectIndex > -1) {
-    objects.splice(selectedObjectIndex, 1);
-    thumbnails.splice(selectedObjectIndex, 1);
-    selectedObjectIndex = -1;
-    updateThumbnailTray();
-    drawCanvas();
-  }
-}
-
-// === Globals for Drag & Resize Support ===
-let dragStart = null;
-let dragOffset = { x: 0, y: 0 };
-let isDragging = false;
-let isResizing = false;
-let dragHandleIndex = -1;
-let startX = 0;
-let startY = 0;
-
-// === Utility: Get Resize Handle Positions ===
-function getHandlePositions(obj) {
-  const { x, y, width: w, height: h } = obj;
-  return [
-    { x: x, y: y },                     // Top-left
-    { x: x + w / 2, y: y },             // Top-center
-    { x: x + w, y: y },                 // Top-right
-    { x: x, y: y + h / 2 },             // Middle-left
-    { x: x + w, y: y + h / 2 },         // Middle-right
-    { x: x, y: y + h },                 // Bottom-left
-    { x: x + w / 2, y: y + h },         // Bottom-center
-    { x: x + w, y: y + h }              // Bottom-right
-  ];
-}
-
-function drawResizeHandles(obj) {
-  const handles = getHandlePositions(obj);
-  ctx.fillStyle = "white";
-  ctx.strokeStyle = "black";
-  handles.forEach(h => {
-    ctx.fillRect(h.x - 4, h.y - 4, 8, 8);     // White square
-    ctx.strokeRect(h.x - 4, h.y - 4, 8, 8);   // Black border
-  });
 }
 
 // === Mousedown ===
@@ -177,7 +132,7 @@ canvas.addEventListener("mousedown", (e) => {
       selectedObjectIndex = i;
       dragOffset = {
         x: mouseX - obj.x,
-        y: mouseY - obj.y
+        y: mouseY - obj.y,
       };
       isDragging = true;
       return;
@@ -223,12 +178,11 @@ canvas.addEventListener("mouseup", () => {
   dragHandleIndex = -1;
 });
 
-// === Keyboard Arrow Key Movement ===
-document.addEventListener("keydown", function (e) {
+// === Arrow Key Movement ===
+document.addEventListener("keydown", (e) => {
   if (selectedObjectIndex === -1) return;
-  let obj = objects[selectedObjectIndex];
+  const obj = objects[selectedObjectIndex];
   const step = 5;
-
   switch (e.key) {
     case "ArrowUp":    obj.y -= step; break;
     case "ArrowDown":  obj.y += step; break;
@@ -236,6 +190,24 @@ document.addEventListener("keydown", function (e) {
     case "ArrowRight": obj.x += step; break;
     default: return;
   }
-
   drawCanvas();
 });
+
+// === Export Button ===
+function exportBanner() {
+  const link = document.createElement("a");
+  link.download = "X-banner.png";
+  link.href = canvas.toDataURL();
+  link.click();
+}
+
+// === Delete Selected ===
+function deleteSelectedImage() {
+  if (selectedObjectIndex > -1) {
+    objects.splice(selectedObjectIndex, 1);
+    thumbnails.splice(selectedObjectIndex, 1);
+    selectedObjectIndex = -1;
+    updateThumbnailTray();
+    drawCanvas();
+  }
+}
