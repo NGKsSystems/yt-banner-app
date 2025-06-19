@@ -57,13 +57,15 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // === Draw Canvas ===
-  function drawCanvas() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    overlays.forEach((obj, i) => {
-      ctx.drawImage(obj.img, obj.x, obj.y, obj.width, obj.height);
-      if (i === selectedObjectIndex) drawResizeHandles(obj);
-    });
-  }
+  function drawCanvas(suppressHandles = false) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  overlays.forEach((obj, i) => {
+    ctx.drawImage(obj.img, obj.x, obj.y, obj.width, obj.height);
+    if (!suppressHandles && i === selectedObjectIndex) {
+      drawResizeHandles(obj);
+    }
+  });
+}
 
   // === Resize Handles ===
   function drawResizeHandles(obj) {
@@ -194,15 +196,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // === Export Button ===
   document.getElementById("exportBtn").addEventListener("click", () => {
-    const tempCtx = canvas.getContext("2d");
-    drawCanvas(); // redraw without handles
-    const imgData = canvas.toDataURL("image/png");
+  drawCanvas(true); // ⛔ don't draw handles
+  const imgData = canvas.toDataURL("image/png");
 
-    const link = document.createElement("a");
-    link.href = imgData;
-    link.download = "x-banner.png";
-    link.click();
-  });
+  const link = document.createElement("a");
+  link.href = imgData;
+  link.download = "x-banner.png";
+  link.click();
+
+  drawCanvas(); // ✅ redraw with handles after export
+});
 
   // === Delete Button ===
   document.getElementById("deleteBtn").addEventListener("click", () => {
