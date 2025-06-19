@@ -1,4 +1,4 @@
-<script>
+
 document.addEventListener("DOMContentLoaded", () => {
   const canvas = document.getElementById("canvas");
   if (!canvas) {
@@ -133,4 +133,4 @@ document.addEventListener("DOMContentLoaded", () => {
 
   drawCanvas();
 });
-</script>
+
