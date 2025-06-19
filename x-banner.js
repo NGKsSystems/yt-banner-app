@@ -161,17 +161,38 @@ function updateThumbnailBar() {
 
 // === Canvas Draw Loop ===
 function drawCanvas() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas before redrawing
+
   overlays.forEach((obj, i) => {
-    ctx.drawImage(obj.img, obj.x, obj.y, obj.width, obj.height);
+    ctx.drawImage(obj.img, obj.x, obj.y, obj.width, obj.height); // Draw each image overlay
+
     if (i === selectedObjectIndex) {
-      ctx.strokeStyle = "white";
+      ctx.strokeStyle = "white";             // Highlight selected overlay
       ctx.lineWidth = 1;
-      ctx.strokeRect(obj.x, obj.y, obj.width, obj.height);
-      drawResizeHandles(obj);
+      ctx.strokeRect(obj.x, obj.y, obj.width, obj.height); // Draw bounding box
+      drawResizeHandles(obj);                // Draw resize handles
     }
   });
+
+  // === Draw circular safe zone for PFP mode (Twitter/X) ===
+  if (!isBannerMode) { // Only show this if in PFP mode
+    const radius = Math.min(canvas.width, canvas.height) / 2 - 10; // Radius: full height or width minus padding
+    const centerX = canvas.width / 2;      // Center X of canvas
+    const centerY = canvas.height / 2;     // Center Y of canvas
+
+    ctx.beginPath();                       // Start outer ring
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI); // Draw circle
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.4)"; // Light white border
+    ctx.lineWidth = 4;
+    ctx.stroke();                          // Apply stroke
+
+    ctx.beginPath();                       // Start fill
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI); // Draw same circle
+    ctx.fillStyle = "rgba(255, 255, 255, 0.07)"; // Very light translucent fill
+    ctx.fill();                            // Apply fill
+  }
 }
+
 
 // === Draw 8 Resize Handles ===
 function drawResizeHandles(obj) {
