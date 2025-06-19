@@ -236,6 +236,32 @@ document.getElementById("sendBackwardBtn").addEventListener("click", () => {
     }
   });
 
+// === Canvas Mode Toggle ===
+let isBannerMode = true;
+
+const toggleBtn = document.getElementById('toggleCanvasBtn');
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+toggleBtn.addEventListener('click', () => {
+  isBannerMode = !isBannerMode;
+
+  if (isBannerMode) {
+    canvas.width = 1500;
+    canvas.height = 500;
+    toggleBtn.textContent = 'Switch to PFP Mode';
+  } else {
+    canvas.width = 400;
+    canvas.height = 400;
+    toggleBtn.textContent = 'Switch to Banner Mode';
+  }
+
+  // Optional: clear objects and redraw
+  objects = [];
+  selectedObjectIndex = -1;
+  drawCanvas();
+});
+  
   // === Start Over ===
   document.getElementById("startoverBtn").addEventListener("click", () => {
     overlays = [];
