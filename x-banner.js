@@ -76,13 +76,17 @@ function setupUploadHandler() {
       reader.onload = function (event) {
         const img = new Image();
         img.onload = function () {
-          const obj = {
-            img,
-            x: 100 + i * 10,
-            y: 100 + i * 10,
-            width: 200,
-            height: 150
-          };
+         const width = 200;
+         const height = 150;
+         const obj = {
+           img,
+            x: (canvas.width - width) / 2 + i * 10,  // center-based X
+            y: (canvas.height - height) / 2 + i * 10, // center-based Y
+            width,
+            height,
+            rotation: 0
+};
+
           overlays.push(obj);
           addThumbnail(obj);
           drawCanvas();
@@ -101,9 +105,11 @@ function addThumbnail(obj) {
   const thumb = document.createElement("img");
   thumb.src = obj.img.src;
   thumb.className = "thumbnail";
-  thumb.onclick = () => {
-    selectedObjectIndex = overlays.indexOf(obj);
-    drawCanvas();
+ thumb.onclick = () => {
+  selectedObjectIndex = overlays.indexOf(obj);
+  drawCanvas();
+  };
+
   };
   bar.appendChild(thumb);
   thumbnails.push(thumb);
