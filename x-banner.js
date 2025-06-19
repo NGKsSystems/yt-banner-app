@@ -1,5 +1,4 @@
-// X Banner Editor (Full Version - DOM Safe)
-
+// X Banner Editor (Full Version - Fixed)
 document.addEventListener("DOMContentLoaded", () => {
   const canvas = document.getElementById("canvas");
   if (!canvas) {
@@ -17,7 +16,6 @@ document.addEventListener("DOMContentLoaded", () => {
 function initEditor(canvas, ctx) {
   let overlays = [];
   let selectedObjectIndex = -1;
-  let dragStart = null;
   let dragOffset = { x: 0, y: 0 };
   let isDragging = false;
   let isResizing = false;
@@ -25,7 +23,6 @@ function initEditor(canvas, ctx) {
   let startX = 0;
   let startY = 0;
 
-  // === Draw Overlays ===
   function drawCanvas() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     overlays.forEach((overlay, i) => {
@@ -34,7 +31,6 @@ function initEditor(canvas, ctx) {
     });
   }
 
-  // === Resize Handle Drawing ===
   function drawResizeHandles(obj) {
     const handles = getHandlePositions(obj);
     ctx.fillStyle = "white";
@@ -57,23 +53,20 @@ function initEditor(canvas, ctx) {
     ];
   }
 
-  // === File Upload Handler ===
-  document.getElementById("imageLoader").addEventListener("change", function (e) {
+  document.getElementById("imageLoader")?.addEventListener("change", (e) => {
     const files = e.target.files;
     for (let i = 0; i < files.length; i++) {
       const reader = new FileReader();
       reader.onload = function (event) {
         const img = new Image();
         img.onload = function () {
-          const obj = {
+          overlays.push({
             img: img,
             x: 100 + i * 20,
             y: 100 + i * 20,
             width: 200,
             height: 150,
-            selected: false
-          };
-          overlays.push(obj);
+          });
           drawCanvas();
         };
         img.src = event.target.result;
@@ -82,21 +75,17 @@ function initEditor(canvas, ctx) {
     }
   });
 
-  // === Mousedown ===
   canvas.addEventListener("mousedown", function (e) {
     const rect = canvas.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
-
     selectedObjectIndex = -1;
+
     for (let i = overlays.length - 1; i >= 0; i--) {
       const obj = overlays[i];
-      if (
-        mouseX >= obj.x && mouseX <= obj.x + obj.width &&
-        mouseY >= obj.y && mouseY <= obj.y + obj.height
-      ) {
+      if (mouseX >= obj.x && mouseX <= obj.x + obj.width &&
+          mouseY >= obj.y && mouseY <= obj.y + obj.height) {
         selectedObjectIndex = i;
-
         const handles = getHandlePositions(obj);
         for (let j = 0; j < handles.length; j++) {
           const hx = handles[j].x;
@@ -107,24 +96,21 @@ function initEditor(canvas, ctx) {
             break;
           }
         }
-
         if (!isResizing) {
           isDragging = true;
           dragOffset = { x: mouseX - obj.x, y: mouseY - obj.y };
         }
-
         startX = mouseX;
         startY = mouseY;
         break;
       }
     }
+
     drawCanvas();
   });
 
-  // === Mousemove ===
   canvas.addEventListener("mousemove", function (e) {
     if (selectedObjectIndex === -1) return;
-
     const rect = canvas.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
@@ -138,12 +124,8 @@ function initEditor(canvas, ctx) {
     if (isResizing) {
       const dx = mouseX - startX;
       const dy = mouseY - startY;
-      if (dragHandleIndex === 2 || dragHandleIndex === 4 || dragHandleIndex === 7) {
-        obj.width += dx;
-      }
-      if (dragHandleIndex === 5 || dragHandleIndex === 6 || dragHandleIndex === 7) {
-        obj.height += dy;
-      }
+      if ([2, 4, 7].includes(dragHandleIndex)) obj.width += dx;
+      if ([5, 6, 7].includes(dragHandleIndex)) obj.height += dy;
       startX = mouseX;
       startY = mouseY;
     }
@@ -151,56 +133,42 @@ function initEditor(canvas, ctx) {
     drawCanvas();
   });
 
-  // === Mouseup ===
-  canvas.addEventListener("mouseup", function () {
+  canvas.addEventListener("mouseup", () => {
     isDragging = false;
     isResizing = false;
   });
 
-  // === Arrow Key Movement ===
-  document.addEventListener("keydown", function (e) {
+  document.addEventListener("keydown", (e) => {
     if (selectedObjectIndex === -1) return;
     const obj = overlays[selectedObjectIndex];
     const step = 5;
     switch (e.key) {
-      case "ArrowUp":
-        obj.y -= step;
-        break;
-      case "ArrowDown":
-        obj.y += step;
-        break;
-      case "ArrowLeft":
-        obj.x -= step;
-        break;
-      case "ArrowRight":
-        obj.x += step;
-        break;
+      case "ArrowUp": obj.y -= step; break;
+      case "ArrowDown": obj.y += step; break;
+      case "ArrowLeft": obj.x -= step; break;
+      case "ArrowRight": obj.x += step; break;
     }
     drawCanvas();
   });
 
-  // === Export ===
-  document.getElementById("downloadBtn").addEventListener("click", () => {
+  document.getElementById("downloadBtn")?.addEventListener("click", () => {
     const link = document.createElement("a");
     link.download = "x-banner.png";
     link.href = canvas.toDataURL("image/png");
     link.click();
   });
 
-  // === Start Over ===
   document.getElementById("startoverBtn")?.addEventListener("click", () => {
     overlays = [];
     selectedObjectIndex = -1;
     drawCanvas();
   });
 
-  // === Delete Selected ===
   document.getElementById("deleteBtn")?.addEventListener("click", () => {
     if (selectedObjectIndex > -1) {
       overlays.splice(selectedObjectIndex, 1);
       selectedObjectIndex = -1;
       drawCanvas();
-      
     }
   });
 
