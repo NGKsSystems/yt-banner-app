@@ -34,20 +34,25 @@ document.addEventListener("DOMContentLoaded", () => {
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
 
-    try {
-      const data = JSON.parse(e.dataTransfer.getData("text/plain"));
-      const img = new Image();
-    img.onload = () => {
-  overlays.push({
-    img: img,
-    x: mouseX - data.width / 2,
-    y: mouseY - data.height / 2,
-    width: data.width,
-    height: data.height,
-    rotation: 0
-  });
-  drawCanvas();
-};
+   try {
+  const data = JSON.parse(e.dataTransfer.getData("text/plain"));
+  const img = new Image();
+  img.onload = () => {
+    overlays.push({
+      img: img,
+      x: mouseX - data.width / 2,
+      y: mouseY - data.height / 2,
+      width: data.width,
+      height: data.height,
+      rotation: 0
+    });
+    drawCanvas();
+  };
+  img.src = data.src;
+} catch (err) {
+  console.error("Invalid drop:", err);
+}
+
 
       
   // Check ?mode=pfp for launch override
