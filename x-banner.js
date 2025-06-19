@@ -11,11 +11,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const urlParams = new URLSearchParams(window.location.search);
   const startInPFPMode = urlParams.get('mode') === 'pfp';
-
+  const toggleBtn = document.getElementById("toggleCanvasBtn");
+  const urlParams = new URLSearchParams(window.location.search);
+  const startInPFPMode = urlParams.get('mode') === 'pfp';
   const ctx = canvas.getContext("2d");
-  canvas.width = 1500;
-  canvas.height = 500;
-
+  
   let overlays = [];
   let thumbnails = [];
   let selectedObjectIndex = -1;
@@ -23,6 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let isDragging = false;
   let isResizing = false;
   let dragHandleIndex = -1;
+  let isBannerMode = !startInPFPMode;
 
   // === Upload Handler ===
   document.getElementById("imageLoader").addEventListener("change", (event) => {
@@ -240,28 +241,27 @@ document.getElementById("sendBackwardBtn").addEventListener("click", () => {
   });
 
 // === Canvas Mode Toggle ===
-let isBannerMode = true;
+if (!canvas) {
+  console.error("Canvas not found.");
+  
+let isBannerMode = !startInPFPMode;
 
-const toggleBtn = document.getElementById('toggleCanvasBtn');
+canvas.width = isBannerMode ? 1500 : 400;
+canvas.height = isBannerMode ? 500 : 400;
+toggleBtn.textContent = isBannerMode ? '👤 Switch to PFP Mode' : '👤 Switch to Banner Mode';
 
 toggleBtn.addEventListener('click', () => {
   isBannerMode = !isBannerMode;
 
-  if (isBannerMode) {
-    canvas.width = 1500;
-    canvas.height = 500;
-    toggleBtn.textContent = 'Switch to PFP Mode';
-  } else {
-    canvas.width = 400;
-    canvas.height = 400;
-    toggleBtn.textContent = 'Switch to Banner Mode';
-  }
+  canvas.width = isBannerMode ? 1500 : 400;
+  canvas.height = isBannerMode ? 500 : 400;
+  toggleBtn.textContent = isBannerMode ? '👤 Switch to PFP Mode' : '👤 Switch to Banner Mode';
 
-  // Optional: clear objects and redraw
-  objects = [];
+  overlays = [];
   selectedObjectIndex = -1;
   drawCanvas();
 });
+
   
   // === Start Over ===
   document.getElementById("startoverBtn").addEventListener("click", () => {
