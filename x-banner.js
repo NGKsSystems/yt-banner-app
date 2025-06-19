@@ -13,14 +13,13 @@ let isResizing = false;                 // Resizing state
 let dragHandleIndex = -1;               // Which handle is being used
 let isBannerMode = true;                // Current canvas mode (true = Banner, false = PFP)
 
-
 // === DOM Ready: Initialize Canvas + Load Mode ===
 document.addEventListener("DOMContentLoaded", () => {
   canvas = document.getElementById("canvas");
   if (!canvas) return console.error("Canvas not found.");
   ctx = canvas.getContext("2d");
 
-    setupUploadHandler();
+  setupUploadHandler();
 
   // === Enable Drag + Drop to Canvas from Thumbnails ===
   canvas.addEventListener("dragover", (e) => {
@@ -29,36 +28,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
   canvas.addEventListener("drop", (e) => {
     e.preventDefault();
-
     const rect = canvas.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
 
-   try {
-  const data = JSON.parse(e.dataTransfer.getData("text/plain"));
-  const img = new Image();
-  img.onload = () => {
-    overlays.push({
-      img: img,
-      x: mouseX - data.width / 2,
-      y: mouseY - data.height / 2,
-      width: data.width,
-      height: data.height,
-      rotation: 0
-    });
-    drawCanvas();
-  };
-  img.src = data.src;
-} catch (err) {
-  console.error("Invalid drop:", err);
-}
+    try {
+      const data = JSON.parse(e.dataTransfer.getData("text/plain"));
+      const img = new Image();
+      img.onload = () => {
+        overlays.push({
+          img: img,
+          x: mouseX - data.width / 2,
+          y: mouseY - data.height / 2,
+          width: data.width,
+          height: data.height,
+          rotation: 0
+        });
+        drawCanvas();
+      };
+      img.src = data.src;
+    } catch (err) {
+      console.error("Invalid drop:", err);
+    }
+  });
 
-
-      
   // Check ?mode=pfp for launch override
   const urlParams = new URLSearchParams(window.location.search);
   const startInpfpMode = urlParams.get("mode") === 'pfp';
   isBannerMode = !startInpfpMode;
+});
+
 
   // Apply starting canvas size
   canvas.width = isBannerMode ? 1500 : 400;
