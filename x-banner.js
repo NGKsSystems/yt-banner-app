@@ -161,39 +161,40 @@ function updateThumbnailBar() {
 
 // === Canvas Draw Loop ===
 function drawCanvas() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas before redrawing
+  ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the entire canvas
 
+  // Draw each image overlay
   overlays.forEach((obj, i) => {
-    ctx.drawImage(obj.img, obj.x, obj.y, obj.width, obj.height); // Draw each image overlay
+    ctx.drawImage(obj.img, obj.x, obj.y, obj.width, obj.height); // Draw image
 
+    // Highlight selected overlay
     if (i === selectedObjectIndex) {
-      ctx.strokeStyle = "white";             // Highlight selected overlay
+      ctx.strokeStyle = "white";                 // Selection border color
       ctx.lineWidth = 1;
-      ctx.strokeRect(obj.x, obj.y, obj.width, obj.height); // Draw bounding box
-      drawResizeHandles(obj);                // Draw resize handles
+      ctx.strokeRect(obj.x, obj.y, obj.width, obj.height); // Draw selection border
+      drawResizeHandles(obj);                   // Draw resize handles
     }
   });
 
   // === Draw circular safe zone for PFP mode (Twitter/X) ===
- // === Draw circular safe zone for PFP mode (Twitter/X) ===
-if (!isBannerMode) {
-  const circleDiameter = 400;                                // 🔧 Fixed size
-  const centerX = canvas.width / 2;                          // Center on canvas
-  const centerY = canvas.height / 2;
-  const radius = circleDiameter / 2;                         // Half of 400 = 200
+  if (!isBannerMode) {
+    const circleDiameter = 400;                 // Fixed circle size
+    const centerX = canvas.width / 2;           // Center of canvas
+    const centerY = canvas.height / 2;
+    const radius = circleDiameter / 2;          // Radius = 200
 
-  ctx.beginPath();
-  ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);          // Draw fixed 400px circle
-  ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
-  ctx.lineWidth = 4;
-  ctx.stroke();
+    ctx.beginPath();                             // Outer circle stroke
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+    ctx.lineWidth = 4;
+    ctx.stroke();
 
-  ctx.beginPath();
-  ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);          // Fill fixed 400px circle
-  ctx.fillStyle = "rgba(255, 255, 255, 0.07)";
-  ctx.fill();
-}
-
+    ctx.beginPath();                             // Inner transparent fill
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.fillStyle = "rgba(255, 255, 255, 0.07)";
+    ctx.fill();
+  }
+} // ✅ close drawCanvas() properly
 
 // === Draw 8 Resize Handles ===
 function drawResizeHandles(obj) {
