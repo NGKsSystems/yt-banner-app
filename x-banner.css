@@ -23,7 +23,7 @@ body {
   display: flex;
   justify-content: center; /* Center-aligns the buttons */
   gap: 10px; /* Spacing between buttons */
-  margin: 10px 0; /* Top and bottom spacing from other elements */
+  margin: 30px 0; /* Top and bottom spacing from other elements */
 }
 
 /* === Button Styling === */
