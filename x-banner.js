@@ -60,8 +60,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Check ?mode=pfp for launch override
   const urlParams = new URLSearchParams(window.location.search);
-  const startInPFPMode = urlParams.get("mode") === 'pfp';
-  isBannerMode = !startInPFPMode;
+  const startInPFpMode = urlParams.get("mode") === 'pfp';
+  isBannerMode = !startInPFpMode;
 
   // Apply starting canvas size
   canvas.width = isBannerMode ? 1500 : 400;
