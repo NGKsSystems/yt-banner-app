@@ -95,7 +95,7 @@ function setupCanvasToggle() {
     updateThumbnailBar();
   });
 }
-
+}
 
 // === Upload Image(s) from File Input ===
 function setupUploadHandler() {
