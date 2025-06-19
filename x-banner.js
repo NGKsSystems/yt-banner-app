@@ -20,6 +20,44 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!canvas) return console.error("Canvas not found.");
   ctx = canvas.getContext("2d");
 
+    setupUploadHandler();
+
+  // === Enable Drag + Drop to Canvas from Thumbnails ===
+  canvas.addEventListener("dragover", (e) => {
+    e.preventDefault(); // Required to allow drop
+  });
+
+  canvas.addEventListener("drop", (e) => {
+    e.preventDefault();
+
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    try {
+      const data = JSON.parse(e.dataTransfer.getData("text/plain"));
+      const img = new Image();
+      img.onload = () => {
+        overlays.push({
+          img,
+          x: mouseX - data.width / 2,
+          y: mouseY - data.height / 2,
+          width: data.width,
+          height: data.height,
+          rotation: 0
+        });
+        drawCanvas();
+      };
+      img.src = data.src;
+    } catch (err) {
+      console.error("Invalid drop:", err);
+    }
+  });
+
+  drawCanvas(); // Leave this here
+});
+
+
   // Check ?mode=pfp for launch override
   const urlParams = new URLSearchParams(window.location.search);
   const startInPFPMode = urlParams.get("mode") === 'pfp';
@@ -76,16 +114,20 @@ function setupUploadHandler() {
       reader.onload = function (event) {
         const img = new Image();
         img.onload = function () {
-         const width = 200;
-         const height = 150;
-         const obj = {
-           img,
-            x: (canvas.width - width) / 2 + i * 10,  // center-based X
-            y: (canvas.height - height) / 2 + i * 10, // center-based Y
-            width,
-            height,
-            rotation: 0
+  const width = 200;
+  const height = 150;
+  const obj = {
+    img,
+    x: 0,
+    y: 0,
+    width,
+    height,
+    rotation: 0
+  };
+
+  addThumbnail(obj); // Just thumbnail for now
 };
+
 
           overlays.push(obj);
           addThumbnail(obj);
@@ -105,14 +147,34 @@ function addThumbnail(obj) {
   const thumb = document.createElement("img");
   thumb.src = obj.img.src;
   thumb.className = "thumbnail";
- thumb.onclick = () => {
-  selectedObjectIndex = overlays.indexOf(obj);
-  drawCanvas();
+
+  // === Click-to-add (as before) ===
+  thumb.onclick = () => {
+    const centered = {
+      ...obj,
+      x: (canvas.width - obj.width) / 2,
+      y: (canvas.height - obj.height) / 2
+    };
+    overlays.push(centered);
+    selectedObjectIndex = overlays.length - 1;
+    drawCanvas();
   };
+
+  // === NEW: Enable drag-and-drop ===
+  thumb.draggable = true;
+  thumb.addEventListener("dragstart", (e) => {
+    e.dataTransfer.setData("text/plain", JSON.stringify({
+      src: obj.img.src,
+      width: obj.width,
+      height: obj.height
+    }));
+  });
 
   bar.appendChild(thumb);
   thumbnails.push(thumb);
 }
+
+
 
 function updateThumbnailBar() {
   const bar = document.getElementById("thumbnail-bar");
