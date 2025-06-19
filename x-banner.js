@@ -8,8 +8,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const ctx = canvas.getContext("2d");
-  canvas.width = 1600;
-  canvas.height = 900;
+  canvas.width = 1500;
+  canvas.height = 500;
 
   let objects = [];
   let selectedObjectIndex = -1;
