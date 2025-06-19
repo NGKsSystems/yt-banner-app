@@ -109,6 +109,7 @@ function setupUploadHandler() {
     for (let i = 0; i < files.length; i++) {
       const reader = new FileReader();
     reader.onload = function (event) {
+  }; // -----------------------------------------------✅ closes reader.onload
   const img = new Image();
   img.onload = function () {
     const width = 200;
