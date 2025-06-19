@@ -8,33 +8,47 @@
 </head>
 <body>
 
-  
+  <!-- 🔼 Top Controls: Navigation & Upload -->
   <div class="top-controls">
-  <button class="nav-button" onclick="location.href='index.html'">🏠 Home</button>
-  
-  <label class="file-label">Upload Image
-    <input type="file" id="imageLoader" accept="image/*" multiple />
-  </label>
+    <!-- Go back to homepage -->
+    <button class="nav-button" onclick="location.href='index.html'">🏠 Home</button>
 
-  <button id="switchToPFP" class="nav-button" onclick="location.href='x-pfp.html'">🔁 Switch to X PFP</button>
-  <button id="bringForwardBtn">🔼 Bring Forward</button>
-  <button id="sendBackwardBtn">🔽 Send Backward</button>
-  <button id="exportBtn" class="nav-button">💾 Export Banner</button>
-</div>
+    <!-- Upload images to thumbnail tray (multi-enabled) -->
+    <label class="file-label">
+      Upload Image
+      <input type="file" id="imageLoader" accept="image/*" multiple />
+    </label>
 
-  <!-- Canvas + Thumbnail Bar -->
-<div id="canvas-wrapper" style="position: relative;">
-  <div id="thumbnail-bar"></div>
-  <canvas id="canvas" width="1600" height="900"></canvas>
-</div>
-  
-  <!-- Bottom Buttons -->
+    <!-- Switch to X profile picture editor -->
+    <button id="switchToPFP" class="nav-button" onclick="location.href='x-pfp.html'">🔁 Switch to X PFP</button>
+
+    <!-- Change stacking order of selected image -->
+    <button id="bringForwardBtn" class="nav-button">🔼 Bring Forward</button>
+    <button id="sendBackwardBtn" class="nav-button">🔽 Send Backward</button>
+
+    <!-- Export current canvas as PNG -->
+    <button id="exportBtn" class="nav-button">💾 Export Banner</button>
+  </div>
+
+  <!-- 🎯 Main Canvas + Thumbnails -->
+  <div id="canvas-wrapper" style="position: relative;">
+    <!-- Thumbnails of uploaded images -->
+    <div id="thumbnail-bar"></div>
+
+    <!-- Drawing canvas (1600x900) -->
+    <canvas id="canvas" width="1600" height="900"></canvas>
+  </div>
+
+  <!-- 🧹 Bottom Controls: Edit & Reset -->
   <div class="bottom-controls">
-    <button id="startoverBtn" class="nav-button">🔄 Start Over</button>
+    <!-- Clear all objects -->
+    <button id="startoverBtn" class="nav-button">🧹 Start Over</button>
+
+    <!-- Delete selected object -->
     <button id="deleteBtn" class="nav-button">🗑️ Delete Selected</button>
   </div>
 
-  <!-- Scripts -->
+  <!-- 🧠 JS Logic -->
   <script src="x-banner.js"></script>
 </body>
 </html>
