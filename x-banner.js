@@ -110,7 +110,6 @@ function addThumbnail(obj) {
   drawCanvas();
   };
 
-  };
   bar.appendChild(thumb);
   thumbnails.push(thumb);
 }
