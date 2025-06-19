@@ -9,6 +9,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const canvas = document.getElementById("canvas");
   if (!canvas) return console.error("Canvas not found.");
 
+  const urlParams = new URLSearchParams(window.location.search);
+  const startInPFPMode = urlParams.get('mode') === 'pfp';
+
   const ctx = canvas.getContext("2d");
   canvas.width = 1500;
   canvas.height = 500;
@@ -240,8 +243,6 @@ document.getElementById("sendBackwardBtn").addEventListener("click", () => {
 let isBannerMode = true;
 
 const toggleBtn = document.getElementById('toggleCanvasBtn');
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
 
 toggleBtn.addEventListener('click', () => {
   isBannerMode = !isBannerMode;
