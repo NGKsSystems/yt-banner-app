@@ -106,33 +106,33 @@ function setupUploadHandler() {
     const files = e.target.files;
     if (!files.length) return;
 
-    for (let i = 0; i < files.length; i++) {
-      const reader = new FileReader();
-    reader.onload = function (event) {
-  }; // -----------------------------------------------✅ closes reader.onload
-  const img = new Image();
-  img.onload = function () {
-    const width = 200;
-    const height = 150;
-    const obj = {
-      img,
-      x: 0,
-      y: 0,
-      width,
-      height,
-      rotation: 0
+  for (let i = 0; i < files.length; i++) {
+  const reader = new FileReader();
+
+  reader.onload = function (event) {
+    const img = new Image();
+    img.onload = function () {
+      const width = 200;
+      const height = 150;
+      const obj = {
+        img,
+        x: 0,
+        y: 0,
+        width,
+        height,
+        rotation: 0
+      };
+
+      overlays.push(obj);
+      addThumbnail(obj);
+      drawCanvas();
     };
-
-    overlays.push(obj);
-    addThumbnail(obj);
-    drawCanvas();
+    img.src = event.target.result;
   };
-  img.src = event.target.result;
-};
 
-reader.readAsDataURL(files[i]); // ✅ this ends the operation — no extra brace needed
- } // ✅ closes for loop
-}); // ✅ closes input.addEventListener("change", ...)
+  reader.readAsDataURL(files[i]);
+}
+
 
 
 // === Add Image to Thumbnail Tray ===
