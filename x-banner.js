@@ -108,34 +108,28 @@ function setupUploadHandler() {
 
     for (let i = 0; i < files.length; i++) {
       const reader = new FileReader();
-      reader.onload = function (event) {
-        const img = new Image();
-        img.onload = function () {
-  const width = 200;
-  const height = 150;
-  const obj = {
-    img,
-    x: 0,
-    y: 0,
-    width,
-    height,
-    rotation: 0
-  };
+    reader.onload = function (event) {
+  const img = new Image();
+  img.onload = function () {
+    const width = 200;
+    const height = 150;
+    const obj = {
+      img,
+      x: 0,
+      y: 0,
+      width,
+      height,
+      rotation: 0
+    };
 
-  addThumbnail(obj); // Just thumbnail for now
+    overlays.push(obj);
+    addThumbnail(obj);
+    drawCanvas();
+  };
+  img.src = event.target.result;
 };
 
-
-          overlays.push(obj);
-          addThumbnail(obj);
-          drawCanvas();
-        };
-        img.src = event.target.result;
-      };
-      reader.readAsDataURL(files[i]);
-    }
-  });
-}
+reader.readAsDataURL(files[i]); // ✅ this ends the operation — no extra brace needed
 
 
 // === Add Image to Thumbnail Tray ===
