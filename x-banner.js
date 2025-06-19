@@ -1,7 +1,7 @@
 // X Banner Editor (Full Version - DOM Safe)
 
 document.addEventListener("DOMContentLoaded", () => {
-  const canvas = document.getElementById("xCanvas");
+  const canvas = document.getElementById("canvas");
   if (!canvas) {
     console.error("Canvas not found.");
     return;
