@@ -404,3 +404,38 @@ function exportBanner() {
   selectedObjectIndex = wasSelected;
   drawCanvas();
 }
+// ... other functions like drawCanvas, setupInteractionHandlers, etc.
+
+function exportBanner() {
+  ...
+}
+
+// 🆕 PUT THIS HERE:
+document.addEventListener('keydown', (e) => {
+  if (selectedObjectIndex === -1) return;
+
+  const obj = overlays[selectedObjectIndex];
+
+  if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+    e.preventDefault();
+  }
+
+  const step = e.shiftKey ? 10 : 1;
+
+  switch (e.key) {
+    case 'ArrowLeft':
+      obj.x -= step;
+      break;
+    case 'ArrowRight':
+      obj.x += step;
+      break;
+    case 'ArrowUp':
+      obj.y -= step;
+      break;
+    case 'ArrowDown':
+      obj.y += step;
+      break;
+  }
+
+  drawCanvas();
+});
