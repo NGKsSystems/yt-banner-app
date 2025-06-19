@@ -154,85 +154,124 @@ function drawResizeHandles(obj) {
 // === Mouse Interactions: Move + Resize ===
 function setupInteractionHandlers() {
   canvas.addEventListener("mousedown", (e) => {
-    const rect = canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
 
-    selectedObjectIndex = -1;
-    for (let i = overlays.length - 1; i >= 0; i--) {
-      const obj = overlays[i];
-      if (
-        mouseX >= obj.x && mouseX <= obj.x + obj.width &&
-        mouseY >= obj.y && mouseY <= obj.y + obj.height
-      ) {
-        selectedObjectIndex = i;
-        dragOffset = { x: mouseX - obj.x, y: mouseY - obj.y };
-        isDragging = true;
+  selectedObjectIndex = -1;
+  isDragging = false;
+  isResizing = false;
+  isRotating = false;
 
-        // === Detect Handle Hit for Resize ===
-        const size = 6;
-        const handles = [
-          { x: obj.x, y: obj.y },
-          { x: obj.x + obj.width / 2, y: obj.y },
-          { x: obj.x + obj.width, y: obj.y },
-          { x: obj.x, y: obj.y + obj.height / 2 },
-          { x: obj.x + obj.width, y: obj.y + obj.height / 2 },
-          { x: obj.x, y: obj.y + obj.height },
-          { x: obj.x + obj.width / 2, y: obj.y + obj.height },
-          { x: obj.x + obj.width, y: obj.y + obj.height },
-        ];
-        handles.forEach((handle, index) => {
-          if (
-            mouseX >= handle.x - size &&
-            mouseX <= handle.x + size &&
-            mouseY >= handle.y - size &&
-            mouseY <= handle.y + size
-          ) {
-            isResizing = true;
-            dragHandleIndex = index;
-          }
-        });
+  for (let i = overlays.length - 1; i >= 0; i--) {
+    const obj = overlays[i];
 
-        break;
-      }
+    const cx = obj.x + obj.width / 2;
+    const cy = obj.y + obj.height / 2;
+
+    // Transform mouse to local coordinates
+    const dx = mouseX - cx;
+    const dy = mouseY - cy;
+    const cos = Math.cos(-obj.rotation);
+    const sin = Math.sin(-obj.rotation);
+    const localX = dx * cos - dy * sin;
+    const localY = dx * sin + dy * cos;
+
+    const halfW = obj.width / 2;
+    const halfH = obj.height / 2;
+
+    // Check for rotation handle
+    const rotHandleY = -halfH - 30;
+    if (Math.abs(localX) < 10 && Math.abs(localY - rotHandleY) < 10) {
+      selectedObjectIndex = i;
+      isRotating = true;
+      return;
+    }
+
+    // Check bounding box hit
+    if (
+      localX >= -halfW && localX <= halfW &&
+      localY >= -halfH && localY <= halfH
+    ) {
+      selectedObjectIndex = i;
+      dragOffset = { x: localX, y: localY };
+
+      // Check if near corner for resize
+      const handles = [
+        [-halfW, -halfH], [0, -halfH], [halfW, -halfH],
+        [-halfW, 0], [halfW, 0],
+        [-halfW, halfH], [0, halfH], [halfW, halfH]
+      ];
+
+      const size = 6;
+      handles.forEach(([hx, hy], index) => {
+        if (
+          localX >= hx - size && localX <= hx + size &&
+          localY >= hy - size && localY <= hy + size
+        ) {
+          isResizing = true;
+          dragHandleIndex = index;
+        }
+      });
+
+      if (!isResizing) isDragging = true;
+      return;
+    }
+  }
+});
+
+  canvas.addEventListener("mousemove", (e) => {
+  if (selectedObjectIndex === -1) return;
+
+  const obj = overlays[selectedObjectIndex];
+  const rect = canvas.getBoundingClientRect();
+  const mouseX = e.clientX - rect.left;
+  const mouseY = e.clientY - rect.top;
+
+  const cx = obj.x + obj.width / 2;
+  const cy = obj.y + obj.height / 2;
+
+  const dx = mouseX - cx;
+  const dy = mouseY - cy;
+
+  const cos = Math.cos(-obj.rotation);
+  const sin = Math.sin(-obj.rotation);
+  const localX = dx * cos - dy * sin;
+  const localY = dx * sin + dy * cos;
+
+  if (isRotating) {
+    obj.rotation = Math.atan2(dy, dx) + Math.PI / 2;
+    drawCanvas();
+    return;
+  }
+
+  if (isDragging) {
+    obj.x = mouseX - dragOffset.x * Math.cos(obj.rotation) + dragOffset.y * Math.sin(obj.rotation);
+    obj.y = mouseY - dragOffset.x * Math.sin(obj.rotation) - dragOffset.y * Math.cos(obj.rotation);
+    drawCanvas();
+    return;
+  }
+
+  if (isResizing) {
+    const handleX = [-1, 0, 1, -1, 1, -1, 0, 1][dragHandleIndex];
+    const handleY = [-1, -1, -1, 0, 0, 1, 1, 1][dragHandleIndex];
+
+    if (handleX !== 0) {
+      let newWidth = (localX * handleX) + (obj.width / 2);
+      obj.width = Math.max(20, newWidth * 2);
+      obj.x = cx - obj.width / 2;
+    }
+
+    if (handleY !== 0) {
+      let newHeight = (localY * handleY) + (obj.height / 2);
+      obj.height = Math.max(20, newHeight * 2);
+      obj.y = cy - obj.height / 2;
     }
 
     drawCanvas();
-  });
+  }
+});
 
-  canvas.addEventListener("mousemove", (e) => {
-    if (selectedObjectIndex === -1) return;
-    const rect = canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    const obj = overlays[selectedObjectIndex];
-
-    if (isResizing) {
-      // === Resize Based on Handle Position ===
-      const dx = mouseX - obj.x;
-      const dy = mouseY - obj.y;
-      switch (dragHandleIndex) {
-        case 0: // top-left
-          obj.width += obj.x - mouseX;
-          obj.height += obj.y - mouseY;
-          obj.x = mouseX;
-          obj.y = mouseY;
-          break;
-        case 2: // top-right
-          obj.width = dx;
-          obj.height += obj.y - mouseY;
-          obj.y = mouseY;
-          break;
-        case 5: // bottom-left
-          obj.width += obj.x - mouseX;
-          obj.height = dy;
-          obj.x = mouseX;
-          break;
-        case 7: // bottom-right
-          obj.width = dx;
-          obj.height = dy;
-          break;
-      }
 
       // === Enforce Minimum Size ===
       obj.width = Math.max(20, obj.width);
@@ -245,10 +284,11 @@ function setupInteractionHandlers() {
     drawCanvas();
   });
 
-  canvas.addEventListener("mouseup", () => {
-    isDragging = false;
-    isResizing = false;
-  });
+canvas.addEventListener("mouseup", () => {
+  isDragging = false;
+  isResizing = false;
+  isRotating = false;
+});
 }
 
 
