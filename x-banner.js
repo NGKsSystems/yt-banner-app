@@ -61,7 +61,6 @@ function setupCanvasToggle() {
   });
 }
 
-
 // === Upload Image(s) ===
 function setupUploadHandler() {
   const input = document.getElementById("imageLoader");
@@ -94,7 +93,6 @@ function setupUploadHandler() {
   });
 }
 
-
 // === Add Image to Thumbnail Tray ===
 function addThumbnail(obj) {
   const bar = document.getElementById("thumbnail-bar");
@@ -109,6 +107,12 @@ function addThumbnail(obj) {
   thumbnails.push(thumb);
 }
 
+function updateThumbnailBar() {
+  // Clear & re-append all thumbnails
+  const bar = document.getElementById("thumbnail-bar");
+  bar.innerHTML = "";
+  thumbnails.forEach((thumb) => bar.appendChild(thumb));
+}
 
 // === Canvas Draw Loop ===
 function drawCanvas() {
@@ -118,7 +122,6 @@ function drawCanvas() {
     if (i === selectedObjectIndex) drawResizeHandles(obj);
   });
 }
-
 
 // === Draw 8 Resize Handles ===
 function drawResizeHandles(obj) {
@@ -138,7 +141,6 @@ function drawResizeHandles(obj) {
     ctx.fillRect(pos.x - size / 2, pos.y - size / 2, size, size);
   });
 }
-
 
 // === Mouse Interactions: Move + Resize ===
 function setupInteractionHandlers() {
@@ -190,16 +192,18 @@ function setupToolbarButtons() {
   const backBtn = document.getElementById("sendBackwardBtn");
 
   if (exportBtn) exportBtn.onclick = exportBanner;
+  
+ 
+  // === Delete Functions ===
   if (deleteBtn) deleteBtn.onclick = () => {
-    if (selectedObjectIndex !== -1) {
-      overlays.splice(selectedObjectIndex, 1);
-      thumbnails[selectedObjectIndex].remove();
-      thumbnails.splice(selectedObjectIndex, 1);
-      selectedObjectIndex = -1;
-      drawCanvas();
-    }
-  };
+  if (selectedObjectIndex !== -1) {
+    overlays.splice(selectedObjectIndex, 1);  // Remove image from canvas
+    selectedObjectIndex = -1;                 // Deselect
+    drawCanvas();                             // Redraw without deleted item
+  }
+};
 
+  // === Start Over Function ===
   if (startoverBtn) startoverBtn.onclick = () => {
     overlays = [];
     thumbnails = [];
@@ -208,6 +212,7 @@ function setupToolbarButtons() {
     drawCanvas();
   };
 
+  // === Forward/Back Function ===
   if (forwardBtn) forwardBtn.onclick = () => {
     if (selectedObjectIndex > -1 && selectedObjectIndex < overlays.length - 1) {
       const temp = overlays[selectedObjectIndex];
@@ -228,7 +233,6 @@ function setupToolbarButtons() {
     }
   };
 }
-
 
 // === Export Banner as PNG ===
 function exportBanner() {
