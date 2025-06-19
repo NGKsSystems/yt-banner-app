@@ -37,27 +37,19 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const data = JSON.parse(e.dataTransfer.getData("text/plain"));
       const img = new Image();
-      img.onload = () => {
-       overlays.push({
-       img: img,
-          x: mouseX - data.width / 2,
-          y: mouseY - data.height / 2,
-          width: data.width,
-          height: data.height,
-          rotation: 0
-        
-        drawCanvas();
-      };
-      img.src = data.src;
-    } catch (err) {
-      console.error("Invalid drop:", err);
-    }
+    img.onload = () => {
+  overlays.push({
+    img: img,
+    x: mouseX - data.width / 2,
+    y: mouseY - data.height / 2,
+    width: data.width,
+    height: data.height,
+    rotation: 0
   });
+  drawCanvas();
+};
 
-  drawCanvas(); // Leave this here
-});
-
-
+      
   // Check ?mode=pfp for launch override
   const urlParams = new URLSearchParams(window.location.search);
   const startInpfpMode = urlParams.get("mode") === 'pfp';
