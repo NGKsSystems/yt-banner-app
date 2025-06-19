@@ -289,13 +289,13 @@ function setupInteractionHandlers() {
 
       if (handleX !== 0) {
         let newWidth = (localX * handleX) + (obj.width / 2);
-        obj.width = Math.max(20, newWidth * 2);
+        obj.width = Math.max(20, newWidth);
         obj.x = cx - obj.width / 2;
       }
 
       if (handleY !== 0) {
         let newHeight = (localY * handleY) + (obj.height / 2);
-        obj.height = Math.max(20, newHeight * 2);
+        obj.height = Math.max(20, newHeight);
         obj.y = cy - obj.height / 2;
       }
     }
