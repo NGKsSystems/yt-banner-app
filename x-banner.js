@@ -273,21 +273,17 @@ function setupInteractionHandlers() {
       obj.y = cy - obj.height / 2;
     }
 
-    drawCanvas();
+   } else if (isDragging) {
+    obj.x = mouseX - dragOffset.x * Math.cos(obj.rotation) + dragOffset.y * Math.sin(obj.rotation);
+    obj.y = mouseY - dragOffset.x * Math.sin(obj.rotation) - dragOffset.y * Math.cos(obj.rotation);
   }
+
+  // Enforce minimum size
+  obj.width = Math.max(20, obj.width);
+  obj.height = Math.max(20, obj.height);
+
+  drawCanvas();
 });
-
-
-      // === Enforce Minimum Size ===
-      obj.width = Math.max(20, obj.width);
-      obj.height = Math.max(20, obj.height);
-    } else if (isDragging) {
-      obj.x = mouseX - dragOffset.x;
-      obj.y = mouseY - dragOffset.y;
-    }
-
-    drawCanvas();
-  });
 
 canvas.addEventListener("mouseup", () => {
   isDragging = false;
