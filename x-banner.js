@@ -26,8 +26,8 @@ document.addEventListener("DOMContentLoaded", () => {
   isBannerMode = !startInpfpMode;
 
   // Apply starting canvas size
-  canvas.width = isBannerMode ? 1500 : 400;
-  canvas.height = isBannerMode ? 500 : 400;
+  canvas.width = isBannerMode ? 1500 : 800;
+  canvas.height = isBannerMode ? 500 : 800;
 
   // Init handlers
   setupCanvasToggle();
