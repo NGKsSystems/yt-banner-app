@@ -1,161 +1,196 @@
-// === X Banner Editor — Clean Logic Patch ===
-// ✅ Multi-upload, thumbnail-only load, canvas on-click, no shared refs
+// === X Banner Editor Full Build ===
+// Features: Multiple uploads, canvas-only draw, thumbnails, resize/drag/delete, export
 
 document.addEventListener("DOMContentLoaded", () => {
-  const canvas = document.getElementById("xCanvas");
-  if (!canvas) return console.error("Canvas not found.");
-  const ctx = canvas.getContext("2d");
+  const canvas = document.getElementById("canvas"); // <-- Make sure HTML matches this ID
+  if (!canvas) {
+    console.error("Canvas not found.");
+    return;
+  }
 
+  const ctx = canvas.getContext("2d");
   canvas.width = 1600;
   canvas.height = 900;
 
-  let objects = [];
-  let selectedObjectIndex = -1;
-  const thumbnails = [];
-
   const fileInput = document.getElementById("imageLoader");
-  const thumbnailBar = document.getElementById("thumbnail-bar");
-  const deleteBtn = document.getElementById("deleteBtn");
   const exportBtn = document.getElementById("exportBtn");
+  const deleteBtn = document.getElementById("deleteBtn");
+  const startoverBtn = document.getElementById("startoverBtn");
+  const thumbnailBar = document.getElementById("thumbnail-bar");
 
+  let overlays = [];
+  let selectedObjectIndex = -1;
+  let dragOffset = { x: 0, y: 0 };
+  let isDragging = false;
+  let isResizing = false;
+  let dragHandleIndex = -1;
+
+  // === Draw Loop ===
   function drawCanvas() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    objects.forEach((obj, i) => {
-      ctx.drawImage(obj.img, obj.x, obj.y, obj.width, obj.height);
-      if (i === selectedObjectIndex) drawResizeHandles(obj);
+    overlays.forEach((ov, i) => {
+      ctx.drawImage(ov.img, ov.x, ov.y, ov.width, ov.height);
+      if (i === selectedObjectIndex) drawResizeHandles(ov);
     });
   }
 
+  // === Resize Handle Drawing ===
   function drawResizeHandles(obj) {
-    const handleSize = 6;
-    ctx.fillStyle = "white";
     const handles = getHandlePositions(obj);
-    handles.forEach(({ x, y }) => {
-      ctx.fillRect(x - handleSize / 2, y - handleSize / 2, handleSize, handleSize);
+    handles.forEach(pt => {
+      ctx.fillStyle = "white";
+      ctx.fillRect(pt.x - 4, pt.y - 4, 8, 8);
     });
   }
 
   function getHandlePositions(obj) {
     const { x, y, width: w, height: h } = obj;
     return [
-      { x: x, y: y }, { x: x + w / 2, y: y }, { x: x + w, y: y },
-      { x: x, y: y + h / 2 },               { x: x + w, y: y + h / 2 },
-      { x: x, y: y + h }, { x: x + w / 2, y: y + h }, { x: x + w, y: y + h }
+      { x, y },                         // top-left
+      { x: x + w / 2, y },              // top-center
+      { x: x + w, y },                  // top-right
+      { x, y: y + h / 2 },              // middle-left
+      { x: x + w, y: y + h / 2 },       // middle-right
+      { x, y: y + h },                  // bottom-left
+      { x: x + w / 2, y: y + h },       // bottom-center
+      { x: x + w, y: y + h },           // bottom-right
     ];
   }
 
+  // === File Upload Handler ===
   fileInput.addEventListener("change", (e) => {
     const files = e.target.files;
-    for (let i = 0; i < files.length; i++) {
+    Array.from(files).forEach((file, index) => {
       const reader = new FileReader();
-      reader.onload = function (event) {
+      reader.onload = () => {
         const img = new Image();
-        img.onload = function () {
-          thumbnails.push(img);
-          renderThumbnail(img);
+        img.onload = () => {
+          const obj = {
+            img,
+            x: 100 + (index * 30),
+            y: 100 + (index * 30),
+            width: 300,
+            height: 200
+          };
+          overlays.push(obj);
+          addThumbnail(img, overlays.length - 1);
+          drawCanvas();
         };
-        img.src = event.target.result;
+        img.src = reader.result;
       };
-      reader.readAsDataURL(files[i]);
-    }
+      reader.readAsDataURL(file);
+    });
   });
 
-  function renderThumbnail(img) {
+  // === Add Thumbnails ===
+  function addThumbnail(img, index) {
     const thumb = document.createElement("img");
     thumb.src = img.src;
-    thumb.className = "thumbnail";
-    thumb.style.width = "60px";
-    thumb.style.margin = "4px";
-    thumb.style.cursor = "pointer";
-
-    thumb.addEventListener("click", () => {
-      const canvasImg = new Image();
-      canvasImg.onload = () => {
-        const obj = {
-          img: canvasImg,
-          x: 200 + objects.length * 20,
-          y: 100 + objects.length * 20,
-          width: 200,
-          height: 150
-        };
-        objects.push(obj);
-        drawCanvas();
-      };
-      canvasImg.src = img.src;
-    });
-
+    thumb.classList.add("thumbnail");
+    thumb.onclick = () => {
+      selectedObjectIndex = index;
+      drawCanvas();
+    };
     thumbnailBar.appendChild(thumb);
   }
 
-  deleteBtn.addEventListener("click", () => {
-    if (selectedObjectIndex !== -1) {
-      objects.splice(selectedObjectIndex, 1);
-      selectedObjectIndex = -1;
-      drawCanvas();
-    }
-  });
-
-  exportBtn.addEventListener("click", () => {
-    const link = document.createElement("a");
-    link.download = "x-banner.png";
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-  });
-
-  // === Dragging + Selection ===
-  let isDragging = false;
-  let dragOffset = { x: 0, y: 0 };
-
+  // === Mouse Events ===
   canvas.addEventListener("mousedown", (e) => {
     const rect = canvas.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
 
     selectedObjectIndex = -1;
-    for (let i = objects.length - 1; i >= 0; i--) {
-      const obj = objects[i];
-      if (mouseX >= obj.x && mouseX <= obj.x + obj.width &&
-          mouseY >= obj.y && mouseY <= obj.y + obj.height) {
+    for (let i = overlays.length - 1; i >= 0; i--) {
+      const ov = overlays[i];
+      if (
+        mouseX >= ov.x && mouseX <= ov.x + ov.width &&
+        mouseY >= ov.y && mouseY <= ov.y + ov.height
+      ) {
         selectedObjectIndex = i;
-        dragOffset = { x: mouseX - obj.x, y: mouseY - obj.y };
-        isDragging = true;
+        dragOffset = { x: mouseX - ov.x, y: mouseY - ov.y };
+
+        const handles = getHandlePositions(ov);
+        handles.forEach((pt, idx) => {
+          if (
+            mouseX >= pt.x - 6 && mouseX <= pt.x + 6 &&
+            mouseY >= pt.y - 6 && mouseY <= pt.y + 6
+          ) {
+            isResizing = true;
+            dragHandleIndex = idx;
+          }
+        });
+
+        isDragging = !isResizing;
         break;
       }
     }
-
     drawCanvas();
   });
 
   canvas.addEventListener("mousemove", (e) => {
-    if (!isDragging || selectedObjectIndex === -1) return;
+    if (selectedObjectIndex === -1) return;
+    const ov = overlays[selectedObjectIndex];
     const rect = canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
 
-    const obj = objects[selectedObjectIndex];
-    obj.x = mouseX - dragOffset.x;
-    obj.y = mouseY - dragOffset.y;
-
+    if (isDragging) {
+      ov.x = mx - dragOffset.x;
+      ov.y = my - dragOffset.y;
+    } else if (isResizing) {
+      const dx = mx - ov.x;
+      const dy = my - ov.y;
+      ov.width = Math.max(50, dx);
+      ov.height = Math.max(50, dy);
+    }
     drawCanvas();
   });
 
   canvas.addEventListener("mouseup", () => {
     isDragging = false;
+    isResizing = false;
+    dragHandleIndex = -1;
   });
 
+  // === Arrow Keys Movement ===
   document.addEventListener("keydown", (e) => {
-    if (selectedObjectIndex === -1) return;
-    const obj = objects[selectedObjectIndex];
     const step = 5;
+    const ov = overlays[selectedObjectIndex];
+    if (!ov) return;
 
     switch (e.key) {
-      case "ArrowUp": obj.y -= step; break;
-      case "ArrowDown": obj.y += step; break;
-      case "ArrowLeft": obj.x -= step; break;
-      case "ArrowRight": obj.x += step; break;
-      default: return;
+      case "ArrowUp": ov.y -= step; break;
+      case "ArrowDown": ov.y += step; break;
+      case "ArrowLeft": ov.x -= step; break;
+      case "ArrowRight": ov.x += step; break;
     }
+    drawCanvas();
+  });
 
+  // === Export Button ===
+  exportBtn.addEventListener("click", () => {
+    const link = document.createElement("a");
+    link.download = "banner.png";
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  });
+
+  // === Delete Button ===
+  deleteBtn.addEventListener("click", () => {
+    if (selectedObjectIndex > -1) {
+      overlays.splice(selectedObjectIndex, 1);
+      thumbnailBar.removeChild(thumbnailBar.children[selectedObjectIndex]);
+      selectedObjectIndex = -1;
+      drawCanvas();
+    }
+  });
+
+  // === Start Over Button ===
+  startoverBtn.addEventListener("click", () => {
+    overlays = [];
+    selectedObjectIndex = -1;
+    thumbnailBar.innerHTML = "";
     drawCanvas();
   });
 });
