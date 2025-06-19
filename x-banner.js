@@ -410,12 +410,13 @@ function exportBanner() {
   ...
 }
 
-// 🆕 PUT THIS HERE:
+// === Keyboard arrows to move selected image overlay ===
 document.addEventListener('keydown', (e) => {
   if (selectedObjectIndex === -1) return;
 
   const obj = overlays[selectedObjectIndex];
 
+  // Only prevent browser scroll if an arrow key is pressed
   if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
     e.preventDefault();
   }
