@@ -77,7 +77,7 @@ function setupCanvasToggle() {
   toggleBtn.addEventListener('click', () => {
     isBannerMode = !isBannerMode;
     canvas.width = isBannerMode ? 1500 : 400;
-    canvas.height = isBannerMode ? 500 : 400;
+    canvas.height = isBannerMode ? 600 : 600;
     toggleBtn.textContent = isBannerMode ? '👤 Switch to PFP Mode' : '📢 Switch to Banner Mode';
 
     overlays = [];
