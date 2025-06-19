@@ -199,6 +199,14 @@
   text-shadow: 0 0 3px rgba(0, 255, 255, 0.5);
 }
 
+/* Footer disclaimer styling */
+.disclaimer-footer {
+  text-align: center;
+  font-size: 26px;
+  color: #888;
+  margin: 200px 40px 0;
+}
+
   </style>
 </head>
 <body>
@@ -231,7 +239,7 @@
  
   <div class="platform-grid">
   <button class="platform yt" onclick="showOptions('YouTube')">YouTube</button>
-  <button onclick="location.href='x-banner.html?mode=pfp'">👤 X PFP</button>
+  <button onclick="location.href='x-banner.html?mode=pfp'">👤 X (Twitter)</button>
   <button class="platform fb">Facebook</button>
   <button class="platform ig">Instagram</button>  
   <button class="platform tt">TikTok</button>
@@ -281,7 +289,8 @@ function goTo(type) {
     document.getElementById('selector-modal').classList.add('hidden');
   }
 </script>
-<footer style="text-align: center; font-size: 26px; color: #888; margin-top: 200px;">
+
+<footer class="disclaimer-footer">
   <p>
     All platform logos (e.g., YouTube, X, Facebook) used within this application are trademarks of their respective owners.
     This tool is not affiliated with, endorsed by, or associated with YouTube, X (formerly Twitter), Meta Platforms, or any other platform referenced.
