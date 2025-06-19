@@ -317,7 +317,7 @@ canvas.addEventListener("mouseleave", () => {
   isResizing = false;
   isRotating = false;
 });
-
+}
 
 // === Toolbar Buttons: Export, Layering, Delete ===
 function setupToolbarButtons() {
