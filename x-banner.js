@@ -25,11 +25,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const startInPFPMode = urlParams.get("mode") === 'pfp';
   isBannerMode = !startInPFPMode;
 
-  // Apply starting size
+  // Apply starting canvas size
   canvas.width = isBannerMode ? 1500 : 400;
   canvas.height = isBannerMode ? 500 : 400;
 
-  // Init button labels + listeners
+  // Init button labels + handlers
   setupCanvasToggle();
   setupUploadHandler();
   setupInteractionHandlers();
@@ -61,7 +61,8 @@ function setupCanvasToggle() {
   });
 }
 
-// === Upload Image(s) ===
+
+// === Upload Image(s) from File Input ===
 function setupUploadHandler() {
   const input = document.getElementById("imageLoader");
   if (!input) return;
@@ -93,6 +94,7 @@ function setupUploadHandler() {
   });
 }
 
+
 // === Add Image to Thumbnail Tray ===
 function addThumbnail(obj) {
   const bar = document.getElementById("thumbnail-bar");
@@ -108,39 +110,46 @@ function addThumbnail(obj) {
 }
 
 function updateThumbnailBar() {
-  // Clear & re-append all thumbnails
   const bar = document.getElementById("thumbnail-bar");
   bar.innerHTML = "";
   thumbnails.forEach((thumb) => bar.appendChild(thumb));
 }
+
 
 // === Canvas Draw Loop ===
 function drawCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   overlays.forEach((obj, i) => {
     ctx.drawImage(obj.img, obj.x, obj.y, obj.width, obj.height);
-    if (i === selectedObjectIndex) drawResizeHandles(obj);
+    if (i === selectedObjectIndex) {
+      ctx.strokeStyle = "white";                 // Draw guide border
+      ctx.lineWidth = 1;
+      ctx.strokeRect(obj.x, obj.y, obj.width, obj.height);
+      drawResizeHandles(obj);                    // Show resize handles
+    }
   });
 }
+
 
 // === Draw 8 Resize Handles ===
 function drawResizeHandles(obj) {
   const size = 6;
   const positions = [
-    { x: obj.x, y: obj.y },
-    { x: obj.x + obj.width / 2, y: obj.y },
-    { x: obj.x + obj.width, y: obj.y },
-    { x: obj.x, y: obj.y + obj.height / 2 },
-    { x: obj.x + obj.width, y: obj.y + obj.height / 2 },
-    { x: obj.x, y: obj.y + obj.height },
-    { x: obj.x + obj.width / 2, y: obj.y + obj.height },
-    { x: obj.x + obj.width, y: obj.y + obj.height },
+    { x: obj.x, y: obj.y },                                               // Top-left
+    { x: obj.x + obj.width / 2, y: obj.y },                               // Top-center
+    { x: obj.x + obj.width, y: obj.y },                                   // Top-right
+    { x: obj.x, y: obj.y + obj.height / 2 },                              // Middle-left
+    { x: obj.x + obj.width, y: obj.y + obj.height / 2 },                  // Middle-right
+    { x: obj.x, y: obj.y + obj.height },                                  // Bottom-left
+    { x: obj.x + obj.width / 2, y: obj.y + obj.height },                  // Bottom-center
+    { x: obj.x + obj.width, y: obj.y + obj.height }                       // Bottom-right
   ];
   ctx.fillStyle = "white";
   positions.forEach(pos => {
     ctx.fillRect(pos.x - size / 2, pos.y - size / 2, size, size);
   });
 }
+
 
 // === Mouse Interactions: Move + Resize ===
 function setupInteractionHandlers() {
@@ -159,20 +168,80 @@ function setupInteractionHandlers() {
         selectedObjectIndex = i;
         dragOffset = { x: mouseX - obj.x, y: mouseY - obj.y };
         isDragging = true;
+
+        // === Detect Handle Hit for Resize ===
+        const size = 6;
+        const handles = [
+          { x: obj.x, y: obj.y },
+          { x: obj.x + obj.width / 2, y: obj.y },
+          { x: obj.x + obj.width, y: obj.y },
+          { x: obj.x, y: obj.y + obj.height / 2 },
+          { x: obj.x + obj.width, y: obj.y + obj.height / 2 },
+          { x: obj.x, y: obj.y + obj.height },
+          { x: obj.x + obj.width / 2, y: obj.y + obj.height },
+          { x: obj.x + obj.width, y: obj.y + obj.height },
+        ];
+        handles.forEach((handle, index) => {
+          if (
+            mouseX >= handle.x - size &&
+            mouseX <= handle.x + size &&
+            mouseY >= handle.y - size &&
+            mouseY <= handle.y + size
+          ) {
+            isResizing = true;
+            dragHandleIndex = index;
+          }
+        });
+
         break;
       }
     }
+
     drawCanvas();
   });
 
   canvas.addEventListener("mousemove", (e) => {
-    if (!isDragging || selectedObjectIndex === -1) return;
+    if (selectedObjectIndex === -1) return;
     const rect = canvas.getBoundingClientRect();
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
     const obj = overlays[selectedObjectIndex];
-    obj.x = mouseX - dragOffset.x;
-    obj.y = mouseY - dragOffset.y;
+
+    if (isResizing) {
+      // === Resize Based on Handle Position ===
+      const dx = mouseX - obj.x;
+      const dy = mouseY - obj.y;
+      switch (dragHandleIndex) {
+        case 0: // top-left
+          obj.width += obj.x - mouseX;
+          obj.height += obj.y - mouseY;
+          obj.x = mouseX;
+          obj.y = mouseY;
+          break;
+        case 2: // top-right
+          obj.width = dx;
+          obj.height += obj.y - mouseY;
+          obj.y = mouseY;
+          break;
+        case 5: // bottom-left
+          obj.width += obj.x - mouseX;
+          obj.height = dy;
+          obj.x = mouseX;
+          break;
+        case 7: // bottom-right
+          obj.width = dx;
+          obj.height = dy;
+          break;
+      }
+
+      // === Enforce Minimum Size ===
+      obj.width = Math.max(20, obj.width);
+      obj.height = Math.max(20, obj.height);
+    } else if (isDragging) {
+      obj.x = mouseX - dragOffset.x;
+      obj.y = mouseY - dragOffset.y;
+    }
+
     drawCanvas();
   });
 
@@ -183,7 +252,7 @@ function setupInteractionHandlers() {
 }
 
 
-// === Toolbar Buttons ===
+// === Toolbar Buttons: Export, Layering, Delete ===
 function setupToolbarButtons() {
   const exportBtn = document.getElementById("exportBtn");
   const deleteBtn = document.getElementById("deleteBtn");
@@ -192,18 +261,15 @@ function setupToolbarButtons() {
   const backBtn = document.getElementById("sendBackwardBtn");
 
   if (exportBtn) exportBtn.onclick = exportBanner;
-  
- 
-  // === Delete Functions ===
-  if (deleteBtn) deleteBtn.onclick = () => {
-  if (selectedObjectIndex !== -1) {
-    overlays.splice(selectedObjectIndex, 1);  // Remove image from canvas
-    selectedObjectIndex = -1;                 // Deselect
-    drawCanvas();                             // Redraw without deleted item
-  }
-};
 
-  // === Start Over Function ===
+  if (deleteBtn) deleteBtn.onclick = () => {
+    if (selectedObjectIndex !== -1) {
+      overlays.splice(selectedObjectIndex, 1);  // Remove image from canvas
+      selectedObjectIndex = -1;
+      drawCanvas();
+    }
+  };
+
   if (startoverBtn) startoverBtn.onclick = () => {
     overlays = [];
     thumbnails = [];
@@ -212,7 +278,6 @@ function setupToolbarButtons() {
     drawCanvas();
   };
 
-  // === Forward/Back Function ===
   if (forwardBtn) forwardBtn.onclick = () => {
     if (selectedObjectIndex > -1 && selectedObjectIndex < overlays.length - 1) {
       const temp = overlays[selectedObjectIndex];
@@ -234,7 +299,8 @@ function setupToolbarButtons() {
   };
 }
 
-// === Export Banner as PNG ===
+
+// === Export Canvas as PNG (Hide Handles) ===
 function exportBanner() {
   const wasSelected = selectedObjectIndex;
   selectedObjectIndex = -1;
@@ -247,5 +313,5 @@ function exportBanner() {
   a.click();
 
   selectedObjectIndex = wasSelected;
-  drawCanvas(); // Redraw handles after export
+  drawCanvas(); // Restore handles
 }
