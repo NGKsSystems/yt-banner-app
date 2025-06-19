@@ -9,8 +9,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const ctx = canvas.getContext("2d");
-  canvas.width = 1600;
-  canvas.height = 900;
+  canvas.width = 1500;
+  canvas.height = 500;
 
   const fileInput = document.getElementById("imageLoader");
   const exportBtn = document.getElementById("exportBtn");
