@@ -131,6 +131,8 @@ function setupUploadHandler() {
 };
 
 reader.readAsDataURL(files[i]); // ✅ this ends the operation — no extra brace needed
+ } // ✅ closes for loop
+}); // ✅ closes input.addEventListener("change", ...)
 
 
 // === Add Image to Thumbnail Tray ===
