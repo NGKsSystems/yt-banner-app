@@ -1,102 +1,106 @@
 /* === Layout Container === */
 body {
-  margin: 0;
-  font-family: sans-serif;
-  background: #000 url('X background.png') no-repeat center center;
-  background-size: cover;
-  color: #fff;
-  text-align: center;
+  margin: 0; /* Removes default spacing around the body */
+  font-family: sans-serif; /* Sets default font */
+  background: #000 url('X background.png') no-repeat center center; /* Black background with centered X image */
+  background-size: cover; /* Stretches background to cover entire area */
+  color: #fff; /* Default font color (white) */
+  text-align: center; /* Centers all child text by default */
 }
 
-/* === Logo Area (Unused for X, but preserved) === */
+/* === Logo Area (Unused for X) === */
 #canvasTopBar {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-between; /* Aligns left/right logos if used */
   align-items: center;
-  padding: 100px;
-  gap: 15px;
+  padding: 100px; /* Large spacing around logos */
+  gap: 15px; /* Spacing between logo elements */
 }
 
-/* === Control Bar === */
+/* === Control Bars (Top & Bottom) === */
 .top-controls,
 .bottom-controls {
   display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin: 10px 0;
+  justify-content: center; /* Center-aligns the buttons */
+  gap: 10px; /* Spacing between buttons */
+  margin: 10px 0; /* Top and bottom spacing from other elements */
 }
 
-/* === Buttons & Inputs === */
-.nav-button, .file-label input, button {
-  background-color: #222;
+/* === Button Styling === */
+.nav-button,
+.file-label input,
+button {
+  background-color: #222; /* Dark gray background */
   color: white;
-  border: 1px solid #888;
-  padding: 6px 12px;
-  margin: 4px;
+  border: 1px solid #888; /* Mid-gray border */
+  padding: 6px 12px; /* Padding inside button */
+  margin: 4px; /* Margin between buttons */
   cursor: pointer;
   font-size: 14px;
-  border-radius: 4px;
+  border-radius: 4px; /* Slightly rounded corners */
 }
 
+/* === Button Hover Effect === */
 button:hover {
-  background-color: #444;
+  background-color: #444; /* Lighter gray when hovered */
 }
 
-/* === Canvas Area === */
+/* === Main Canvas Area === */
 canvas {
-  border: 2px solid #00f;
-  margin: 20px 0;
-  max-width: 90%;
-  background: #111;
+  border: 2px solid #00f; /* Blue border for visibility */
+  margin: 20px 0; /* Spacing above/below canvas */
+  max-width: 90%; /* Responsive: never exceeds 90% width of screen */
+  background: #111; /* Deep black/gray background to contrast images */
 }
 
-/* === Thumbnail Display === */
+/* === Thumbnail Tray Below Upload === */
 #thumbnail-bar {
   display: flex;
   justify-content: center;
-  flex-wrap: wrap;
-  gap: 6px;
+  flex-wrap: wrap; /* Wraps to new row if too many thumbnails */
+  gap: 6px; /* Spacing between thumbnails */
   padding: 10px;
 }
 
+/* === Thumbnail Image Styling === */
 .thumbnail {
-  border: 1px solid #999;
+  border: 1px solid #999; /* Neutral border */
   max-width: 100px;
   max-height: 100px;
   cursor: pointer;
-  opacity: 0.8;
-  transition: 0.2s ease;
+  opacity: 0.8; /* Dimmed until hovered */
+  transition: 0.2s ease; /* Smooth hover */
 }
 
 .thumbnail:hover {
   opacity: 1;
-  border-color: #0f0;
+  border-color: #0f0; /* Green border when hovered */
 }
 
-/* === Resize Handles === */
+/* === Resize Handles (Corners of Selected Image) === */
 .handle-dot {
   width: 8px;
   height: 8px;
-  background: red;
+  background: red; /* Red square */
   position: absolute;
   z-index: 10;
-  border-radius: 2px;
+  border-radius: 2px; /* Slightly rounded */
 }
 
-/* === Footer Area / Safe Zone Overlay === */
+/* === Mobile-Safe Zone Overlay Box === */
 .safe-zone {
   position: absolute;
   left: 50%;
-  transform: translateX(-50%);
-  height: 360px;
+  transform: translateX(-50%); /* Horizontally centers it */
+  height: 360px; /* X’s recommended safe height */
   width: 100%;
-  border: 2px dashed #f00;
-  top: calc(50% - 180px);
-  pointer-events: none;
-  opacity: 0.25;
+  border: 2px dashed #f00; /* Red dashed border */
+  top: calc(50% - 180px); /* Vertically centers by offsetting half */
+  pointer-events: none; /* Allows clicks through it */
+  opacity: 0.25; /* Faint transparency */
 }
 
-/* === Footer & Export Warning === */
+/* === Footer + Disclaimer === */
 footer {
   text-align: center;
   font-size: 11px;
