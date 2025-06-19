@@ -66,7 +66,27 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 }
+  
+ // === Move images forward and back on canvas ===
+document.getElementById("bringForwardBtn").addEventListener("click", () => {
+  if (selectedObjectIndex >= 0 && selectedObjectIndex < overlays.length - 1) {
+    const obj = overlays.splice(selectedObjectIndex, 1)[0];
+    overlays.splice(selectedObjectIndex + 1, 0, obj);
+    selectedObjectIndex++;
+    drawCanvas();
+  }
+});
 
+document.getElementById("sendBackwardBtn").addEventListener("click", () => {
+  if (selectedObjectIndex > 0) {
+    const obj = overlays.splice(selectedObjectIndex, 1)[0];
+    overlays.splice(selectedObjectIndex - 1, 0, obj);
+    selectedObjectIndex--;
+    drawCanvas();
+  }
+});
+
+  
   // === Resize Handles ===
   function drawResizeHandles(obj) {
     const handles = getHandlePositions(obj);
