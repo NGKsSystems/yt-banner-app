@@ -407,7 +407,7 @@ function exportBanner() {
 // ... other functions like drawCanvas, setupInteractionHandlers, etc.
 
 function exportBanner() {
-  ...
+  
 }
 
 // === Keyboard arrows to move selected image overlay ===
