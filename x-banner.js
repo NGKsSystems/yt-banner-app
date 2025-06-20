@@ -266,12 +266,20 @@ document.addEventListener("DOMContentLoaded", () => {
     return x >= rx - size && x <= rx + size && y >= ry - size && y <= ry + size;
   }
 
-  function isOnRotateHandle(obj, x, y) {
-    const cx = (obj.x + obj.width / 2) * zoomLevel;
-    const cy = (obj.y - 30) * zoomLevel;
-    const size = 10;
-    return x >= cx - size && x <= cx + size && y >= cy - size && y <= cy + size;
-  }
+ function isOnRotateHandle(obj, x, y) {
+  const size = 10;
+  const cx = obj.x + obj.width / 2;
+  const cy = obj.y - 30; // 30px above top
+
+  // Use raw coords for both, zoom is handled during draw, not hitbox
+  return (
+    x >= cx * zoomLevel - size &&
+    x <= cx * zoomLevel + size &&
+    y >= cy * zoomLevel - size &&
+    y <= cy * zoomLevel + size
+  );
+}
+
 
   // === Mouse Events ===
 
