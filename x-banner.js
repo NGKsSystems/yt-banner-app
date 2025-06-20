@@ -177,6 +177,7 @@ function drawCanvas() {
   });
 
   // === Draw circular safe zone for PFP mode (Twitter/X) ===
+  function drawPfpOverlayIfNeeded() {  //  ---------------------------added for testing
   if (!isBannerMode) {
     const circleDiameter = 400;                 // Fixed circle size
     const centerX = canvas.width / 2;           // Center of canvas
@@ -380,7 +381,7 @@ function drawCanvas() {
     }
   });
 }
-
+drawPfpOverlayIfNeeded();  // ------------------added for testing
 
 // === Toolbar Buttons: Export, Layering, Delete ===
 function setupToolbarButtons() {
