@@ -227,6 +227,7 @@ function drawResizeHandles(obj) {
 document.addEventListener("DOMContentLoaded", () => {
   canvas = document.getElementById("canvas");           // ✅ Canvas element
   ctx = canvas.getContext("2d");                        // ✅ Canvas 2D drawing context
+  ctx.drawImage(obj.img, obj.x * zoomLevel, obj.y * zoomLevel, obj.width * zoomLevel, obj.height * zoomLevel);   // ----------------------------------------------------added as test
 
   let zoomLevel = 1;                                    // 🔍 Current zoom factor
   const zoomSlider = document.getElementById("zoomSlider");
