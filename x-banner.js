@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const img = new Image();
       img.onload = () => {
         overlays.push({
-          image: img,  // ✅ match the key expected by drawCanvas()
+          img: img,  // ✅ match the key expected by drawCanvas()
           x: mouseX - data.width / 2,
           y: mouseY - data.height / 2,
           width: data.width,
@@ -240,165 +240,132 @@ function drawResizeHandles(obj) {
 }
 
 
-// === State Tracking Variables ===
-// These assignments assume global declarations already exist earlier in the file
-// So we DO NOT redeclare with 'let' again
+// ========================
+// Mouse Interaction Logic - Refactored & Annotated
+// ========================
 
-canvas = document.getElementById("canvas");       // Link to canvas element in DOM
-ctx = canvas.getContext("2d");                    // Canvas 2D context
+// === Globals (already declared outside this block) ===
+// canvas, ctx       – DOM canvas and its context
+// overlays          – list of overlay image objects
+// selectedObjectIndex – index of the selected overlay
+// isDragging, isResizing, isRotating – current interaction mode flags
+// dragOffsetX/Y     – offsets for dragging
 
-overlays = [];                                    // Array of image objects with x, y, width, height, rotation
-selectedObjectIndex = -1;                         // Index of selected image
-isDragging = false;                               // Drag mode flag
-isResizing = false;                               // Resize mode flag
-isRotating = false;                               // Rotate mode flag
-dragOffsetX = 0;                                  // Offset from cursor to object center (X)
-dragOffsetY = 0;                                  // Offset from cursor to object center (Y)
-
-
-// === Utility: Redraw Canvas and All Images ===
-function drawCanvas() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);   // Clear canvas
-  overlays.forEach((obj) => {
-    ctx.save();
-    ctx.translate(obj.x + obj.width / 2, obj.y + obj.height / 2);  // Move to image center
-    ctx.rotate(obj.rotation);                                      // Apply rotation
-    ctx.drawImage(obj.image, -obj.width / 2, -obj.height / 2, obj.width, obj.height);  // Draw image
-    ctx.restore();
-
-    // Draw bounding box
-    ctx.strokeStyle = "yellow";
-    ctx.lineWidth = 2;
-    ctx.strokeRect(obj.x, obj.y, obj.width, obj.height);
-
-    // Draw rotation handle (top center)
-    ctx.beginPath();
-    ctx.arc(obj.x + obj.width / 2, obj.y - 30, 7, 0, 2 * Math.PI);
-    ctx.fillStyle = "red";
-    ctx.fill();
-  });
-}
-
-// === Main Interaction Setup ===
-function setupInteractionHandlers() {
-  // === Mouse Down ===
-  canvas.addEventListener("mousedown", (e) => {
-    const rect = canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-
-    for (let i = overlays.length - 1; i >= 0; i--) {
-      const obj = overlays[i];
-      const centerX = obj.x + obj.width / 2;
-      const centerY = obj.y + obj.height / 2;
-      const dx = mouseX - centerX;
-      const dy = mouseY - centerY;
-      const angle = -obj.rotation;
-
-      const rotatedX = dx * Math.cos(angle) - dy * Math.sin(angle);
-      const rotatedY = dx * Math.sin(angle) + dy * Math.cos(angle);
-
-      const halfW = obj.width / 2;
-      const halfH = obj.height / 2;
-      const margin = 8;
-
-      // === Resize: Hit corners
-      if (
-        Math.abs(rotatedX - halfW) < margin && Math.abs(rotatedY - halfH) < margin ||
-        Math.abs(rotatedX + halfW) < margin && Math.abs(rotatedY - halfH) < margin ||
-        Math.abs(rotatedX - halfW) < margin && Math.abs(rotatedY + halfH) < margin ||
-        Math.abs(rotatedX + halfW) < margin && Math.abs(rotatedY + halfH) < margin
-      ) {
-        selectedObjectIndex = i;
-        isResizing = true;
-        return;
-      }
-
-      // === Rotate: Top-center 30px above
-      const rotHandleX = obj.x + obj.width / 2;
-      const rotHandleY = obj.y - 30;
-      const dist = Math.hypot(mouseX - rotHandleX, mouseY - rotHandleY);
-      if (dist < 14) {
-        selectedObjectIndex = i;
-        isRotating = true;
-        return;
-      }
-
-      // === Drag: Inside image bounds
-      if (
-        rotatedX > -halfW && rotatedX < halfW &&
-        rotatedY > -halfH && rotatedY < halfH
-      ) {
-        selectedObjectIndex = i;
-        isDragging = true;
-        dragOffsetX = rotatedX;
-        dragOffsetY = rotatedY;
-        return;
-      }
-    }
-  });
-
-  // === Mouse Move ===
-  canvas.addEventListener("mousemove", (e) => {
-    if (selectedObjectIndex === -1) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    const obj = overlays[selectedObjectIndex];
-
-    if (isDragging) {
-      const dx = dragOffsetX * Math.cos(obj.rotation) - dragOffsetY * Math.sin(obj.rotation);
-      const dy = dragOffsetX * Math.sin(obj.rotation) + dragOffsetY * Math.cos(obj.rotation);
-      obj.x = mouseX - dx;
-      obj.y = mouseY - dy;
-    }
-
-    if (isResizing) {
-      const centerX = obj.x + obj.width / 2;
-      const centerY = obj.y + obj.height / 2;
-      const dx = mouseX - centerX;
-      const dy = mouseY - centerY;
-      const angle = -obj.rotation;
-      const rotatedX = dx * Math.cos(angle) - dy * Math.sin(angle);
-      const rotatedY = dx * Math.sin(angle) + dy * Math.cos(angle);
-      obj.width = Math.max(20, Math.abs(rotatedX) * 2);  // Prevent collapse
-      obj.height = Math.max(20, Math.abs(rotatedY) * 2);
-    }
-
-    if (isRotating) {
-      const centerX = obj.x + obj.width / 2;
-      const centerY = obj.y + obj.height / 2;
-      const dx = mouseX - centerX;
-      const dy = mouseY - centerY;
-      obj.rotation = Math.atan2(dy, dx);
-    }
-
-    drawCanvas(); // Refresh canvas
-  });
-
-  // === Mouse Up / Leave ===
-  const stopInteraction = () => {
-    isDragging = false;
-    isResizing = false;
-    isRotating = false;
+// === Utility: Get Mouse Position ===
+function getMousePos(canvas, evt) {
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: evt.clientX - rect.left,   // X relative to canvas
+    y: evt.clientY - rect.top     // Y relative to canvas
   };
-
-  canvas.addEventListener("mouseup", stopInteraction);
-  canvas.addEventListener("mouseleave", stopInteraction);
 }
 
-// === Start Everything ===
-window.onload = () => {
-  setupInteractionHandlers();
-  drawCanvas(); // Initial draw (in case overlays are preloaded)
-};
+// === Utility: Check if Point is in Image Bounds ===
+function isInsideImage(obj, x, y) {
+  const centerX = obj.x + obj.width / 2;
+  const centerY = obj.y + obj.height / 2;
 
+  const dx = x - centerX;
+  const dy = y - centerY;
 
-// === Initialize Interaction on Page Load ===
-window.onload = () => {
-  setupInteractionHandlers();                                     // Register event handlers once DOM is ready
-};
+  const distance = Math.sqrt(dx * dx + dy * dy);
+  const angle = Math.atan2(dy, dx) - obj.rotation;  // adjust for rotation
+
+  const unrotatedX = distance * Math.cos(angle) + obj.width / 2;
+  const unrotatedY = distance * Math.sin(angle) + obj.height / 2;
+
+  return (
+    unrotatedX >= 0 && unrotatedX <= obj.width &&
+    unrotatedY >= 0 && unrotatedY <= obj.height
+  );
+}
+
+// === Utility: Check if Point is on Resize Handle (bottom-right corner) ===
+function isOnResizeHandle(obj, x, y) {
+  const handleSize = 10;
+  const handleX = obj.x + obj.width;
+  const handleY = obj.y + obj.height;
+
+  return (
+    x >= handleX - handleSize && x <= handleX + handleSize &&
+    y >= handleY - handleSize && y <= handleY + handleSize
+  );
+}
+
+// === Utility: Check if Point is on Rotation Handle (above center) ===
+function isOnRotateHandle(obj, x, y) {
+  const handleSize = 10;
+  const handleX = obj.x + obj.width / 2;
+  const handleY = obj.y - 30;
+
+  return (
+    x >= handleX - handleSize && x <= handleX + handleSize &&
+    y >= handleY - handleSize && y <= handleY + handleSize
+  );
+}
+
+// === Interaction Events ===
+canvas.addEventListener("mousedown", function (e) {
+  const mousePos = getMousePos(canvas, e);
+
+  selectedObjectIndex = -1;       // reset selected object
+  isDragging = isResizing = isRotating = false;
+
+  for (let i = overlays.length - 1; i >= 0; i--) {
+    const obj = overlays[i];
+
+    if (isOnResizeHandle(obj, mousePos.x, mousePos.y)) {
+      selectedObjectIndex = i;
+      isResizing = true;
+      return;
+    }
+    if (isOnRotateHandle(obj, mousePos.x, mousePos.y)) {
+      selectedObjectIndex = i;
+      isRotating = true;
+      return;
+    }
+    if (isInsideImage(obj, mousePos.x, mousePos.y)) {
+      selectedObjectIndex = i;
+      isDragging = true;
+      dragOffsetX = mousePos.x - obj.x; // store offset for drag
+      dragOffsetY = mousePos.y - obj.y;
+      return;
+    }
+  }
+});
+
+canvas.addEventListener("mousemove", function (e) {
+  if (selectedObjectIndex === -1) return;
+
+  const obj = overlays[selectedObjectIndex];
+  const mousePos = getMousePos(canvas, e);
+
+  if (isDragging) {
+    obj.x = mousePos.x - dragOffsetX;     // apply drag offset
+    obj.y = mousePos.y - dragOffsetY;
+  }
+
+  if (isResizing) {
+    obj.width = Math.max(10, mousePos.x - obj.x);   // update width
+    obj.height = Math.max(10, mousePos.y - obj.y);  // update height
+  }
+
+  if (isRotating) {
+    const centerX = obj.x + obj.width / 2;
+    const centerY = obj.y + obj.height / 2;
+    obj.rotation = Math.atan2(mousePos.y - centerY, mousePos.x - centerX);  // calculate new angle
+  }
+
+  drawCanvas();
+});
+
+canvas.addEventListener("mouseup", function () {
+  isDragging = isResizing = isRotating = false;  // reset modes
+});
+
+canvas.addEventListener("mouseleave", function () {
+  isDragging = isResizing = isRotating = false;  // cancel actions when mouse leaves canvas
+});
 
 
 // === Toolbar Buttons: Export, Layering, Delete ===
