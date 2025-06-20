@@ -265,16 +265,16 @@ function setupInteractionHandlers() {
       const halfW = obj.width / 2;
       const halfH = obj.height / 2;
 
-     const rotHandleY = -halfH - 30;
-     const isInRotateZone =
-     Math.abs(localX) < 14 &&
-     Math.abs(localY - rotHandleY) < 14;
-
-    if (isInRotateZone) {
-      selectedObjectIndex = i;
-      isRotating = true;
-      return;
-   }
+    // === Detect rotation handle click in canvas space (not local)
+      const rotHandleX = obj.x + obj.width / 2;
+      const rotHandleY = obj.y - 30;
+      const dist = Math.hypot(mouseX - rotHandleX, mouseY - rotHandleY);
+      
+      if (dist < 14) {
+        selectedObjectIndex = i;
+        isRotating = true;
+        return;
+      }
 
 
       if (
