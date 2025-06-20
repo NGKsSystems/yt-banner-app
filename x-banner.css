@@ -26,6 +26,14 @@ body {
   margin: 30px 0; /* Top and bottom spacing from other elements */
 }
 
+/*=== Zoom Styling === */
+#zoomSlider {
+  width: 150px;
+  accent-color: blue; /* Adjust to match your app theme */
+  background-color: white;
+  border-radius: 5px;
+}
+
 /* === Button Styling === */
 .nav-button,
 .file-label input,
