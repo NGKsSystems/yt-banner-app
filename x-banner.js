@@ -378,10 +378,11 @@ function drawCanvas() {
       ctx.strokeStyle = "white";
       ctx.lineWidth = 2;
       ctx.stroke();
+      
+      drawPfpOverlayIfNeeded();  // ------------------added for testing
     }
   });
 }
-drawPfpOverlayIfNeeded();  // ------------------added for testing
 
 // === Toolbar Buttons: Export, Layering, Delete ===
 function setupToolbarButtons() {
