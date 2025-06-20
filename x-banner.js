@@ -165,13 +165,27 @@ function drawCanvas() {
 
   // Draw each image overlay
   overlays.forEach((obj, i) => {
-    ctx.drawImage(obj.img, obj.x, obj.y, obj.width, obj.height); // Draw image
+    
+   ctx.drawImage(   // Draw image
+     obj.img,
+     obj.x * zoomLevel,
+     obj.y * zoomLevel,
+     obj.width * zoomLevel,
+     obj.height * zoomLevel
+ );
+
 
     // Highlight selected overlay
     if (i === selectedObjectIndex) {
       ctx.strokeStyle = "white";                 // Selection border color
       ctx.lineWidth = 1;
-      ctx.strokeRect(obj.x, obj.y, obj.width, obj.height); // Draw selection border
+      ctxctx.strokeRect(
+        obj.x * zoomLevel,
+        obj.y * zoomLevel,
+        obj.width * zoomLevel,
+        obj.height * zoomLevel
+);
+.strokeRect(obj.x, obj.y, obj.width, obj.height); // Draw selection border
       drawResizeHandles(obj);                   // Draw resize handles
     }
   });
