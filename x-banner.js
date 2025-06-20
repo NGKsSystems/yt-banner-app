@@ -13,6 +13,7 @@ let isResizing = false;
 let isRotating = false;
 let dragHandleIndex = -1;
 let isBannerMode = true;
+let zoomLevel = 1;                                    // 🔍 Current zoom factor
 
 // === DOM Ready: Initialize Canvas + Load Mode ===
 document.addEventListener("DOMContentLoaded", () => {
