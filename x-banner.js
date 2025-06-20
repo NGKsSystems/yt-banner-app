@@ -345,7 +345,8 @@ function drawCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);  // Clear canvas
 
   overlays.forEach((obj, i) => {
-    ctx.save();
+    ctx.save();                            // ✅ Save canvas state
+    ctx.scale(zoomLevel, zoomLevel);      // 🔍 Apply zoom transform --------------------------------------------------  ADDED
     ctx.translate(obj.x + obj.width / 2, obj.y + obj.height / 2); // Center transform
     ctx.rotate(obj.rotation);                                     // Apply rotation
     ctx.translate(-obj.width / 2, -obj.height / 2);               // Reset to top-left
