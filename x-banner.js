@@ -199,23 +199,7 @@ function drawCanvas() {
 function drawResizeHandles(obj) {
   const size = 14;
 
-  // === Resize handles: 8 corners and edges
-  const positions = [
-    { x: obj.x, y: obj.y },
-    { x: obj.x + obj.width / 2, y: obj.y },
-    { x: obj.x + obj.width, y: obj.y },
-    { x: obj.x, y: obj.y + obj.height / 2 },
-    { x: obj.x + obj.width, y: obj.y + obj.height / 2 },
-    { x: obj.x, y: obj.y + obj.height },
-    { x: obj.x + obj.width / 2, y: obj.y + obj.height },
-    { x: obj.x + obj.width, y: obj.y + obj.height }
-  ];
-
-  ctx.fillStyle = "white";
-  positions.forEach(pos => {
-    ctx.fillRect(pos.x - size / 2, pos.y - size / 2, size, size);
-  });
-
+  
   // === Rotation handle: 30px above top-center of object
   const cx = obj.x + obj.width / 2;
   const cy = obj.y;
@@ -237,6 +221,23 @@ function drawResizeHandles(obj) {
   ctx.lineWidth = 2;
   ctx.stroke();
 }
+  
+  // === Resize handles: 8 corners and edges
+  const positions = [
+    { x: obj.x, y: obj.y },
+    { x: obj.x + obj.width / 2, y: obj.y },
+    { x: obj.x + obj.width, y: obj.y },
+    { x: obj.x, y: obj.y + obj.height / 2 },
+    { x: obj.x + obj.width, y: obj.y + obj.height / 2 },
+    { x: obj.x, y: obj.y + obj.height },
+    { x: obj.x + obj.width / 2, y: obj.y + obj.height },
+    { x: obj.x + obj.width, y: obj.y + obj.height }
+  ];
+
+  ctx.fillStyle = "white";
+  positions.forEach(pos => {
+    ctx.fillRect(pos.x - size / 2, pos.y - size / 2, size, size);
+  });
 
 
 // =============================
