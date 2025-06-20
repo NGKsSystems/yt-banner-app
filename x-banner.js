@@ -163,36 +163,37 @@ function drawCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the entire canvas
 
   // Draw each image overlay
-  overlays.forEach((obj, i) => {
-    ctx.drawImage(obj.img, obj.x, obj.y, obj.width, obj.height); // Draw image
+ overlays.forEach((obj, i) => {
+  ctx.drawImage(obj.img, obj.x, obj.y, obj.width, obj.height);  // Draw image
 
-    // Highlight selected overlay
-   if (i === selectedObjectIndex) {
-  ctx.strokeStyle = "white";                          // Selection border color
-  ctx.lineWidth = 1;
-  ctx.strokeRect(obj.x, obj.y, obj.width, obj.height); // Selection border
-  drawResizeHandles(obj);                             // Draw resize handles
+  if (i === selectedObjectIndex) {
+    ctx.strokeStyle = "white";         // Selection border
+    ctx.lineWidth = 1;
+    ctx.strokeRect(obj.x, obj.y, obj.width, obj.height);
+    drawResizeHandles(obj);            // Draw handles
 
-  // === Draw Rotation Handle (top-center) ===
-  const cx = obj.x + obj.width / 2;                  // X of top center
-  const cy = obj.y - 30;                             // 30px above top
+    // === Draw Rotation Handle ===
+    const cx = obj.x + obj.width / 2;
+    const cy = obj.y - 30;
 
-  ctx.beginPath();                                   // Connector line
-  ctx.moveTo(cx, obj.y);
-  ctx.lineTo(cx, cy);
-  ctx.strokeStyle = "gray";
-  ctx.lineWidth = 2;
-  ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(cx, obj.y);
+    ctx.lineTo(cx, cy);
+    ctx.strokeStyle = "gray";
+    ctx.lineWidth = 2;
+    ctx.stroke();
 
-  ctx.beginPath();                                   // Circle handle
-  ctx.arc(cx, cy, 8, 0, 2 * Math.PI);
-  ctx.fillStyle = "white";
-  ctx.strokeStyle = "black";
-  ctx.lineWidth = 2;
-  ctx.fill();
-  ctx.stroke();
-  }
-} // ✅ close drawCanvas() properly
+    ctx.beginPath();
+    ctx.arc(cx, cy, 8, 0, 2 * Math.PI);
+    ctx.fillStyle = "white";
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = 2;
+    ctx.fill();
+    ctx.stroke();
+  } // ✅ CLOSES if (i === selectedObjectIndex)
+
+}); // ✅ CLOSES overlays.forEach()
+
 
 // === Draw 8 Resize Handles ===
 function drawResizeHandles(obj) {
