@@ -167,31 +167,30 @@ function drawCanvas() {
     ctx.drawImage(obj.img, obj.x, obj.y, obj.width, obj.height); // Draw image
 
     // Highlight selected overlay
-    if (i === selectedObjectIndex) {
-      ctx.strokeStyle = "white";                 // Selection border color
-      ctx.lineWidth = 1;
-      ctx.strokeRect(obj.x, obj.y, obj.width, obj.height); // Draw selection border
-      drawResizeHandles(obj);                   // Draw resize handles
-    }
-  });
+   if (i === selectedObjectIndex) {
+  ctx.strokeStyle = "white";                          // Selection border color
+  ctx.lineWidth = 1;
+  ctx.strokeRect(obj.x, obj.y, obj.width, obj.height); // Selection border
+  drawResizeHandles(obj);                             // Draw resize handles
 
-  // === Draw circular safe zone for PFP mode (Twitter/X) ===
-  if (!isBannerMode) {
-    const circleDiameter = 400;                 // Fixed circle size
-    const centerX = canvas.width / 2;           // Center of canvas
-    const centerY = canvas.height / 2;
-    const radius = circleDiameter / 2;          // Radius = 200
+  // === Draw Rotation Handle (top-center) ===
+  const cx = obj.x + obj.width / 2;                  // X of top center
+  const cy = obj.y - 30;                             // 30px above top
 
-    ctx.beginPath();                             // Outer circle stroke
-    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
-    ctx.lineWidth = 4;
-    ctx.stroke();
+  ctx.beginPath();                                   // Connector line
+  ctx.moveTo(cx, obj.y);
+  ctx.lineTo(cx, cy);
+  ctx.strokeStyle = "gray";
+  ctx.lineWidth = 2;
+  ctx.stroke();
 
-    ctx.beginPath();                             // Inner transparent fill
-    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-    ctx.fillStyle = "rgba(255, 255, 255, 0.07)";
-    ctx.fill();
+  ctx.beginPath();                                   // Circle handle
+  ctx.arc(cx, cy, 8, 0, 2 * Math.PI);
+  ctx.fillStyle = "white";
+  ctx.strokeStyle = "black";
+  ctx.lineWidth = 2;
+  ctx.fill();
+  ctx.stroke();
   }
 } // ✅ close drawCanvas() properly
 
