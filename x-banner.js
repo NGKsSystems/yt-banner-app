@@ -240,11 +240,6 @@ function drawResizeHandles(obj) {
 }
 
 
-// === Mouse Interaction Logic – Move, Resize, Rotate ===
-// Connect canvas
-canvas = document.getElementById("canvas"); // ✅ safe assignment to global   // Link canvas from DOM
-const ctx = canvas.getContext("2d");                // Get canvas 2D context
-
 // === State Tracking Variables ===
 // These assignments assume global declarations already exist earlier in the file
 // So we DO NOT redeclare with 'let' again
