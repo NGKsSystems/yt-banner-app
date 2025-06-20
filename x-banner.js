@@ -341,25 +341,25 @@ function drawCanvas() {
 
   overlays.forEach((obj, i) => {
     ctx.save();
-    ctx.translate(obj.x + obj.width / 2, obj.y + obj.height / 2);
-    ctx.rotate(obj.rotation);
-    ctx.translate(-obj.width / 2, -obj.height / 2);
-    ctx.drawImage(obj.img, 0, 0, obj.width, obj.height);
+    ctx.translate(obj.x + obj.width / 2, obj.y + obj.height / 2); // Center transform
+    ctx.rotate(obj.rotation);                                     // Apply rotation
+    ctx.translate(-obj.width / 2, -obj.height / 2);               // Reset to top-left
+    ctx.drawImage(obj.img, 0, 0, obj.width, obj.height);          // Draw image
     ctx.restore();
 
     if (i === selectedObjectIndex) {
-      ctx.strokeStyle = "white";
+      ctx.strokeStyle = "white";                                // Outline for selected object
       ctx.lineWidth = 1;
       ctx.strokeRect(obj.x, obj.y, obj.width, obj.height);
 
-      // === Draw resize handle (bottom-right, lime box) ===
+      // === Draw resize handle ===
       const size = 14;
       const hx = obj.x + obj.width;
       const hy = obj.y + obj.height;
       ctx.fillStyle = "lime";
       ctx.fillRect(hx - size / 2, hy - size / 2, size, size);
 
-      // === Draw rotate handle (top-center, white bar + red circle) ===
+      // === Draw rotate handle ===
       const cx = obj.x + obj.width / 2;
       const cy = obj.y - 30;
 
@@ -377,10 +377,31 @@ function drawCanvas() {
       ctx.strokeStyle = "white";
       ctx.lineWidth = 2;
       ctx.stroke();
-
     }
   });
+
+  // === Draw circular safe zone for PFP mode (Twitter/X) ===
+  if (!isBannerMode) {
+    const circleDiameter = 400;                    // Fixed circle size
+    const centerX = canvas.width / 2;              // Center X
+    const centerY = canvas.height / 2;             // Center Y
+    const radius = circleDiameter / 2;             // Radius = 200
+
+    // Outer stroke
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
+    // Inner transparent fill
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.fillStyle = "rgba(255, 255, 255, 0.07)";
+    ctx.fill();
+  }
 }
+
 
 // === Toolbar Buttons: Export, Layering, Delete ===
 function setupToolbarButtons() {
