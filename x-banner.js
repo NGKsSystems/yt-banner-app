@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const img = new Image();
       img.onload = () => {
         overlays.push({
-          img: img,
+          image: img,  // ✅ match the key expected by drawCanvas()
           x: mouseX - data.width / 2,
           y: mouseY - data.height / 2,
           width: data.width,
