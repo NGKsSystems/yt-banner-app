@@ -177,8 +177,7 @@ function drawCanvas() {
   });
 
   // === Draw circular safe zone for PFP mode (Twitter/X) ===
-  function drawPfpOverlayIfNeeded() {  //  ---------------------------added for testing
-  if (!isBannerMode) {
+   if (!isBannerMode) {
     const circleDiameter = 400;                 // Fixed circle size
     const centerX = canvas.width / 2;           // Center of canvas
     const centerY = canvas.height / 2;
@@ -378,8 +377,7 @@ function drawCanvas() {
       ctx.strokeStyle = "white";
       ctx.lineWidth = 2;
       ctx.stroke();
-      
-      drawPfpOverlayIfNeeded();  // ------------------added for testing
+
     }
   });
 }
