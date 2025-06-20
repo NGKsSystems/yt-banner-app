@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Init handlers
   setupCanvasToggle();
   setupUploadHandler();
-  setupInteractionHandlers();
+ 
   setupToolbarButtons();
 
   // Enable drag-and-drop support
@@ -431,11 +431,23 @@ function setupToolbarButtons() {
 
 // === Export Canvas as PNG (Hide Handles) ===
 function exportBanner() {
-  if (!isBannerMode) {
-    // === Circular PFP Export ===
-    const size = 400;
-    const radius = size / 2;
+ if (!isBannerMode) {
+  const diameter = 400;
+  const cx = canvas.width / 2;
+  const cy = canvas.height / 2;
+  const radius = diameter / 2;
 
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
+  ctx.lineWidth = 4;
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
+  ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
+  ctx.fill();
+}
     // Create export canvas
     const tempCanvas = document.createElement('canvas');
     tempCanvas.width = size;
