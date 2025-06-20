@@ -199,6 +199,7 @@ function drawCanvas() {
 // === Draw 8 Resize Handles ===
 function drawResizeHandles(obj) {
   const size = 14;
+
   const positions = [
     { x: obj.x, y: obj.y },
     { x: obj.x + obj.width / 2, y: obj.y },
@@ -209,11 +210,31 @@ function drawResizeHandles(obj) {
     { x: obj.x + obj.width / 2, y: obj.y + obj.height },
     { x: obj.x + obj.width, y: obj.y + obj.height }
   ];
+
   ctx.fillStyle = "white";
   positions.forEach(pos => {
     ctx.fillRect(pos.x - size / 2, pos.y - size / 2, size, size);
   });
+
+  // === Draw rotation handle (top-center, floating above object)
+  const cx = obj.x + obj.width / 2;
+  const cy = obj.y;
+
+  ctx.beginPath();
+  ctx.arc(cx, cy - 30, 8, 0, 2 * Math.PI);     // 30px above top-center
+  ctx.fillStyle = "gray";
+  ctx.fill();
+  ctx.strokeStyle = "white";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Optional: connector line from box to handle
+  ctx.beginPath();
+  ctx.moveTo(cx, cy);
+  ctx.lineTo(cx, cy - 30);
+  ctx.stroke();
 }
+
 
 // === Mouse Interactions: Move + Resize ===
 function setupInteractionHandlers() {
