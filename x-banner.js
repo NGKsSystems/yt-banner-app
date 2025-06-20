@@ -240,19 +240,27 @@ function setupInteractionHandlers() {
       const halfW = obj.width / 2;
       const halfH = obj.height / 2;
 
-      const rotHandleY = -halfH - 30;
-      if (Math.abs(localX) < 10 && Math.abs(localY - rotHandleY) < 10) {
+    // === Detect rotation handle click in canvas space (not local)
+      const rotHandleX_canvas = obj.x + obj.width / 2;
+      const rotHandleY_canvas = obj.y - 30;
+      const dist = Math.hypot(mouseX - rotHandleX_canvas, mouseY - rotHandleY_canvas);
+      
+      if (dist < 14) {
         selectedObjectIndex = i;
         isRotating = true;
         return;
       }
+
 
       if (
         localX >= -halfW && localX <= halfW &&
         localY >= -halfH && localY <= halfH
       ) {
         selectedObjectIndex = i;
-        dragOffset = { x: localX, y: localY };
+       dragOffset = {
+         x: mouseX - obj.x,
+         y: mouseY - obj.y
+         };
 
         const handles = [
           [-halfW, -halfH], [0, -halfH], [halfW, -halfH],
@@ -260,7 +268,7 @@ function setupInteractionHandlers() {
           [-halfW, halfH], [0, halfH], [halfW, halfH]
         ];
 
-        const size = 6;
+        const size = 14;
         handles.forEach(([hx, hy], index) => {
           if (
             localX >= hx - size && localX <= hx + size &&
@@ -300,11 +308,12 @@ function setupInteractionHandlers() {
     }
 
     if (isDragging) {
-      obj.x = mouseX - dragOffset.x * Math.cos(obj.rotation) + dragOffset.y * Math.sin(obj.rotation);
-      obj.y = mouseY - dragOffset.x * Math.sin(obj.rotation) - dragOffset.y * Math.cos(obj.rotation);
+      obj.x = mouseX - dragOffset.x;
+      obj.y = mouseY - dragOffset.y;
       drawCanvas();
       return;
-    }
+   }
+
 
     if (isResizing) {
       const handleX = [-1, 0, 1, -1, 1, -1, 0, 1][dragHandleIndex];
