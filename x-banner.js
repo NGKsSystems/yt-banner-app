@@ -391,55 +391,19 @@ function setupToolbarButtons() {
 
 // === Export Canvas as PNG (Hide Handles) ===
 function exportBanner() {
-  if (!isBannerMode) {
-    // === Circular PFP Export ===
-    const size = 400;
-    const radius = size / 2;
+  const wasSelected = selectedObjectIndex;
+  selectedObjectIndex = -1;
+  drawCanvas();
 
-    // Create export canvas
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = size;
-    tempCanvas.height = size;
-    const tempCtx = tempCanvas.getContext('2d');
-
-    // Clip to circular region
-    tempCtx.beginPath();
-    tempCtx.arc(radius, radius, radius, 0, 2 * Math.PI);
-    tempCtx.closePath();
-    tempCtx.clip(); // ⛔ clip everything outside the circle
-
-    // Calculate center of source canvas
-    const srcX = (canvas.width - size) / 2;
-    const srcY = (canvas.height - size) / 2;
-
-    // Draw canvas content into the clipped circle
-    tempCtx.drawImage(canvas, srcX, srcY, size, size, 0, 0, size, size);
-
-    // Export
-    const dataUrl = tempCanvas.toDataURL("image/png");
-    const a = document.createElement("a");
-    a.href = dataUrl;
-    a.download = "x-pfp-circle.png";
-    a.click();
-  } else {
-    // === Normal Banner Export ===
-    const dataUrl = canvas.toDataURL("image/png");
-    const a = document.createElement("a");
-    a.href = dataUrl;
-    a.download = "x-banner.png";
-    a.click();
-  }
-}
-
-
-  // 4. Export result
-  const dataUrl = tempCanvas.toDataURL("image/png");
+  const dataUrl = canvas.toDataURL("image/png");
   const a = document.createElement("a");
   a.href = dataUrl;
-  a.download = "overlay-only.png";
+  a.download = isBannerMode ? "x-banner.png" : "x-pfp.png";
   a.click();
-}
 
+  selectedObjectIndex = wasSelected;
+  drawCanvas();
+}
 
 // === Keyboard arrows to move selected image overlay ===
 document.addEventListener('keydown', (e) => {
