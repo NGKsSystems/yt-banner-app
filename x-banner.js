@@ -220,60 +220,59 @@ function drawResizeHandles(obj) {
 // Wrapped in DOMContentLoaded to ensure canvas exists before binding
 // =============================
 
-// =============================
-// Mouse Interaction Setup Block (Zoom-Enabled)
-// =============================
+// === Mouse Interaction Setup Block ===
+// Ensures canvas and all event handlers are properly initialized on DOM load
 
 document.addEventListener("DOMContentLoaded", () => {
-  canvas = document.getElementById("canvas");
-  ctx = canvas.getContext("2d");
+  canvas = document.getElementById("canvas");           // ✅ Canvas element
+  ctx = canvas.getContext("2d");                        // ✅ Canvas 2D drawing context
 
-  let zoomLevel = 1;  // 🔍 Default zoom
-
+  let zoomLevel = 1;                                    // 🔍 Current zoom factor
   const zoomSlider = document.getElementById("zoomSlider");
+
   if (zoomSlider) {
     zoomSlider.addEventListener("input", (e) => {
-      zoomLevel = parseFloat(e.target.value);
-      drawCanvas();
+      zoomLevel = parseFloat(e.target.value);           // 🔄 Update zoom level
+      drawCanvas();                                     // 🔁 Redraw with new zoom
     });
   }
 
+  // === Mouse Helpers ===
   function getMousePos(canvas, evt) {
     const rect = canvas.getBoundingClientRect();
     return {
-      x: evt.clientX - rect.left,
-      y: evt.clientY - rect.top
+      x: (evt.clientX - rect.left),                     // X within canvas
+      y: (evt.clientY - rect.top)                       // Y within canvas
     };
   }
 
   function isInsideImage(obj, x, y) {
-    const centerX = obj.x + (obj.width * zoomLevel) / 2;
-    const centerY = obj.y + (obj.height * zoomLevel) / 2;
-    const dx = x - centerX;
-    const dy = y - centerY;
-    const distance = Math.sqrt(dx * dx + dy * dy);
+    const cx = obj.x + obj.width / 2;
+    const cy = obj.y + obj.height / 2;
+    const dx = (x / zoomLevel) - cx;
+    const dy = (y / zoomLevel) - cy;
+    const dist = Math.sqrt(dx * dx + dy * dy);
     const angle = Math.atan2(dy, dx) - obj.rotation;
-    const unrotatedX = distance * Math.cos(angle) + (obj.width * zoomLevel) / 2;
-    const unrotatedY = distance * Math.sin(angle) + (obj.height * zoomLevel) / 2;
-    return (
-      unrotatedX >= 0 && unrotatedX <= obj.width * zoomLevel &&
-      unrotatedY >= 0 && unrotatedY <= obj.height * zoomLevel
-    );
+    const ux = dist * Math.cos(angle) + obj.width / 2;
+    const uy = dist * Math.sin(angle) + obj.height / 2;
+    return ux >= 0 && ux <= obj.width && uy >= 0 && uy <= obj.height;
   }
 
   function isOnResizeHandle(obj, x, y) {
     const size = 14;
-    const hx = obj.x + obj.width * zoomLevel;
-    const hy = obj.y + obj.height * zoomLevel;
-    return x >= hx - size && x <= hx + size && y >= hy - size && y <= hy + size;
+    const rx = (obj.x + obj.width) * zoomLevel;
+    const ry = (obj.y + obj.height) * zoomLevel;
+    return x >= rx - size && x <= rx + size && y >= ry - size && y <= ry + size;
   }
 
   function isOnRotateHandle(obj, x, y) {
+    const cx = (obj.x + obj.width / 2) * zoomLevel;
+    const cy = (obj.y - 30) * zoomLevel;
     const size = 10;
-    const hx = obj.x + (obj.width * zoomLevel) / 2;
-    const hy = obj.y - 30;
-    return x >= hx - size && x <= hx + size && y >= hy - size && y <= hy + size;
+    return x >= cx - size && x <= cx + size && y >= cy - size && y <= cy + size;
   }
+
+  // === Mouse Events ===
 
   canvas.addEventListener("mousedown", (e) => {
     const { x, y } = getMousePos(canvas, e);
@@ -295,8 +294,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (isInsideImage(obj, x, y)) {
         selectedObjectIndex = i;
         isDragging = true;
-        dragOffsetX = x - obj.x;
-        dragOffsetY = y - obj.y;
+        dragOffsetX = (x / zoomLevel) - obj.x;
+        dragOffsetY = (y / zoomLevel) - obj.y;
         return;
       }
     }
@@ -308,18 +307,18 @@ document.addEventListener("DOMContentLoaded", () => {
     const obj = overlays[selectedObjectIndex];
 
     if (isDragging) {
-      obj.x = x - dragOffsetX;
-      obj.y = y - dragOffsetY;
+      obj.x = (x / zoomLevel) - dragOffsetX;
+      obj.y = (y / zoomLevel) - dragOffsetY;
     }
 
     if (isResizing) {
-      obj.width = Math.max(10, (x - obj.x) / zoomLevel);
-      obj.height = Math.max(10, (y - obj.y) / zoomLevel);
+      obj.width = Math.max(10, (x / zoomLevel) - obj.x);
+      obj.height = Math.max(10, (y / zoomLevel) - obj.y);
     }
 
     if (isRotating) {
-      const centerX = obj.x + (obj.width * zoomLevel) / 2;
-      const centerY = obj.y + (obj.height * zoomLevel) / 2;
+      const centerX = (obj.x + obj.width / 2) * zoomLevel;
+      const centerY = (obj.y + obj.height / 2) * zoomLevel;
       obj.rotation = Math.atan2(y - centerY, x - centerX);
     }
 
@@ -334,6 +333,7 @@ document.addEventListener("DOMContentLoaded", () => {
     isDragging = isResizing = isRotating = false;
   });
 });
+
  // End DOMContentLoaded block
 
 
