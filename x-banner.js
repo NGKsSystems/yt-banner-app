@@ -252,7 +252,10 @@ function setupInteractionHandlers() {
         localY >= -halfH && localY <= halfH
       ) {
         selectedObjectIndex = i;
-        dragOffset = { x: localX, y: localY };
+       dragOffset = {
+         x: mouseX - obj.x,
+         y: mouseY - obj.y
+         };
 
         const handles = [
           [-halfW, -halfH], [0, -halfH], [halfW, -halfH],
@@ -300,11 +303,12 @@ function setupInteractionHandlers() {
     }
 
     if (isDragging) {
-      obj.x = mouseX - dragOffset.x * Math.cos(obj.rotation) + dragOffset.y * Math.sin(obj.rotation);
-      obj.y = mouseY - dragOffset.x * Math.sin(obj.rotation) - dragOffset.y * Math.cos(obj.rotation);
+      obj.x = mouseX - dragOffset.x;
+      obj.y = mouseY - dragOffset.y;
       drawCanvas();
       return;
-    }
+   }
+
 
     if (isResizing) {
       const handleX = [-1, 0, 1, -1, 1, -1, 0, 1][dragHandleIndex];
