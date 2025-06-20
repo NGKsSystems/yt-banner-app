@@ -242,8 +242,9 @@ function drawResizeHandles(obj) {
 
 // === Repacked Mouse Interaction Logic (Move, Resize, Rotate) ===
 
-// Ensure canvas is defined
-const canvas = document.getElementById("yourCanvasId"); // Target the <canvas id="yourCanvasId">
+// Skip redeclaring if canvas already exists
+const canvas = window.canvas || document.getElementById("canvas");
+
 
 // Setup handler function
 function setupInteractionHandlers() {
