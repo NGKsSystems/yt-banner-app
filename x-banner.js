@@ -261,12 +261,17 @@ function setupInteractionHandlers() {
       const halfW = obj.width / 2;
       const halfH = obj.height / 2;
 
-      const rotHandleY = -halfH - 30;
-      if (Math.abs(localX) < 10 && Math.abs(localY - rotHandleY) < 10) {
-        selectedObjectIndex = i;
-        isRotating = true;
-        return;
-      }
+     const rotHandleY = -halfH - 30;
+     const isInRotateZone =
+     Math.abs(localX) < 14 &&
+     Math.abs(localY - rotHandleY) < 14;
+
+    if (isInRotateZone) {
+      selectedObjectIndex = i;
+      isRotating = true;
+      return;
+   }
+
 
       if (
         localX >= -halfW && localX <= halfW &&
