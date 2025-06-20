@@ -404,11 +404,6 @@ function exportBanner() {
   selectedObjectIndex = wasSelected;
   drawCanvas();
 }
-// ... other functions like drawCanvas, setupInteractionHandlers, etc.
-
-function exportBanner() {
-  
-}
 
 // === Keyboard arrows to move selected image overlay ===
 document.addEventListener('keydown', (e) => {
