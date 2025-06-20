@@ -198,7 +198,7 @@ function drawCanvas() {
 
 // === Draw 8 Resize Handles ===
 function drawResizeHandles(obj) {
-  const size = 6;
+  const size = 14;
   const positions = [
     { x: obj.x, y: obj.y },
     { x: obj.x + obj.width / 2, y: obj.y },
@@ -260,7 +260,7 @@ function setupInteractionHandlers() {
           [-halfW, halfH], [0, halfH], [halfW, halfH]
         ];
 
-        const size = 6;
+        const size = 14;
         handles.forEach(([hx, hy], index) => {
           if (
             localX >= hx - size && localX <= hx + size &&
