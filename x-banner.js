@@ -6,7 +6,7 @@
 // === let canvas, ctx;
 let overlays = [];
 let thumbnails = [];
-// === let selectedObjectIndex = -1;
+let selectedObjectIndex = -1;
 let dragOffset = { x: 0, y: 0 };
 let isDragging = false;
 let isResizing = false;
@@ -244,13 +244,15 @@ function drawResizeHandles(obj) {
 
 canvas = document.getElementById("canvas");                      // Link to <canvas id="canvas">
 
-let dragOffsetX = 0;                                              // Distance from cursor to object center (X)
-let dragOffsetY = 0;                                              // Distance from cursor to object center (Y)
-let selectedObjectIndex = -1;                                     // Index of the selected image overlay
-let isDragging = false;                                           // Whether we are currently dragging an image
-let isResizing = false;                                           // Whether we are currently resizing
-let isRotating = false;                                           // Whether we are currently rotating
-let dragHandleIndex = -1;                                         // Index of the resize handle corner (0-7)
+dragOffsetX = 0;
+dragOffsetY = 0;
+selectedObjectIndex = -1;
+isDragging = false;
+isResizing = false;
+isRotating = false;
+dragHandleIndex = -1;
+
+// Index of the resize handle corner (0-7)
 
 function setupInteractionHandlers() {
   // === Mouse Down: Select Object or Handle ===
