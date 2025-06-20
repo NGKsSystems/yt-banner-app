@@ -246,13 +246,16 @@ const canvas = document.getElementById("canvas");   // Link canvas from DOM
 const ctx = canvas.getContext("2d");                // Get canvas 2D context
 
 // === State Tracking Variables ===
-let overlays = [];                                  // Array of image objects with x, y, width, height, rotation
-let selectedObjectIndex = -1;                       // Index of selected image
-let isDragging = false;
-let isResizing = false;
-let isRotating = false;
-let dragOffsetX = 0;
-let dragOffsetY = 0;
+// These assignments assume global declarations already exist earlier in the file
+// So we DO NOT redeclare with 'let' again
+
+overlays = [];                            // Array of image objects with x, y, width, height, rotation
+selectedObjectIndex = -1;                 // Index of selected image
+isDragging = false;                       // Drag mode flag
+isResizing = false;                       // Resize mode flag
+isRotating = false;                       // Rotate mode flag
+dragOffsetX = 0;                          // Offset from cursor to object center (X)
+dragOffsetY = 0;                          // Offset from cursor to object center (Y)
 
 // === Utility: Redraw Canvas and All Images ===
 function drawCanvas() {
