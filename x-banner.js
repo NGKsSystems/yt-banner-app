@@ -240,32 +240,7 @@ function drawResizeHandles(obj) {
 }
 
 
-// === Mouse Interactions: Move + Resize ===
-function setupInteractionHandlers() {
-  canvas.addEventListener("mousedown", (e) => {
-    const rect = canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-
-    selectedObjectIndex = -1;
-    isDragging = false;
-    isResizing = false;
-    isRotating = false;
-
-    for (let i = overlays.length - 1; i >= 0; i--) {
-      const obj = overlays[i];
-      const cx = obj.x + obj.width / 2;
-      const cy = obj.y + obj.height / 2;
-      const dx = mouseX - cx;
-      const dy = mouseY - cy;
-      const cos = Math.cos(-obj.rotation);
-      const sin = Math.sin(-obj.rotation);
-      const localX = dx * cos - dy * sin;
-      const localY = dx * sin + dy * cos;
-      const halfW = obj.width / 2;
-      const halfH = obj.height / 2;
-
-    // === Mouse Interaction Logic (Move, Resize, Rotate) ===
+// === Mouse Interaction Logic (Move, Resize, Rotate) ===
 
 canvas.addEventListener("mousedown", (e) => {
   const rect = canvas.getBoundingClientRect();              // Get canvas position on screen
@@ -285,9 +260,6 @@ canvas.addEventListener("mousedown", (e) => {
 
     const halfW = obj.width / 2;
     const halfH = obj.height / 2;
-    const rotHandleX = 0;                                   // Rotation handle X offset
-    const rotHandleY = -halfH - 30;                         // Rotation handle Y offset (above object)
-
     const margin = 8;                                       // Handle margin
 
     // === Check resize corners (handles) ===
