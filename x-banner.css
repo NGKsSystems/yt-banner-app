@@ -79,8 +79,8 @@ canvas {
 
 /* === Resize Handles (Corners of Selected Image) === */
 .handle-dot {
-  width: 10px;
-  height: 10px;
+  width: 16px;
+  height: 16px;
   background: red; /* Red square */
   position: absolute;
   z-index: 10;
