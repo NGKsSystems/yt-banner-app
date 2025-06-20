@@ -266,9 +266,9 @@ function setupInteractionHandlers() {
       const halfH = obj.height / 2;
 
     // === Detect rotation handle click in canvas space (not local)
-      const rotHandleX = obj.x + obj.width / 2;
-      const rotHandleY = obj.y - 30;
-      const dist = Math.hypot(mouseX - rotHandleX, mouseY - rotHandleY);
+      const rotHandleX_canvas = obj.x + obj.width / 2;
+      const rotHandleY_canvas = obj.y - 30;
+      const dist = Math.hypot(mouseX - rotHandleX_canvas, mouseY - rotHandleY_canvas);
       
       if (dist < 14) {
         selectedObjectIndex = i;
