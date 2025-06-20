@@ -242,7 +242,7 @@ function drawResizeHandles(obj) {
 
 // === Mouse Interaction Logic – Move, Resize, Rotate ===
 // Connect canvas
-const canvas = document.getElementById("canvas");   // Link canvas from DOM
+canvas = document.getElementById("canvas"); // ✅ safe assignment to global   // Link canvas from DOM
 const ctx = canvas.getContext("2d");                // Get canvas 2D context
 
 // === State Tracking Variables ===
