@@ -391,38 +391,46 @@ function setupToolbarButtons() {
 
 // === Export Canvas as PNG (Hide Handles) ===
 function exportBanner() {
-  if (overlays.length === 0) return;
+  if (!isBannerMode) {
+    // === Circular PFP Export ===
+    const size = 400;
+    const radius = size / 2;
 
-  // 1. Find bounding box around all overlays
-  let minX = Infinity, minY = Infinity;
-  let maxX = -Infinity, maxY = -Infinity;
+    // Create export canvas
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = size;
+    tempCanvas.height = size;
+    const tempCtx = tempCanvas.getContext('2d');
 
-  overlays.forEach((obj) => {
-    minX = Math.min(minX, obj.x);
-    minY = Math.min(minY, obj.y);
-    maxX = Math.max(maxX, obj.x + obj.width);
-    maxY = Math.max(maxY, obj.y + obj.height);
-  });
+    // Clip to circular region
+    tempCtx.beginPath();
+    tempCtx.arc(radius, radius, radius, 0, 2 * Math.PI);
+    tempCtx.closePath();
+    tempCtx.clip(); // ⛔ clip everything outside the circle
 
-  const exportWidth = maxX - minX;
-  const exportHeight = maxY - minY;
+    // Calculate center of source canvas
+    const srcX = (canvas.width - size) / 2;
+    const srcY = (canvas.height - size) / 2;
 
-  // 2. Create temp canvas to hold just the overlay region
-  const tempCanvas = document.createElement('canvas');
-  tempCanvas.width = exportWidth;
-  tempCanvas.height = exportHeight;
-  const tempCtx = tempCanvas.getContext('2d');
+    // Draw canvas content into the clipped circle
+    tempCtx.drawImage(canvas, srcX, srcY, size, size, 0, 0, size, size);
 
-  // 3. Draw only the overlay content (cropped)
-  overlays.forEach((obj) => {
-    tempCtx.drawImage(
-      obj.img,
-      obj.x - minX, // shift relative to crop box
-      obj.y - minY,
-      obj.width,
-      obj.height
-    );
-  });
+    // Export
+    const dataUrl = tempCanvas.toDataURL("image/png");
+    const a = document.createElement("a");
+    a.href = dataUrl;
+    a.download = "x-pfp-circle.png";
+    a.click();
+  } else {
+    // === Normal Banner Export ===
+    const dataUrl = canvas.toDataURL("image/png");
+    const a = document.createElement("a");
+    a.href = dataUrl;
+    a.download = "x-banner.png";
+    a.click();
+  }
+}
+
 
   // 4. Export result
   const dataUrl = tempCanvas.toDataURL("image/png");
