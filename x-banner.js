@@ -6,7 +6,7 @@
 // === let canvas, ctx;
 let overlays = [];
 let thumbnails = [];
-let selectedObjectIndex = -1;
+// === let selectedObjectIndex = -1;
 let dragOffset = { x: 0, y: 0 };
 let isDragging = false;
 let isResizing = false;
