@@ -391,19 +391,47 @@ function setupToolbarButtons() {
 
 // === Export Canvas as PNG (Hide Handles) ===
 function exportBanner() {
-  const wasSelected = selectedObjectIndex;
-  selectedObjectIndex = -1;
-  drawCanvas();
+  if (overlays.length === 0) return;
 
-  const dataUrl = canvas.toDataURL("image/png");
+  // 1. Find bounding box around all overlays
+  let minX = Infinity, minY = Infinity;
+  let maxX = -Infinity, maxY = -Infinity;
+
+  overlays.forEach((obj) => {
+    minX = Math.min(minX, obj.x);
+    minY = Math.min(minY, obj.y);
+    maxX = Math.max(maxX, obj.x + obj.width);
+    maxY = Math.max(maxY, obj.y + obj.height);
+  });
+
+  const exportWidth = maxX - minX;
+  const exportHeight = maxY - minY;
+
+  // 2. Create temp canvas to hold just the overlay region
+  const tempCanvas = document.createElement('canvas');
+  tempCanvas.width = exportWidth;
+  tempCanvas.height = exportHeight;
+  const tempCtx = tempCanvas.getContext('2d');
+
+  // 3. Draw only the overlay content (cropped)
+  overlays.forEach((obj) => {
+    tempCtx.drawImage(
+      obj.img,
+      obj.x - minX, // shift relative to crop box
+      obj.y - minY,
+      obj.width,
+      obj.height
+    );
+  });
+
+  // 4. Export result
+  const dataUrl = tempCanvas.toDataURL("image/png");
   const a = document.createElement("a");
   a.href = dataUrl;
-  a.download = isBannerMode ? "x-banner.png" : "x-pfp.png";
+  a.download = "overlay-only.png";
   a.click();
-
-  selectedObjectIndex = wasSelected;
-  drawCanvas();
 }
+
 
 // === Keyboard arrows to move selected image overlay ===
 document.addEventListener('keydown', (e) => {
