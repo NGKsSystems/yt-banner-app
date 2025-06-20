@@ -240,92 +240,103 @@ function drawResizeHandles(obj) {
 }
 
 
-// === Repacked Mouse Interaction Logic (Move, Resize, Rotate) ===
+// === Enhanced Mouse Interaction Logic (Move, Resize, Rotate) ===
 
-// Ensure canvas is defined
-canvas = document.getElementById("canvas"); // Assign without redeclaration
+canvas = document.getElementById("canvas");                      // Link to <canvas id="canvas">
 
-// === Mouse Input Handler Setup ===
+let dragOffsetX = 0;                                              // Distance from cursor to object center (X)
+let dragOffsetY = 0;                                              // Distance from cursor to object center (Y)
+let selectedObjectIndex = -1;                                     // Index of the selected image overlay
+let isDragging = false;                                           // Whether we are currently dragging an image
+let isResizing = false;                                           // Whether we are currently resizing
+let isRotating = false;                                           // Whether we are currently rotating
+let dragHandleIndex = -1;                                         // Index of the resize handle corner (0-7)
+
 function setupInteractionHandlers() {
+  // === Mouse Down: Select Object or Handle ===
   canvas.addEventListener("mousedown", (e) => {
-    const rect = canvas.getBoundingClientRect();                         // Get canvas position relative to viewport
-    const mouseX = e.clientX - rect.left;                                // X position of mouse within canvas
-    const mouseY = e.clientY - rect.top;                                 // Y position of mouse within canvas
+    const rect = canvas.getBoundingClientRect();                  // Get canvas position relative to viewport
+    const mouseX = e.clientX - rect.left;                         // X position of mouse within canvas
+    const mouseY = e.clientY - rect.top;                          // Y position of mouse within canvas
 
-    for (let i = overlays.length - 1; i >= 0; i--) {                      // Loop through overlays in reverse (topmost first)
+    for (let i = overlays.length - 1; i >= 0; i--) {              // Loop through overlays in reverse (topmost first)
       const obj = overlays[i];
-      const centerX = obj.x + obj.width / 2;                             // Get center X of the object
-      const centerY = obj.y + obj.height / 2;                            // Get center Y of the object
-      const dx = mouseX - centerX;                                       // X distance from object center
-      const dy = mouseY - centerY;                                       // Y distance from object center
-      const angle = -obj.rotation;                                       // Inverse rotation for coordinate unrotation
-      const rotatedX = dx * Math.cos(angle) - dy * Math.sin(angle);      // Adjust mouse X for object rotation
-      const rotatedY = dx * Math.sin(angle) + dy * Math.cos(angle);      // Adjust mouse Y for object rotation
+      const centerX = obj.x + obj.width / 2;                      // Get center X of the object
+      const centerY = obj.y + obj.height / 2;                     // Get center Y of the object
+      const dx = mouseX - centerX;                                // X distance from object center
+      const dy = mouseY - centerY;                                // Y distance from object center
+      const angle = -obj.rotation;                                // Inverse rotation for coordinate unrotation
+      const rotatedX = dx * Math.cos(angle) - dy * Math.sin(angle); // Adjust mouse X for object rotation
+      const rotatedY = dx * Math.sin(angle) + dy * Math.cos(angle); // Adjust mouse Y for object rotation
 
-      const halfW = obj.width / 2;                                       // Half width of object
-      const halfH = obj.height / 2;                                      // Half height of object
-      const margin = 8;                                                  // Margin of forgiveness for handle hitboxes
+      const halfW = obj.width / 2;                                // Half width of object
+      const halfH = obj.height / 2;                               // Half height of object
+      const margin = 8;                                           // Margin of forgiveness for handle hitboxes
 
-      // === Resize Handle Detection (any corner) ===
-      if (
-        Math.abs(rotatedX - halfW) < margin && Math.abs(rotatedY - halfH) < margin ||
-        Math.abs(rotatedX + halfW) < margin && Math.abs(rotatedY - halfH) < margin ||
-        Math.abs(rotatedX - halfW) < margin && Math.abs(rotatedY + halfH) < margin ||
-        Math.abs(rotatedX + halfW) < margin && Math.abs(rotatedY + halfH) < margin
-      ) {
-        selectedObjectIndex = i;
-        isResizing = true;                                               // Start resizing mode
-        return;
+      // === Resize Handle Detection (8-point corners) ===
+      const corners = [                                           // Define corner/side handle positions
+        [-halfW, -halfH], [0, -halfH], [halfW, -halfH],
+        [-halfW, 0],              [halfW, 0],
+        [-halfW, halfH], [0, halfH], [halfW, halfH]
+      ];
+      for (let j = 0; j < corners.length; j++) {
+        const [cx, cy] = corners[j];
+        if (Math.abs(rotatedX - cx) < margin && Math.abs(rotatedY - cy) < margin) {
+          selectedObjectIndex = i;
+          dragHandleIndex = j;                                    // Store which corner we're resizing
+          isResizing = true;                                      // Enable resize mode
+          return;
+        }
       }
 
-      // === Rotation Handle Detection (top-center, canvas space) ===
-      const rotHandleX = obj.x + obj.width / 2;                          // Rotation handle X (top center of object)
-      const rotHandleY = obj.y - 30;                                     // Rotation handle Y (30px above object)
+      // === Rotation Handle Detection (Top Center, 30px above) ===
+      const rotHandleX = obj.x + obj.width / 2;                   // Rotation handle X
+      const rotHandleY = obj.y - 30;                              // Rotation handle Y (above object)
       const dist = Math.hypot(mouseX - rotHandleX, mouseY - rotHandleY); // Distance from mouse to handle
-      if (dist < 14) {                                                   // If within 14px radius
+      if (dist < 14) {
         selectedObjectIndex = i;
-        isRotating = true;                                               // Start rotation mode
+        isRotating = true;                                        // Enable rotation mode
         return;
       }
 
-      // === Move/Drag Detection (inside bounds) ===
-      if (
-        rotatedX > -halfW && rotatedX < halfW &&
-        rotatedY > -halfH && rotatedY < halfH
-      ) {
+      // === Move/Drag Detection (within object bounds) ===
+      if (rotatedX > -halfW && rotatedX < halfW && rotatedY > -halfH && rotatedY < halfH) {
         selectedObjectIndex = i;
-        isDragging = true;                                               // Start dragging mode
-        dragOffsetX = rotatedX;                                          // Store grab offset X
-        dragOffsetY = rotatedY;                                          // Store grab offset Y
+        isDragging = true;                                        // Enable drag mode
+        dragOffsetX = rotatedX;                                   // Store grab offset X
+        dragOffsetY = rotatedY;                                   // Store grab offset Y
         return;
       }
     }
   });
 
+  // === Mouse Move: Update Interaction ===
   canvas.addEventListener("mousemove", (e) => {
-    if (selectedObjectIndex === -1) return;                              // Skip if nothing selected
+    if (selectedObjectIndex === -1) return;                       // Skip if no object is selected
     const rect = canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;                                // Get current mouse position
+    const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
     const obj = overlays[selectedObjectIndex];
 
     if (isDragging) {
-      const dx = dragOffsetX * Math.cos(obj.rotation) - dragOffsetY * Math.sin(obj.rotation);
-      const dy = dragOffsetX * Math.sin(obj.rotation) + dragOffsetY * Math.cos(obj.rotation);
-      obj.x = mouseX - dx;                                               // Update position for drag
+      const dx = dragOffsetX * Math.cos(obj.rotation) - dragOffsetY * Math.sin(obj.rotation); // Adjust X by rotation
+      const dy = dragOffsetX * Math.sin(obj.rotation) + dragOffsetY * Math.cos(obj.rotation); // Adjust Y by rotation
+      obj.x = mouseX - dx;                                         // Apply movement offset
       obj.y = mouseY - dy;
     }
 
     if (isResizing) {
+      const handleX = [-1, 0, 1, -1, 1, -1, 0, 1][dragHandleIndex]; // Handle direction X
+      const handleY = [-1, -1, -1, 0, 0, 1, 1, 1][dragHandleIndex]; // Handle direction Y
       const centerX = obj.x + obj.width / 2;
       const centerY = obj.y + obj.height / 2;
       const dx = mouseX - centerX;
       const dy = mouseY - centerY;
       const angle = -obj.rotation;
-      const rotatedX = dx * Math.cos(angle) - dy * Math.sin(angle);     // Unrotated delta X
-      const rotatedY = dx * Math.sin(angle) + dy * Math.cos(angle);     // Unrotated delta Y
-      obj.width = Math.abs(rotatedX) * 2;                                // Resize width
-      obj.height = Math.abs(rotatedY) * 2;                               // Resize height
+      const rotatedX = dx * Math.cos(angle) - dy * Math.sin(angle); // Unrotated X distance
+      const rotatedY = dx * Math.sin(angle) + dy * Math.cos(angle); // Unrotated Y distance
+      obj.width = Math.abs(rotatedX) * 2 * Math.abs(handleX || 1);  // Resize width based on direction
+      obj.height = Math.abs(rotatedY) * 2 * Math.abs(handleY || 1); // Resize height based on direction
     }
 
     if (isRotating) {
@@ -333,16 +344,18 @@ function setupInteractionHandlers() {
       const centerY = obj.y + obj.height / 2;
       const dx = mouseX - centerX;
       const dy = mouseY - centerY;
-      obj.rotation = Math.atan2(dy, dx);                                 // Angle from center to mouse
+      obj.rotation = Math.atan2(dy, dx);                           // Update object rotation
     }
   });
 
+  // === Mouse Up: End All Interaction Modes ===
   canvas.addEventListener("mouseup", () => {
-    isDragging = false;                                                 // Stop dragging
-    isResizing = false;                                                 // Stop resizing
-    isRotating = false;                                                 // Stop rotating
+    isDragging = false;                                           // Stop dragging
+    isResizing = false;                                           // Stop resizing
+    isRotating = false;                                           // Stop rotating
   });
 
+  // === Mouse Leaves Canvas: Also Cancel Interactions ===
   canvas.addEventListener("mouseleave", () => {
     isDragging = false;
     isResizing = false;
@@ -350,10 +363,11 @@ function setupInteractionHandlers() {
   });
 }
 
-// === Launch Mouse Handlers on Load ===
+// === Initialize Interaction on Page Load ===
 window.onload = () => {
-  setupInteractionHandlers();                                            // Initialize mouse interaction logic
+  setupInteractionHandlers();                                     // Register event handlers once DOM is ready
 };
+
 
 // === Toolbar Buttons: Export, Layering, Delete ===
 function setupToolbarButtons() {
