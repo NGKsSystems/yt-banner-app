@@ -3,7 +3,7 @@
 // ==============================================
 
 // === Global Variables ===
-// === let canvas, ctx;
+let canvas, ctx;
 let overlays = [];
 let thumbnails = [];
 let selectedObjectIndex = -1;
