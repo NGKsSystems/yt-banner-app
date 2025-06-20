@@ -347,6 +347,8 @@ function setupInteractionHandlers() {
       const dx = mouseX - centerX;
       const dy = mouseY - centerY;
       obj.rotation = Math.atan2(dy, dx);                           // Update object rotation
+      drawCanvas();  // Repaint after any interaction
+
     }
   });
 
