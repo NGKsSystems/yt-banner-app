@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Init handlers
   setupCanvasToggle();
   setupUploadHandler();
-  setupInteractionHandlers();
+  // setupInteractionHandlers();
   setupToolbarButtons();
 
   // Enable drag-and-drop support
