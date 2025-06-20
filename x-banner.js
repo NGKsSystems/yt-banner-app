@@ -163,6 +163,8 @@ function updateThumbnailBar() {
 // === Canvas Draw Loop ===
 function drawCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the entire canvas
+  ctx.save(); // Start zoom transform   ------------------------------------------------------------------------added   Test
+  ctx.scale(zoomLevel, zoomLevel); // ---------------------------------------------------------------------------------------------------added test
 
   // Draw each image overlay
   overlays.forEach((obj, i) => {
@@ -352,7 +354,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // =============================
 
 function drawCanvas() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);  // Clear canvas
+ // ctx.clearRect(0, 0, canvas.width, canvas.height);  // Clear canvas   CODED OUT FOR TEST
 
   overlays.forEach((obj, i) => {
     ctx.save();                            // ✅ Save canvas state
