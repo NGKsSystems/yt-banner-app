@@ -430,16 +430,7 @@ function exportBanner() {
     a.click();
   }
 }
-
-
-  // 4. Export result
-  const dataUrl = tempCanvas.toDataURL("image/png");
-  const a = document.createElement("a");
-  a.href = dataUrl;
-  a.download = "overlay-only.png";
-  a.click();
-}
-
+ 
 
 // === Keyboard arrows to move selected image overlay ===
 document.addEventListener('keydown', (e) => {
