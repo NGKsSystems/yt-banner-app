@@ -255,13 +255,15 @@ document.addEventListener("DOMContentLoaded", () => {
   canvas = document.getElementById("canvas");           // ✅ Canvas element
   ctx = canvas.getContext("2d");                        // ✅ Canvas 2D drawing context
  
-
+// ZOOM SLIDER //
+  
   zoomLevel = 1;                                    // 🔍 Current zoom factor
   const zoomSlider = document.getElementById("zoomSlider");
 
   if (zoomSlider) {
     zoomSlider.addEventListener("input", (e) => {
       zoomLevel = parseFloat(e.target.value);           // 🔄 Update zoom level
+      console.log("Zoom changed to:", zoomLevel);
       drawCanvas();                                     // 🔁 Redraw with new zoom
     });
   }
@@ -379,7 +381,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // =============================
 
 function drawCanvas() {
- // ctx.clearRect(0, 0, canvas.width, canvas.height);  // Clear canvas   CODED OUT FOR TEST
+  ctx.clearRect(0, 0, canvas.width, canvas.height);  // Clear canvas   CODED OUT FOR TEST
 
   overlays.forEach((obj, i) => {
     ctx.save();                            // ✅ Save canvas state
