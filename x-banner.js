@@ -161,10 +161,16 @@ function updateThumbnailBar() {
 }
 
 function drawCanvas() {
-  ctx.setTransform(1, 0, 0, 1, 0, 0);          // ✅ Reset transform (always first)
-  ctx.clearRect(0, 0, canvas.width, canvas.height); // ✅ Wipe clean
-  ctx.save();                                      // Save the clean state
-  ctx.scale(zoomLevel, zoomLevel);                // Apply zoom
+    console.log("🌀 drawCanvas called");
+
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+    console.log("Transform Reset + Canvas Cleared");
+
+    ctx.save(); // Save current clean state
+    ctx.scale(zoomLevel, zoomLevel); // Apply zoom
+    console.log("Zoom Level:", zoomLevel, " | Overlays:", overlays.length);
+
 
   // Draw all overlays and selection borders
   overlays.forEach((obj, i) => {
