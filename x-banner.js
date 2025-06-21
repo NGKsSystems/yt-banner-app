@@ -178,30 +178,7 @@ function drawCanvas() {
     }
   });
 
-  // Draw circular overlay for PFP zone (Twitter/X)
-  if (!isBannerMode) {
-    const circleDiameter = 400;
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
-    const radius = circleDiameter / 2;
-
-    // Outer stroke
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
-    ctx.lineWidth = 4;
-    ctx.stroke();
-
-    // Inner transparent fill
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-    ctx.fillStyle = "rgba(255, 255, 255, 0.07)";
-    ctx.fill();
-  }
-
-  ctx.restore(); // ✅ Important! Undo scale so future draw calls aren't compounded
-}
-
+  
   // === Draw circular safe zone for PFP mode (Twitter/X) ===
    if (!isBannerMode) {
     const circleDiameter = 400;                 // Fixed circle size
