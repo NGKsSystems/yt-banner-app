@@ -160,15 +160,6 @@ function updateThumbnailBar() {
   thumbnails.forEach((thumb) => bar.appendChild(thumb));
 }
 
-//function drawCanvas() {
-   Reset transform and clear
-   ctx.setTransform(1, 0, 0, 1, 0, 0);
-   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // Save and scale if needed
-   ctx.save();
-   ctx.scale(zoomLevel, zoomLevel);
-
   // === 1. Draw overlay images ===
   overlays.forEach((obj, i) => {
     ctx.drawImage(obj.img, obj.x, obj.y, obj.width, obj.height);
@@ -378,21 +369,39 @@ document.addEventListener("DOMContentLoaded", () => {
 // =============================
 
  function drawCanvas() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);  // Clear canvas   CODED OUT FOR TEST
+  // Reset transform and clear canvas
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  // Apply zoom
+  ctx.save();
+  ctx.scale(zoomLevel, zoomLevel);
+
+  // Draw all overlays
   overlays.forEach((obj, i) => {
-    ctx.save();                            // ✅ Save canvas state
-   
-    ctx.translate(obj.x + obj.width / 2, obj.y + obj.height / 2); // Center transform
-    ctx.rotate(obj.rotation);                                     // Apply rotation
-    ctx.translate(-obj.width / 2, -obj.height / 2);               // Reset to top-left
-    ctx.drawImage(obj.img, 0, 0, obj.width, obj.height);          // Draw image
-    ctx.restore();
+    ctx.save(); // Save before transform
 
+    // Apply rotation around center
+    ctx.translate(obj.x + obj.width / 2, obj.y + obj.height / 2);
+    ctx.rotate(obj.rotation || 0);
+    ctx.translate(-obj.width / 2, -obj.height / 2);
+
+    // Draw image
+    ctx.drawImage(obj.img, 0, 0, obj.width, obj.height);
+
+    // Highlight selected object
     if (i === selectedObjectIndex) {
-      ctx.strokeStyle = "white";                                // Outline for selected object
+      ctx.strokeStyle = "white";
       ctx.lineWidth = 1;
-      ctx.strokeRect(obj.x, obj.y, obj.width, obj.height);
+      ctx.strokeRect(0, 0, obj.width, obj.height);
+      drawResizeHandles({ x: 0, y: 0, width: obj.width, height: obj.height });
+    }
+
+    ctx.restore(); // Restore to pre-transform
+  });
+
+  ctx.restore(); // Restore from zoom scale
+}
 
       // === Draw resize handle ===
       const size = 14;
