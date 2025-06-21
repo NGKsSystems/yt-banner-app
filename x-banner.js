@@ -449,7 +449,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ctx.fillStyle = "rgba(255, 255, 255, 0.07)";
     ctx.fill();
   }
-}
+
 
 // === Toolbar Buttons: Export, Layering, Delete ===
 function setupToolbarButtons() {
