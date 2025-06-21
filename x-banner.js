@@ -429,7 +429,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ctx.lineWidth = 2;
       ctx.stroke();
    // }
-  });
+ // });
 
   // === Draw circular safe zone for PFP mode (Twitter/X) ===
   if (!isBannerMode) {
