@@ -380,22 +380,22 @@ document.addEventListener("DOMContentLoaded", () => {
 // Canvas Draw Loop
 // =============================
 
-function drawCanvas() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);  // Clear canvas   CODED OUT FOR TEST
+// function drawCanvas() {
+//  ctx.clearRect(0, 0, canvas.width, canvas.height);  // Clear canvas   CODED OUT FOR TEST
 
-  overlays.forEach((obj, i) => {
-    ctx.save();                            // ✅ Save canvas state
+//  overlays.forEach((obj, i) => {
+//    ctx.save();                            // ✅ Save canvas state
    
-    ctx.translate(obj.x + obj.width / 2, obj.y + obj.height / 2); // Center transform
-    ctx.rotate(obj.rotation);                                     // Apply rotation
-    ctx.translate(-obj.width / 2, -obj.height / 2);               // Reset to top-left
-    ctx.drawImage(obj.img, 0, 0, obj.width, obj.height);          // Draw image
-    ctx.restore();
+//    ctx.translate(obj.x + obj.width / 2, obj.y + obj.height / 2); // Center transform
+//    ctx.rotate(obj.rotation);                                     // Apply rotation
+//    ctx.translate(-obj.width / 2, -obj.height / 2);               // Reset to top-left
+ //   ctx.drawImage(obj.img, 0, 0, obj.width, obj.height);          // Draw image
+  //  ctx.restore();
 
-    if (i === selectedObjectIndex) {
-      ctx.strokeStyle = "white";                                // Outline for selected object
-      ctx.lineWidth = 1;
-      ctx.strokeRect(obj.x, obj.y, obj.width, obj.height);
+ //   if (i === selectedObjectIndex) {
+  //    ctx.strokeStyle = "white";                                // Outline for selected object
+ //     ctx.lineWidth = 1;
+//      ctx.strokeRect(obj.x, obj.y, obj.width, obj.height);
 
       // === Draw resize handle ===
       const size = 14;
