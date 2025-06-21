@@ -160,25 +160,47 @@ function updateThumbnailBar() {
   thumbnails.forEach((thumb) => bar.appendChild(thumb));
 }
 
-// === Canvas Draw Loop ===
 function drawCanvas() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the entire canvas
-  ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset zoom transform
-  ctx.save(); // Start zoom transform   ------------------------------------------------------------------------added   Test
-  ctx.scale(zoomLevel, zoomLevel); // ---------------------------------------------------------------------------------------------------added test
+  ctx.setTransform(1, 0, 0, 1, 0, 0);          // ✅ Reset transform (always first)
+  ctx.clearRect(0, 0, canvas.width, canvas.height); // ✅ Wipe clean
+  ctx.save();                                      // Save the clean state
+  ctx.scale(zoomLevel, zoomLevel);                // Apply zoom
 
-  // Draw each image overlay
+  // Draw all overlays and selection borders
   overlays.forEach((obj, i) => {
-    ctx.drawImage(obj.img, obj.x, obj.y, obj.width, obj.height); // Draw image
+    ctx.drawImage(obj.img, obj.x, obj.y, obj.width, obj.height);
 
-    // Highlight selected overlay
     if (i === selectedObjectIndex) {
-      ctx.strokeStyle = "white";                 // Selection border color
+      ctx.strokeStyle = "white";
       ctx.lineWidth = 1;
-      ctx.strokeRect(obj.x, obj.y, obj.width, obj.height); // Draw selection border
-      drawResizeHandles(obj);                   // Draw resize handles
+      ctx.strokeRect(obj.x, obj.y, obj.width, obj.height);
+      drawResizeHandles(obj);
     }
   });
+
+  // Draw circular overlay for PFP zone (Twitter/X)
+  if (!isBannerMode) {
+    const circleDiameter = 400;
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const radius = circleDiameter / 2;
+
+    // Outer stroke
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
+    // Inner transparent fill
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.fillStyle = "rgba(255, 255, 255, 0.07)";
+    ctx.fill();
+  }
+
+  ctx.restore(); // ✅ Important! Undo scale so future draw calls aren't compounded
+}
 
   // === Draw circular safe zone for PFP mode (Twitter/X) ===
    if (!isBannerMode) {
