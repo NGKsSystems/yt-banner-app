@@ -428,7 +428,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ctx.strokeStyle = "white";
       ctx.lineWidth = 2;
       ctx.stroke();
-    }
+   // }
   });
 
   // === Draw circular safe zone for PFP mode (Twitter/X) ===
