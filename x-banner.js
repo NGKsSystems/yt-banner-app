@@ -218,219 +218,185 @@ function drawResizeHandles(obj) {
   });
 }
 
-// ============================
-// 🖌️ Redraw Canvas Function
-// ============================
-function drawCanvas() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height); // 🔄 Clear canvas
-
-  overlays.forEach(obj => {
-    // Save context state before transformations
-    ctx.save();
-
-    // Move to center of object and apply rotation + zoom
-    const centerX = (obj.x + obj.width / 2) * zoomLevel;
-    const centerY = (obj.y + obj.height / 2) * zoomLevel;
-    ctx.translate(centerX, centerY);
-    ctx.rotate(obj.rotation || 0);
-    ctx.scale(zoomLevel, zoomLevel);
-
-    // Draw image centered on transformed origin
-    ctx.drawImage(
-      obj.img,
-      -obj.width / 2,
-      -obj.height / 2,
-      obj.width,
-      obj.height
-    );
-
-    // Restore context for next object
-    ctx.restore();
-
-    // ===============================
-    // 🎯 Optional: Draw handles (UI)
-    // ===============================
-    if (obj === overlays[selectedObjectIndex]) {
-      ctx.save();
-
-      // Handle box outline
-      ctx.strokeStyle = "#00FFFF";
-      ctx.lineWidth = 2;
-      ctx.setLineDash([6]);
-      ctx.strokeRect(
-        obj.x * zoomLevel,
-        obj.y * zoomLevel,
-        obj.width * zoomLevel,
-        obj.height * zoomLevel
-      );
-
-      // Resize handle (bottom-right corner)
-      ctx.fillStyle = "#FFD700";
-      ctx.fillRect(
-        (obj.x + obj.width) * zoomLevel - 7,
-        (obj.y + obj.height) * zoomLevel - 7,
-        14,
-        14
-      );
-
-      // Rotate handle (above center)
-      ctx.beginPath();
-      ctx.arc(
-        (obj.x + obj.width / 2) * zoomLevel,
-        (obj.y - 30) * zoomLevel,
-        10,
-        0,
-        2 * Math.PI
-      );
-      ctx.fillStyle = "#FF69B4";
-      ctx.fill();
-
-      ctx.restore();
-    }
-  });
-}
-
 // =============================
-// 🌐 DOMContentLoaded Block
+// Mouse Interaction Setup Block
+// Wrapped in DOMContentLoaded to ensure canvas exists before binding
 // =============================
+
+// === Mouse Interaction Setup Block ===
+// Ensures canvas and all event handlers are properly initialized on DOM load
+
 document.addEventListener("DOMContentLoaded", () => {
+  canvas = document.getElementById("canvas");           // ✅ Canvas element
+  ctx = canvas.getContext("2d");                        // ✅ Canvas 2D drawing context
+ 
 
-  // 👉 Put any canvas setup, event listeners, or image load logic here
+  zoomLevel = 1;                                    // 🔍 Current zoom factor
+  const zoomSlider = document.getElementById("zoomSlider");
 
-  // =============================
-  // 🔍 Zoom Slider Listener
-  // =============================
-  document.getElementById("zoomSlider").addEventListener("input", (e) => {
-    zoomLevel = parseFloat(e.target.value); // update global zoom level
-    drawCanvas(); // redraw canvas with new zoom
+  if (zoomSlider) {
+    zoomSlider.addEventListener("input", (e) => {
+      zoomLevel = parseFloat(e.target.value);           // 🔄 Update zoom level
+      drawCanvas();                                     // 🔁 Redraw with new zoom
+    });
+  }
+
+  // === Mouse Helpers ===
+  function getMousePos(canvas, evt) {
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: (evt.clientX - rect.left),                     // X within canvas
+      y: (evt.clientY - rect.top)                       // Y within canvas
+    };
+  }
+
+  function isInsideImage(obj, x, y) {
+    const cx = obj.x + obj.width / 2;
+    const cy = obj.y + obj.height / 2;
+    const dx = (x / zoomLevel) - cx;
+    const dy = (y / zoomLevel) - cy;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const angle = Math.atan2(dy, dx) - obj.rotation;
+    const ux = dist * Math.cos(angle) + obj.width / 2;
+    const uy = dist * Math.sin(angle) + obj.height / 2;
+    return ux >= 0 && ux <= obj.width && uy >= 0 && uy <= obj.height;
+  }
+
+  function isOnResizeHandle(obj, x, y) {
+    const size = 14;
+    const rx = (obj.x + obj.width) * zoomLevel;
+    const ry = (obj.y + obj.height) * zoomLevel;
+    return x >= rx - size && x <= rx + size && y >= ry - size && y <= ry + size;
+  }
+
+ function isOnRotateHandle(obj, x, y) {
+  const size = 10;
+  const cx = obj.x + obj.width / 2;
+  const cy = obj.y - 30; // 30px above top
+
+  // Use raw coords for both, zoom is handled during draw, not hitbox
+  return (
+    x >= cx * zoomLevel - size &&
+    x <= cx * zoomLevel + size &&
+    y >= cy * zoomLevel - size &&
+    y <= cy * zoomLevel + size
+  );
+}
+
+
+  // === Mouse Events ===
+
+  canvas.addEventListener("mousedown", (e) => {
+    const { x, y } = getMousePos(canvas, e);
+    selectedObjectIndex = -1;
+    isDragging = isResizing = isRotating = false;
+
+    for (let i = overlays.length - 1; i >= 0; i--) {
+      const obj = overlays[i];
+      if (isOnResizeHandle(obj, x, y)) {
+        selectedObjectIndex = i;
+        isResizing = true;
+        return;
+      }
+      if (isOnRotateHandle(obj, x, y)) {
+        selectedObjectIndex = i;
+        isRotating = true;
+        return;
+      }
+      if (isInsideImage(obj, x, y)) {
+        selectedObjectIndex = i;
+        isDragging = true;
+        dragOffsetX = (x / zoomLevel) - obj.x;
+        dragOffsetY = (y / zoomLevel) - obj.y;
+        return;
+      }
+    }
   });
 
-}); // 🔚 End DOMContentLoaded Block
+  canvas.addEventListener("mousemove", (e) => {
+    if (selectedObjectIndex === -1) return;
+    const { x, y } = getMousePos(canvas, e);
+    const obj = overlays[selectedObjectIndex];
 
-
-// =============================
-// 🖱️ Mouse Interaction Module     Added  21 Jun 25 0736
-// =============================
-
-// 📌 Global interaction mode: can be "move", "resize", "rotate", or "none"
-let interactionMode = "none";
-
-// 📌 Offset used during dragging
-let dragOffsetX = 0;
-let dragOffsetY = 0;
-
-// =============================
-// 🎯 Mouse Helper Functions
-// =============================
-
-function getMousePos(canvas, evt) {
-  const rect = canvas.getBoundingClientRect();
-  return {
-    x: (evt.clientX - rect.left),
-    y: (evt.clientY - rect.top)
-  };
-}
-
-function isInsideImage(obj, x, y) {
-  const cx = obj.x + obj.width / 2;
-  const cy = obj.y + obj.height / 2;
-  const dx = (x / zoomLevel) - cx;
-  const dy = (y / zoomLevel) - cy;
-  const dist = Math.sqrt(dx * dx + dy * dy);
-  const angle = Math.atan2(dy, dx) - obj.rotation;
-  const ux = dist * Math.cos(angle) + obj.width / 2;
-  const uy = dist * Math.sin(angle) + obj.height / 2;
-  return ux >= 0 && ux <= obj.width && uy >= 0 && uy <= obj.height;
-}
-
-function isOnResizeHandle(obj, x, y) {
-  const size = 14;
-  const rx = (obj.x + obj.width) * zoomLevel;
-  const ry = (obj.y + obj.height) * zoomLevel;
-  return x >= rx - size && x <= rx + size && y >= ry - size && y <= ry + size;
-}
-
-function isOnRotateHandle(obj, x, y) {
-  const cx = (obj.x + obj.width / 2) * zoomLevel;
-  const cy = (obj.y - 30) * zoomLevel;
-  const size = 10;
-  return x >= cx - size && x <= cx + size && y >= cy - size && y <= cy + size;
-}
-
-// =============================
-// 🔻 MOUSEDOWN Event Handler
-// =============================
-canvas.addEventListener("mousedown", (e) => {
-  const { x, y } = getMousePos(canvas, e);
-  selectedObjectIndex = -1;
-  interactionMode = "none";
-
-  for (let i = overlays.length - 1; i >= 0; i--) {
-    const obj = overlays[i];
-
-    if (isOnResizeHandle(obj, x, y)) {
-      selectedObjectIndex = i;
-      interactionMode = "resize";
-      return;
-    }
-
-    if (isOnRotateHandle(obj, x, y)) {
-      selectedObjectIndex = i;
-      interactionMode = "rotate";
-      return;
-    }
-
-    if (isInsideImage(obj, x, y)) {
-      selectedObjectIndex = i;
-      interactionMode = "move";
-      dragOffsetX = (x / zoomLevel) - obj.x;
-      dragOffsetY = (y / zoomLevel) - obj.y;
-      return;
-    }
-  }
-});
-
-// =============================
-// 🟦 MOUSEMOVE Event Handler
-// =============================
-canvas.addEventListener("mousemove", (e) => {
-  if (selectedObjectIndex === -1) return;
-  const { x, y } = getMousePos(canvas, e);
-  const obj = overlays[selectedObjectIndex];
-
-  switch (interactionMode) {
-    case "move":
+    if (isDragging) {
       obj.x = (x / zoomLevel) - dragOffsetX;
       obj.y = (y / zoomLevel) - dragOffsetY;
-      break;
+    }
 
-    case "resize":
+    if (isResizing) {
       obj.width = Math.max(10, (x / zoomLevel) - obj.x);
       obj.height = Math.max(10, (y / zoomLevel) - obj.y);
-      break;
+    }
 
-    case "rotate":
+    if (isRotating) {
       const centerX = (obj.x + obj.width / 2) * zoomLevel;
       const centerY = (obj.y + obj.height / 2) * zoomLevel;
       obj.rotation = Math.atan2(y - centerY, x - centerX);
-      break;
-  }
+    }
 
-  drawCanvas();
+    drawCanvas();
+  });
+
+  canvas.addEventListener("mouseup", () => {
+    isDragging = isResizing = isRotating = false;
+  });
+
+  canvas.addEventListener("mouseleave", () => {
+    isDragging = isResizing = isRotating = false;
+  });
 });
+
+ // End DOMContentLoaded block
+
 
 // =============================
-// 🟥 MOUSEUP and MOUSELEAVE
+// Canvas Draw Loop
 // =============================
-canvas.addEventListener("mouseup", () => {
-  interactionMode = "none";
-});
 
-canvas.addEventListener("mouseleave", () => {
-  interactionMode = "none";
-});
+function drawCanvas() {
+ // ctx.clearRect(0, 0, canvas.width, canvas.height);  // Clear canvas   CODED OUT FOR TEST
 
+  overlays.forEach((obj, i) => {
+    ctx.save();                            // ✅ Save canvas state
+   
+    ctx.translate(obj.x + obj.width / 2, obj.y + obj.height / 2); // Center transform
+    ctx.rotate(obj.rotation);                                     // Apply rotation
+    ctx.translate(-obj.width / 2, -obj.height / 2);               // Reset to top-left
+    ctx.drawImage(obj.img, 0, 0, obj.width, obj.height);          // Draw image
+    ctx.restore();
 
+    if (i === selectedObjectIndex) {
+      ctx.strokeStyle = "white";                                // Outline for selected object
+      ctx.lineWidth = 1;
+      ctx.strokeRect(obj.x, obj.y, obj.width, obj.height);
+
+      // === Draw resize handle ===
+      const size = 14;
+      const hx = obj.x + obj.width;
+      const hy = obj.y + obj.height;
+      ctx.fillStyle = "lime";
+      ctx.fillRect(hx - size / 2, hy - size / 2, size, size);
+
+      // === Draw rotate handle ===
+      const cx = obj.x + obj.width / 2;
+      const cy = obj.y - 30;
+
+      ctx.beginPath();
+      ctx.moveTo(cx, obj.y);
+      ctx.lineTo(cx, cy);
+      ctx.strokeStyle = "white";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(cx, cy, 8, 0, 2 * Math.PI);
+      ctx.fillStyle = "red";
+      ctx.fill();
+      ctx.strokeStyle = "white";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+  });
 
   // === Draw circular safe zone for PFP mode (Twitter/X) ===
   if (!isBannerMode) {
