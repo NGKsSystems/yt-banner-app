@@ -192,7 +192,7 @@ function updateThumbnailBar() {
   }
 
   ctx.restore(); // Restore after zoom transform
-}
+//}
   
   // === Draw circular safe zone for PFP mode (Twitter/X) ===
    //if (!isBannerMode) {
