@@ -223,7 +223,6 @@ function drawCanvas() {
     ctx.fillStyle = "rgba(255, 255, 255, 0.07)";
     ctx.fill();
   }
-} // ✅ close drawCanvas() properly
 
 // === Draw 8 Resize Handles ===
 function drawResizeHandles(obj) {
