@@ -163,6 +163,7 @@ function updateThumbnailBar() {
 // === Canvas Draw Loop ===
 function drawCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the entire canvas
+  ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset zoom transform
   ctx.save(); // Start zoom transform   ------------------------------------------------------------------------added   Test
   ctx.scale(zoomLevel, zoomLevel); // ---------------------------------------------------------------------------------------------------added test
 
