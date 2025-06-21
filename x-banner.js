@@ -161,10 +161,10 @@ function updateThumbnailBar() {
 }
 
 // === Canvas Draw Loop ===
-// function drawCanvas() {
-//  ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the entire canvas
-//  ctx.save(); // Start zoom transform   ------------------------------------------------------------------------added   Test
-//  ctx.scale(zoomLevel, zoomLevel); // ---------------------------------------------------------------------------------------------------added test
+function drawCanvas() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the entire canvas
+  ctx.save(); // Start zoom transform   ------------------------------------------------------------------------added   Test
+  ctx.scale(zoomLevel, zoomLevel); // ---------------------------------------------------------------------------------------------------added test
 
   // Draw each image overlay
   overlays.forEach((obj, i) => {
@@ -354,34 +354,21 @@ document.addEventListener("DOMContentLoaded", () => {
 // =============================
 
 function drawCanvas() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear entire canvas
-  ctx.save(); // Save zoom state
-  ctx.scale(zoomLevel, zoomLevel); // Apply zoom
+ // ctx.clearRect(0, 0, canvas.width, canvas.height);  // Clear canvas   CODED OUT FOR TEST
 
   overlays.forEach((obj, i) => {
-    ctx.save(); // Save object state
+    ctx.save();                            // ✅ Save canvas state
+   
+    ctx.translate(obj.x + obj.width / 2, obj.y + obj.height / 2); // Center transform
+    ctx.rotate(obj.rotation);                                     // Apply rotation
+    ctx.translate(-obj.width / 2, -obj.height / 2);               // Reset to top-left
+    ctx.drawImage(obj.img, 0, 0, obj.width, obj.height);          // Draw image
+    ctx.restore();
 
-    // Center transform
-    ctx.translate(obj.x + obj.width / 2, obj.y + obj.height / 2);
-    ctx.rotate(obj.rotation); // Apply rotation
-    ctx.translate(-obj.width / 2, -obj.height / 2); // Reset origin
-
-    // Draw image
-    ctx.drawImage(obj.img, 0, 0, obj.width, obj.height);
-
-    ctx.restore(); // Restore object transform
-
-    // Draw outline if selected
     if (i === selectedObjectIndex) {
-      ctx.strokeStyle = "white";
+      ctx.strokeStyle = "white";                                // Outline for selected object
       ctx.lineWidth = 1;
       ctx.strokeRect(obj.x, obj.y, obj.width, obj.height);
-    }
-  });
-
-  ctx.restore(); // Restore zoom state
-}
-
 
       // === Draw resize handle ===
       const size = 14;
