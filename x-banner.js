@@ -160,14 +160,14 @@ function updateThumbnailBar() {
   thumbnails.forEach((thumb) => bar.appendChild(thumb));
 }
 
-function drawCanvas() {
+//function drawCanvas() {
   // Reset transform and clear
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+//  ctx.setTransform(1, 0, 0, 1, 0, 0);
+//  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // Save and scale if needed
-  ctx.save();
-  ctx.scale(zoomLevel, zoomLevel);
+ // ctx.save();
+//  ctx.scale(zoomLevel, zoomLevel);
 
   // === 1. Draw overlay images ===
   overlays.forEach((obj, i) => {
@@ -202,8 +202,6 @@ function drawCanvas() {
 
   ctx.restore(); // Restore after zoom transform
 }
-
-
   
   // === Draw circular safe zone for PFP mode (Twitter/X) ===
    //if (!isBannerMode) {
@@ -310,7 +308,6 @@ document.addEventListener("DOMContentLoaded", () => {
   );
 }
 
-
   // === Mouse Events ===
 
   canvas.addEventListener("mousedown", (e) => {
@@ -380,22 +377,22 @@ document.addEventListener("DOMContentLoaded", () => {
 // Canvas Draw Loop
 // =============================
 
-// function drawCanvas() {
-//  ctx.clearRect(0, 0, canvas.width, canvas.height);  // Clear canvas   CODED OUT FOR TEST
+ function drawCanvas() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);  // Clear canvas   CODED OUT FOR TEST
 
-//  overlays.forEach((obj, i) => {
-//    ctx.save();                            // ✅ Save canvas state
+  overlays.forEach((obj, i) => {
+    ctx.save();                            // ✅ Save canvas state
    
-//    ctx.translate(obj.x + obj.width / 2, obj.y + obj.height / 2); // Center transform
-//    ctx.rotate(obj.rotation);                                     // Apply rotation
-//    ctx.translate(-obj.width / 2, -obj.height / 2);               // Reset to top-left
- //   ctx.drawImage(obj.img, 0, 0, obj.width, obj.height);          // Draw image
-  //  ctx.restore();
+    ctx.translate(obj.x + obj.width / 2, obj.y + obj.height / 2); // Center transform
+    ctx.rotate(obj.rotation);                                     // Apply rotation
+    ctx.translate(-obj.width / 2, -obj.height / 2);               // Reset to top-left
+    ctx.drawImage(obj.img, 0, 0, obj.width, obj.height);          // Draw image
+    ctx.restore();
 
- //   if (i === selectedObjectIndex) {
-  //    ctx.strokeStyle = "white";                                // Outline for selected object
- //     ctx.lineWidth = 1;
-//      ctx.strokeRect(obj.x, obj.y, obj.width, obj.height);
+    if (i === selectedObjectIndex) {
+      ctx.strokeStyle = "white";                                // Outline for selected object
+      ctx.lineWidth = 1;
+      ctx.strokeRect(obj.x, obj.y, obj.width, obj.height);
 
       // === Draw resize handle ===
       const size = 14;
@@ -447,7 +444,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 }
 
-
 // === Toolbar Buttons: Export, Layering, Delete ===
 function setupToolbarButtons() {
   const exportBtn = document.getElementById("exportBtn");
@@ -457,12 +453,11 @@ function setupToolbarButtons() {
   const backBtn = document.getElementById("sendBackwardBtn");
 
   if (exportBtn) exportBtn.onclick = exportBanner;
-
   if (deleteBtn) deleteBtn.onclick = () => {
-    if (selectedObjectIndex !== -1) {
-      overlays.splice(selectedObjectIndex, 1);
-      selectedObjectIndex = -1;
-      drawCanvas();
+  if (selectedObjectIndex !== -1) {
+    overlays.splice(selectedObjectIndex, 1);
+    selectedObjectIndex = -1;
+    drawCanvas();
     }
   };
 
