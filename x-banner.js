@@ -206,23 +206,23 @@ function drawCanvas() {
 
   
   // === Draw circular safe zone for PFP mode (Twitter/X) ===
-   if (!isBannerMode) {
-    const circleDiameter = 400;                 // Fixed circle size
-    const centerX = canvas.width / 2;           // Center of canvas
-    const centerY = canvas.height / 2;
-    const radius = circleDiameter / 2;          // Radius = 200
+   //if (!isBannerMode) {
+   // const circleDiameter = 400;                 // Fixed circle size
+  //  const centerX = canvas.width / 2;           // Center of canvas
+   // const centerY = canvas.height / 2;
+  //  const radius = circleDiameter / 2;          // Radius = 200
 
-    ctx.beginPath();                             // Outer circle stroke
-    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
-    ctx.lineWidth = 4;
-    ctx.stroke();
+  //  ctx.beginPath();                             // Outer circle stroke
+  //  ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+  //  ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+  //  ctx.lineWidth = 4;
+  //  ctx.stroke();
 
-    ctx.beginPath();                             // Inner transparent fill
-    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-    ctx.fillStyle = "rgba(255, 255, 255, 0.07)";
-    ctx.fill();
-  }
+  //  ctx.beginPath();                             // Inner transparent fill
+ //   ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+ //   ctx.fillStyle = "rgba(255, 255, 255, 0.07)";
+//    ctx.fill();
+//  }
 
 // === Draw 8 Resize Handles ===
 function drawResizeHandles(obj) {
@@ -424,26 +424,26 @@ function drawCanvas() {
   });
 
   // === Draw circular safe zone for PFP mode (Twitter/X) ===
- // if (!isBannerMode) {
-//   const circleDiameter = 400;                    // Fixed circle size
- //  const centerX = canvas.width / 2;              // Center X
-  // const centerY = canvas.height / 2;             // Center Y
- //  const radius = circleDiameter / 2;             // Radius = 200
+  if (!isBannerMode) {
+   const circleDiameter = 400;                    // Fixed circle size
+   const centerX = canvas.width / 2;              // Center X
+   const centerY = canvas.height / 2;             // Center Y
+   const radius = circleDiameter / 2;             // Radius = 200
 
     //Outer stroke
- //  ctx.beginPath();
- //  ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
- //  ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
- //  ctx.lineWidth = 4;
- //  ctx.stroke();
+   ctx.beginPath();
+   ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+   ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+   ctx.lineWidth = 4;
+   ctx.stroke();
 
     // Inner transparent fill
- //   ctx.beginPath();
- //   ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
- //   ctx.fillStyle = "rgba(255, 255, 255, 0.07)";
-//    ctx.fill();
-//  }
-//}
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.fillStyle = "rgba(255, 255, 255, 0.07)";
+    ctx.fill();
+  }
+}
 
 
 // === Toolbar Buttons: Export, Layering, Delete ===
