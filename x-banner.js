@@ -161,21 +161,17 @@ function updateThumbnailBar() {
 }
 
 function drawCanvas() {
-    console.log("🌀 drawCanvas called");
+  // Reset transform and clear
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
-    console.log("Transform Reset + Canvas Cleared");
+  // Save and scale if needed
+  ctx.save();
+  ctx.scale(zoomLevel, zoomLevel);
 
-    ctx.save(); // Save current clean state
-    ctx.scale(zoomLevel, zoomLevel); // Apply zoom
-    console.log("Zoom Level:", zoomLevel, " | Overlays:", overlays.length);
-
-
-  // Draw all overlays and selection borders
+  // === 1. Draw overlay images ===
   overlays.forEach((obj, i) => {
     ctx.drawImage(obj.img, obj.x, obj.y, obj.width, obj.height);
-
     if (i === selectedObjectIndex) {
       ctx.strokeStyle = "white";
       ctx.lineWidth = 1;
@@ -183,6 +179,30 @@ function drawCanvas() {
       drawResizeHandles(obj);
     }
   });
+
+  // === 2. Draw safe zone (ALWAYS LAST) ===
+  if (!isBannerMode) {
+    const radius = 200;
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+
+    // Outer white stroke
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
+    // Inner transparent fill
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.fillStyle = "rgba(255, 255, 255, 0.07)";
+    ctx.fill();
+  }
+
+  ctx.restore(); // Restore after zoom transform
+}
+
 
   
   // === Draw circular safe zone for PFP mode (Twitter/X) ===
@@ -405,18 +425,18 @@ function drawCanvas() {
   });
 
   // === Draw circular safe zone for PFP mode (Twitter/X) ===
-  if (!isBannerMode) {
-    const circleDiameter = 400;                    // Fixed circle size
-    const centerX = canvas.width / 2;              // Center X
-    const centerY = canvas.height / 2;             // Center Y
-    const radius = circleDiameter / 2;             // Radius = 200
+ // if (!isBannerMode) {
+   // const circleDiameter = 400;                    // Fixed circle size
+   // const centerX = canvas.width / 2;              // Center X
+   // const centerY = canvas.height / 2;             // Center Y
+   // const radius = circleDiameter / 2;             // Radius = 200
 
     // Outer stroke
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
-    ctx.lineWidth = 4;
-    ctx.stroke();
+   // ctx.beginPath();
+   // ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+   // ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+   // ctx.lineWidth = 4;
+   // ctx.stroke();
 
     // Inner transparent fill
     ctx.beginPath();
