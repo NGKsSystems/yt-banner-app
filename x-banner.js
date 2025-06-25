@@ -160,58 +160,44 @@ function updateThumbnailBar() {
   thumbnails.forEach((thumb) => bar.appendChild(thumb));
 }
 
-  // === 1. Draw overlay images ===
+// === Canvas Draw Loop ===
+function drawCanvas() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the entire canvas
+  ctx.save(); // Start zoom transform   ------------------------------------------------------------------------added   Test
+  ctx.scale(zoomLevel, zoomLevel); // ---------------------------------------------------------------------------------------------------added test
+
+  // Draw each image overlay
   overlays.forEach((obj, i) => {
-    ctx.drawImage(obj.img, obj.x, obj.y, obj.width, obj.height);
+    ctx.drawImage(obj.img, obj.x, obj.y, obj.width, obj.height); // Draw image
+
+    // Highlight selected overlay
     if (i === selectedObjectIndex) {
-      ctx.strokeStyle = "white";
+      ctx.strokeStyle = "white";                 // Selection border color
       ctx.lineWidth = 1;
-      ctx.strokeRect(obj.x, obj.y, obj.width, obj.height);
-      drawResizeHandles(obj);
+      ctx.strokeRect(obj.x, obj.y, obj.width, obj.height); // Draw selection border
+      drawResizeHandles(obj);                   // Draw resize handles
     }
   });
 
-  // === 2. Draw safe zone (ALWAYS LAST) ===
-  if (!isBannerMode) {
-    const radius = 200;
-    const centerX = canvas.width / 2;
+  // === Draw circular safe zone for PFP mode (Twitter/X) ===
+   if (!isBannerMode) {
+    const circleDiameter = 400;                 // Fixed circle size
+    const centerX = canvas.width / 2;           // Center of canvas
     const centerY = canvas.height / 2;
+    const radius = circleDiameter / 2;          // Radius = 200
 
-    // Outer white stroke
-    ctx.beginPath();
+    ctx.beginPath();                             // Outer circle stroke
     ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
     ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
     ctx.lineWidth = 4;
     ctx.stroke();
 
-    // Inner transparent fill
-    ctx.beginPath();
+    ctx.beginPath();                             // Inner transparent fill
     ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
     ctx.fillStyle = "rgba(255, 255, 255, 0.07)";
     ctx.fill();
   }
-
-  ctx.restore(); // Restore after zoom transform
-//}
-  
-  // === Draw circular safe zone for PFP mode (Twitter/X) ===
-   //if (!isBannerMode) {
-   // const circleDiameter = 400;                 // Fixed circle size
-  //  const centerX = canvas.width / 2;           // Center of canvas
-   // const centerY = canvas.height / 2;
-  //  const radius = circleDiameter / 2;          // Radius = 200
-
-  //  ctx.beginPath();                             // Outer circle stroke
-  //  ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-  //  ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
-  //  ctx.lineWidth = 4;
-  //  ctx.stroke();
-
-  //  ctx.beginPath();                             // Inner transparent fill
- //   ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
- //   ctx.fillStyle = "rgba(255, 255, 255, 0.07)";
-//    ctx.fill();
-//  }
+} // ✅ close drawCanvas() properly
 
 // === Draw 8 Resize Handles ===
 function drawResizeHandles(obj) {
@@ -244,15 +230,13 @@ document.addEventListener("DOMContentLoaded", () => {
   canvas = document.getElementById("canvas");           // ✅ Canvas element
   ctx = canvas.getContext("2d");                        // ✅ Canvas 2D drawing context
  
-// ZOOM SLIDER //
-  
+
   zoomLevel = 1;                                    // 🔍 Current zoom factor
   const zoomSlider = document.getElementById("zoomSlider");
 
   if (zoomSlider) {
     zoomSlider.addEventListener("input", (e) => {
       zoomLevel = parseFloat(e.target.value);           // 🔄 Update zoom level
-      console.log("Zoom changed to:", zoomLevel);
       drawCanvas();                                     // 🔁 Redraw with new zoom
     });
   }
@@ -298,6 +282,7 @@ document.addEventListener("DOMContentLoaded", () => {
     y <= cy * zoomLevel + size
   );
 }
+
 
   // === Mouse Events ===
 
@@ -368,40 +353,22 @@ document.addEventListener("DOMContentLoaded", () => {
 // Canvas Draw Loop
 // =============================
 
- function drawCanvas() {
-  // Reset transform and clear canvas
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+function drawCanvas() {
+ // ctx.clearRect(0, 0, canvas.width, canvas.height);  // Clear canvas   CODED OUT FOR TEST
 
-  // Apply zoom
-  ctx.save();
-  ctx.scale(zoomLevel, zoomLevel);
-
-  // Draw all overlays
   overlays.forEach((obj, i) => {
-    ctx.save(); // Save before transform
+    ctx.save();                            // ✅ Save canvas state
+   
+    ctx.translate(obj.x + obj.width / 2, obj.y + obj.height / 2); // Center transform
+    ctx.rotate(obj.rotation);                                     // Apply rotation
+    ctx.translate(-obj.width / 2, -obj.height / 2);               // Reset to top-left
+    ctx.drawImage(obj.img, 0, 0, obj.width, obj.height);          // Draw image
+    ctx.restore();
 
-    // Apply rotation around center
-    ctx.translate(obj.x + obj.width / 2, obj.y + obj.height / 2);
-    ctx.rotate(obj.rotation || 0);
-    ctx.translate(-obj.width / 2, -obj.height / 2);
-
-    // Draw image
-    ctx.drawImage(obj.img, 0, 0, obj.width, obj.height);
-
-    // Highlight selected object
     if (i === selectedObjectIndex) {
-      ctx.strokeStyle = "white";
+      ctx.strokeStyle = "white";                                // Outline for selected object
       ctx.lineWidth = 1;
-      ctx.strokeRect(0, 0, obj.width, obj.height);
-      drawResizeHandles({ x: 0, y: 0, width: obj.width, height: obj.height });
-    }
-
-    ctx.restore(); // Restore to pre-transform
-  });
-
-  ctx.restore(); // Restore from zoom scale
-}
+      ctx.strokeRect(obj.x, obj.y, obj.width, obj.height);
 
       // === Draw resize handle ===
       const size = 14;
@@ -428,20 +395,22 @@ document.addEventListener("DOMContentLoaded", () => {
       ctx.strokeStyle = "white";
       ctx.lineWidth = 2;
       ctx.stroke();
+    }
+  });
 
   // === Draw circular safe zone for PFP mode (Twitter/X) ===
   if (!isBannerMode) {
-   const circleDiameter = 400;                    // Fixed circle size
-   const centerX = canvas.width / 2;              // Center X
-   const centerY = canvas.height / 2;             // Center Y
-   const radius = circleDiameter / 2;             // Radius = 200
+    const circleDiameter = 400;                    // Fixed circle size
+    const centerX = canvas.width / 2;              // Center X
+    const centerY = canvas.height / 2;             // Center Y
+    const radius = circleDiameter / 2;             // Radius = 200
 
-    //Outer stroke
-   ctx.beginPath();
-   ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-   ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
-   ctx.lineWidth = 4;
-   ctx.stroke();
+    // Outer stroke
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+    ctx.lineWidth = 4;
+    ctx.stroke();
 
     // Inner transparent fill
     ctx.beginPath();
@@ -449,6 +418,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ctx.fillStyle = "rgba(255, 255, 255, 0.07)";
     ctx.fill();
   }
+}
 
 
 // === Toolbar Buttons: Export, Layering, Delete ===
@@ -460,11 +430,12 @@ function setupToolbarButtons() {
   const backBtn = document.getElementById("sendBackwardBtn");
 
   if (exportBtn) exportBtn.onclick = exportBanner;
+
   if (deleteBtn) deleteBtn.onclick = () => {
-  if (selectedObjectIndex !== -1) {
-    overlays.splice(selectedObjectIndex, 1);
-    selectedObjectIndex = -1;
-    drawCanvas();
+    if (selectedObjectIndex !== -1) {
+      overlays.splice(selectedObjectIndex, 1);
+      selectedObjectIndex = -1;
+      drawCanvas();
     }
   };
 
